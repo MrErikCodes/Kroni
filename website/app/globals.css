@@ -10,32 +10,200 @@
   --color-sand-50: #FBFAF6;
   --color-sand-100: #F4F1E8;
   --color-sand-200: #E8E2D1;
+  --color-sand-300: #D9D1B8;
   --color-sand-500: #8B8472;
+  --color-sand-700: #4A463B;
   --color-sand-900: #1F1C14;
   --color-ink-800: #1A1F26;
   --color-ink-900: #0E1116;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+  --font-display: var(--font-newsreader), ui-serif, Georgia,
+    "Times New Roman", serif;
+
+  --shadow-card: 0 1px 3px rgba(31, 28, 20, 0.04);
+  --shadow-phone: 0 30px 60px -20px rgba(31, 28, 20, 0.18),
+    0 12px 24px -12px rgba(31, 28, 20, 0.12);
 }
 
 @variant dark (&:where(.dark, .dark *));
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color-scheme: dark;
+    color-scheme: light;
   }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: var(--color-sand-50);
   color: var(--color-sand-900);
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: var(--color-ink-900);
-    color: #f0ece0;
+::selection {
+  background-color: var(--color-gold-300);
+  color: var(--color-sand-900);
+}
+
+/* Display type — Newsreader serif. Tighter optical tracking. */
+.font-display {
+  font-family: var(--font-display);
+  font-feature-settings: "kern", "liga";
+  letter-spacing: -0.022em;
+}
+
+.font-display-lg {
+  font-family: var(--font-display);
+  letter-spacing: -0.03em;
+  font-feature-settings: "kern", "liga", "ss01";
+}
+
+/* Reveal-on-scroll: opt-in fade-in driven by data-visible attr. */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Native disclosure styling for FAQ accordion. */
+details.accordion {
+  border-bottom: 1px solid var(--color-sand-200);
+}
+
+details.accordion[open] summary .accordion-icon {
+  transform: rotate(45deg);
+}
+
+details.accordion summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--color-sand-900);
+  transition: color 200ms ease;
+}
+
+details.accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+details.accordion summary:hover {
+  color: var(--color-gold-700);
+}
+
+details.accordion summary:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+details.accordion .accordion-icon {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  position: relative;
+  transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+details.accordion .accordion-icon::before,
+details.accordion .accordion-icon::after {
+  content: "";
+  position: absolute;
+  background-color: var(--color-sand-700);
+}
+
+details.accordion .accordion-icon::before {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  transform: translateY(-50%);
+}
+
+details.accordion .accordion-icon::after {
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 1.5px;
+  transform: translateX(-50%);
+}
+
+details.accordion .accordion-body {
+  padding: 0 0 1.25rem 0;
+  color: var(--color-sand-500);
+  line-height: 1.65;
+  max-width: 60ch;
+}
+
+/* Hairline divider used between policy sections. */
+.hairline {
+  border-top: 1px solid var(--color-sand-200);
+}
+
+/* Focus rings for any link/button without explicit handling. */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--color-gold-500);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Phone mock — used in hero. */
+.phone-frame {
+  background: linear-gradient(180deg, #1f1c14 0%, #0e1116 100%);
+  border-radius: 44px;
+  padding: 12px;
+  box-shadow: var(--shadow-phone);
+}
+
+.phone-screen {
+  background-color: #fbfaf6;
+  border-radius: 32px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Photo placeholder pattern — soft cross-hatch on sand. */
+.photo-placeholder {
+  background-color: var(--color-sand-100);
+  background-image:
+    linear-gradient(135deg, transparent 49%, rgba(31, 28, 20, 0.045) 49%, rgba(31, 28, 20, 0.045) 51%, transparent 51%),
+    linear-gradient(45deg, transparent 49%, rgba(31, 28, 20, 0.04) 49%, rgba(31, 28, 20, 0.04) 51%, transparent 51%);
+  background-size: 28px 28px;
 }

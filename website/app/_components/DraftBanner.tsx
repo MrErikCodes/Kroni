@@ -1,10 +1,17 @@
+import { CircleAlert } from "lucide-react";
+
 export default function DraftBanner() {
   return (
     <div
-      role="alert"
-      className="rounded-lg border border-gold-300 bg-gold-50 px-4 py-3 text-sm font-medium text-gold-900 dark:border-gold-700 dark:bg-gold-900/20 dark:text-gold-300"
+      role="status"
+      className="inline-flex items-center gap-2 rounded-full border border-gold-300 bg-gold-50 px-3.5 py-1.5 text-[12px] font-medium tracking-tight text-gold-900"
     >
-      [REVIEW BY LAWYER — DRAFT ONLY]
+      <CircleAlert
+        aria-hidden="true"
+        strokeWidth={1.75}
+        className="h-3.5 w-3.5"
+      />
+      Utkast — under juridisk gjennomgang
     </div>
   );
 }
