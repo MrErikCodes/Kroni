@@ -29,7 +29,7 @@ export default function ParentSignIn() {
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [twoFactorStrategy, setTwoFactorStrategy] = useState<
-    'totp' | 'phone_code'
+    'totp' | 'phone_code' | 'backup_code'
   >('totp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -60,8 +60,13 @@ export default function ParentSignIn() {
       }
       if (result.status === 'needs_second_factor') {
         const supported = result.supportedSecondFactors ?? [];
+        console.log(
+          '[sign-in] supportedSecondFactors',
+          supported.map((f) => f.strategy),
+        );
         const totp = supported.find((f) => f.strategy === 'totp');
         const phone = supported.find((f) => f.strategy === 'phone_code');
+        const backup = supported.find((f) => f.strategy === 'backup_code');
         if (totp) {
           setTwoFactorStrategy('totp');
           setStep('twoFactor');
@@ -72,8 +77,12 @@ export default function ParentSignIn() {
             phoneNumberId: phone.phoneNumberId,
           });
           setStep('twoFactor');
+        } else if (backup) {
+          setTwoFactorStrategy('backup_code');
+          setStep('twoFactor');
         } else {
-          setError('To-faktor-metoden støttes ikke i appen ennå.');
+          const names = supported.map((f) => f.strategy).join(', ') || 'ingen';
+          setError(`Ingen støttet to-faktor-metode (${names}).`);
         }
         return;
       }
@@ -213,7 +222,9 @@ export default function ParentSignIn() {
                 <KroniText variant="body" tone="secondary">
                   {twoFactorStrategy === 'totp'
                     ? 'Skriv inn 6-sifret kode fra autentiseringsappen din.'
-                    : 'Vi sendte en kode til telefonen din. Skriv den inn under.'}
+                    : twoFactorStrategy === 'phone_code'
+                      ? 'Vi sendte en kode til telefonen din. Skriv den inn under.'
+                      : 'Skriv inn en av reservekodene dine.'}
                 </KroniText>
                 <View style={styles.field}>
                   <KroniText variant="caption" tone="tertiary" style={styles.label}>
