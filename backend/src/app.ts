@@ -20,7 +20,14 @@ import { parentMeRoutes } from './routes/parent/me.js';
 import { parentKidsRoutes } from './routes/parent/kids.js';
 import { parentTasksRoutes } from './routes/parent/tasks.js';
 import { parentRewardsRoutes } from './routes/parent/rewards.js';
+import { parentApprovalsRoutes } from './routes/parent/approvals.js';
+import { parentBalanceRoutes } from './routes/parent/balance.js';
 import { clerkWebhookRoutes } from './routes/webhooks/clerk.js';
+import { kidMeRoutes } from './routes/kid/me.js';
+import { kidTodayRoutes } from './routes/kid/today.js';
+import { kidTasksRoutes } from './routes/kid/tasks.js';
+import { kidBalanceRoutes } from './routes/kid/balance.js';
+import { kidDeviceRoutes } from './routes/kid/device.js';
 
 export interface BuildOptions {
   fastifyOpts?: FastifyServerOptions;
@@ -66,6 +73,14 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(parentKidsRoutes);
   await app.register(parentTasksRoutes);
   await app.register(parentRewardsRoutes);
+  await app.register(parentApprovalsRoutes);
+  await app.register(parentBalanceRoutes);
+
+  await app.register(kidMeRoutes);
+  await app.register(kidTodayRoutes);
+  await app.register(kidTasksRoutes);
+  await app.register(kidBalanceRoutes);
+  await app.register(kidDeviceRoutes);
 
   return app;
 }
