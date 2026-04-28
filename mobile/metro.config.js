@@ -10,11 +10,12 @@ config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
-  // NativeWind's runtime is nested under nativewind/ because of the workspace's
-  // tailwind v3 (mobile/nativewind) vs v4 (website) split. Surface it so Metro
-  // can resolve "react-native-css-interop/jsx-runtime" from any module.
-  path.resolve(workspaceRoot, 'node_modules/nativewind/node_modules'),
 ];
-config.resolver.disableHierarchicalLookup = true;
+// Keep hierarchical lookup ON so Metro walks into nested node_modules dirs
+// (e.g. react-native/node_modules/@react-native/virtualized-lists,
+// nativewind/node_modules/react-native-css-interop). Workspace-with-overrides
+// puts several deps at non-root paths and the hierarchical walk is the only
+// resolution that finds them all without per-package metro hacks.
+config.resolver.disableHierarchicalLookup = false;
 
 module.exports = withNativeWind(config, { input: './global.css' });
