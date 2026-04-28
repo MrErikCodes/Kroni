@@ -21,5 +21,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.2.4",
+    "@tailwindcss/postcss": "^4.2.4"
   }
 }
