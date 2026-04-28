@@ -15,6 +15,7 @@ import {
   RewardRedemptionSchema,
   BalanceSummarySchema,
   BalanceEntrySchema,
+  BalanceAdjustSchema,
   ParentSchema,
   UpdateParentSchema,
   GeneratePairingCodeResponseSchema,
@@ -214,6 +215,30 @@ export function clientFor(getToken: GetToken) {
 
     async deleteKid(id: string): Promise<void> {
       await request(`/api/parent/kids/${id}`, { method: 'DELETE' });
+    },
+
+    // ── Kid balance & history ───────────────────────────────────────────────
+    async getKidBalance(id: string): Promise<z.infer<typeof BalanceSummarySchema>> {
+      const json = await request(`/api/parent/kids/${id}/balance`);
+      return BalanceSummarySchema.parse(json);
+    },
+
+    async getKidHistory(id: string, limit?: number): Promise<z.infer<typeof BalanceEntrySchema>[]> {
+      const qs = limit !== undefined ? `?limit=${encodeURIComponent(limit)}` : '';
+      const json = await request(`/api/parent/kids/${id}/history${qs}`);
+      return z.array(BalanceEntrySchema).parse(json);
+    },
+
+    async adjustKidBalance(
+      input: z.infer<typeof BalanceAdjustSchema>,
+    ): Promise<{ entryId: string; newBalanceCents: number }> {
+      const json = await request('/api/parent/balance/adjust', {
+        method: 'POST',
+        body: JSON.stringify(input),
+      });
+      return z
+        .object({ entryId: z.string().uuid(), newBalanceCents: z.number().int() })
+        .parse(json);
     },
 
     // ── Pairing ─────────────────────────────────────────────────────────────

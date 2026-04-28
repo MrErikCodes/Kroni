@@ -1,12 +1,20 @@
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { and, eq } from 'drizzle-orm';
-import { BalanceAdjustSchema } from '@kroni/shared';
+import { and, desc, eq } from 'drizzle-orm';
+import {
+  BalanceAdjustSchema,
+  BalanceEntrySchema,
+  BalanceSummarySchema,
+} from '@kroni/shared';
 import { getDb } from '../../db/index.js';
 import { kids } from '../../db/schema/kids.js';
-import { kidBalances } from '../../db/schema/balance.js';
-import { addBalanceEntry, recomputeBalance } from '../../services/balance.service.js';
+import { balanceEntries, kidBalances } from '../../db/schema/balance.js';
+import {
+  addBalanceEntry,
+  getBalanceSummary,
+  recomputeBalance,
+} from '../../services/balance.service.js';
 import { BadRequestError, NotFoundError, UnauthorizedError, ConflictError } from '../../lib/errors.js';
 
 const Params = z.object({ id: z.string().uuid() });
@@ -82,6 +90,67 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
         recomputedBalanceCents: recomputed,
         matches: materialized === recomputed,
       };
+    },
+  );
+
+  const HistoryQuery = z.object({
+    limit: z.coerce.number().int().min(1).max(200).default(50),
+  });
+
+  r.get(
+    '/api/parent/kids/:id/balance',
+    {
+      preHandler: app.requireParent,
+      schema: { params: Params, response: { 200: BalanceSummarySchema } },
+    },
+    async (req) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      const ownership = await getDb()
+        .select({ id: kids.id })
+        .from(kids)
+        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .limit(1);
+      if (ownership.length === 0) throw new NotFoundError('kid not found');
+      return (await getBalanceSummary(req.params.id)) as never;
+    },
+  );
+
+  r.get(
+    '/api/parent/kids/:id/history',
+    {
+      preHandler: app.requireParent,
+      schema: {
+        params: Params,
+        querystring: HistoryQuery,
+        response: { 200: z.array(BalanceEntrySchema) },
+      },
+    },
+    async (req) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      const ownership = await getDb()
+        .select({ id: kids.id })
+        .from(kids)
+        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .limit(1);
+      if (ownership.length === 0) throw new NotFoundError('kid not found');
+      const rows = await getDb()
+        .select()
+        .from(balanceEntries)
+        .where(eq(balanceEntries.kidId, req.params.id))
+        .orderBy(desc(balanceEntries.createdAt))
+        .limit(req.query.limit);
+      return rows.map((row) => ({
+        id: row.id,
+        kidId: row.kidId,
+        amountCents: row.amountCents,
+        reason: row.reason,
+        referenceId: row.referenceId,
+        note: row.note,
+        createdBy: row.createdBy,
+        createdAt: row.createdAt.toISOString(),
+      })) as never;
     },
   );
 

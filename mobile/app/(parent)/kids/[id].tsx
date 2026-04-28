@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -7,22 +7,77 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, Trash2, Key } from 'lucide-react-native';
-import { useTheme } from '../../../lib/theme';
+import { ArrowLeft, Trash2 } from 'lucide-react-native';
+import type { BalanceEntry } from '@kroni/shared';
+import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { ApiError } from '../../../lib/api';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Spinner } from '../../../components/ui/Spinner';
+import { BalanceText } from '../../../components/ui/BalanceText';
+import { KroniText } from '../../../components/ui/Text';
+import { Modal } from '../../../components/ui/Modal';
+import { Input } from '../../../components/ui/Input';
+import { Label } from '../../../components/ui/Label';
 
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(ore / 100);
+const formatNok = (ore: number): string =>
+  new Intl.NumberFormat('nb-NO', {
+    style: 'currency',
+    currency: 'NOK',
+    maximumFractionDigits: 0,
+  }).format(ore / 100);
+
+const formatSignedNok = (ore: number): string =>
+  new Intl.NumberFormat('nb-NO', {
+    style: 'currency',
+    currency: 'NOK',
+    maximumFractionDigits: 0,
+    signDisplay: 'always',
+  }).format(ore / 100);
+
+function formatRelativeDate(iso: string): string {
+  const now = new Date();
+  const date = new Date(iso);
+  const diffDays = Math.floor(
+    (now.setHours(0, 0, 0, 0) - date.setHours(0, 0, 0, 0)) / 86400000,
+  );
+  if (diffDays === 0) return t('parent.kidDetail.today');
+  if (diffDays === 1) return t('parent.kidDetail.yesterday');
+  return t('parent.kidDetail.daysAgo', { count: diffDays });
+}
+
+const REASON_ICONS: Record<string, string> = {
+  task: '✅',
+  allowance: '💰',
+  redemption: '🎁',
+  adjustment: '✏️',
+  gift: '🎉',
+  reversal: '↩️',
+};
+
+type AdjustReason = 'adjustment' | 'gift' | 'reversal';
+const ADJUST_REASONS: AdjustReason[] = ['adjustment', 'gift', 'reversal'];
+
+// Convert a kroner string from the input field (e.g. "-50", "100") to øre.
+// Returns null when the input is empty / not parseable. Negatives allowed.
+function krToOre(input: string): number | null {
+  const trimmed = input.trim().replace(/\s/g, '').replace(',', '.');
+  if (trimmed === '' || trimmed === '-' || trimmed === '+') return null;
+  if (!/^-?\d+(?:\.\d+)?$/.test(trimmed)) return null;
+  const kr = Number(trimmed);
+  if (!Number.isFinite(kr)) return null;
+  return Math.round(kr * 100);
+}
 
 export default function KidDetail() {
   const theme = useTheme();
@@ -33,9 +88,24 @@ export default function KidDetail() {
   const s = theme.surface;
   const tx = theme.text;
 
-  const { data: kid, isLoading, isError } = useQuery({
+  const [adjustOpen, setAdjustOpen] = useState(false);
+  const [allowanceOpen, setAllowanceOpen] = useState(false);
+
+  const { data: kid, isLoading: kidLoading, isError } = useQuery({
     queryKey: ['parent', 'kids', id],
     queryFn: () => api.getKid(id),
+    enabled: !!id,
+  });
+
+  const { data: balance, isLoading: balanceLoading } = useQuery({
+    queryKey: ['parent', 'kids', id, 'balance'],
+    queryFn: () => api.getKidBalance(id),
+    enabled: !!id,
+  });
+
+  const { data: history, isLoading: historyLoading } = useQuery({
+    queryKey: ['parent', 'kids', id, 'history'],
+    queryFn: () => api.getKidHistory(id, 50),
     enabled: !!id,
   });
 
@@ -69,6 +139,8 @@ export default function KidDetail() {
     router.push('/(parent)/pairing-code');
   }, [router]);
 
+  const isLoading = kidLoading || balanceLoading;
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       {/* Header */}
@@ -96,7 +168,7 @@ export default function KidDetail() {
 
       {isLoading ? (
         <View style={styles.center}>
-          <Spinner />
+          <Spinner size={36} />
         </View>
       ) : isError || !kid ? (
         <View style={styles.center}>
@@ -104,42 +176,497 @@ export default function KidDetail() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.content}>
-          {/* Profile */}
+          {/* Profile band */}
           <View style={styles.profile}>
             <Avatar avatarKey={kid.avatarKey ?? 'bear'} size={80} />
-            <Text style={[styles.name, { color: tx.primary }]}>{kid.name}</Text>
+            <KroniText variant="display" tone="primary" style={styles.name}>
+              {kid.name}
+            </KroniText>
             {kid.birthYear ? (
-              <Text style={[styles.sub, { color: tx.secondary }]}>
-                {/* [REVIEW] */}
-                Født {kid.birthYear}
-              </Text>
+              <KroniText variant="small" tone="secondary">
+                {t('parent.kidDetail.bornIn', { year: kid.birthYear })}
+              </KroniText>
             ) : null}
           </View>
 
-          {/* Stats */}
-          <Card style={styles.statsCard}>
-            <View style={styles.statRow}>
-              <Text style={[styles.statLabel, { color: tx.secondary }]}>
-                {t('parent.kidDetail.weeklyAllowance')}
-              </Text>
-              <Text style={[styles.statValue, { color: tx.primary }]}>
-                {kid.weeklyAllowanceCents > 0
-                  ? formatNok(kid.weeklyAllowanceCents) + ' / uke'
-                  : '—'}
-              </Text>
+          {/* Saldo card */}
+          <Card style={styles.bigCard}>
+            <KroniText variant="eyebrow" tone="tertiary">
+              {t('parent.kidDetail.balance')}
+            </KroniText>
+            <BalanceText
+              amountOre={balance?.balanceCents ?? 0}
+              large
+              accessibilityLabel={`Saldo: ${formatNok(balance?.balanceCents ?? 0)}`}
+            />
+            <View style={styles.cardCta}>
+              <Button
+                label={t('parent.kidDetail.adjustBalance')}
+                onPress={() => setAdjustOpen(true)}
+                variant="secondary"
+                size="sm"
+              />
             </View>
           </Card>
 
-          {/* Actions */}
+          {/* Ukepenger card */}
+          <Card style={styles.rowCard}>
+            <View style={styles.rowCardInfo}>
+              <KroniText variant="eyebrow" tone="tertiary">
+                {t('parent.kidDetail.weeklyAllowance')}
+              </KroniText>
+              <Text style={[styles.allowanceValue, { color: tx.primary }]}>
+                {kid.weeklyAllowanceCents > 0
+                  ? t('parent.kidDetail.perWeek', {
+                      amount: formatNok(kid.weeklyAllowanceCents),
+                    })
+                  : t('parent.kidDetail.allowanceOff')}
+              </Text>
+            </View>
+            <Button
+              label={t('parent.kidDetail.edit')}
+              onPress={() => setAllowanceOpen(true)}
+              variant="secondary"
+              size="sm"
+            />
+          </Card>
+
+          {/* Historikk */}
+          <View style={styles.historySection}>
+            <KroniText variant="eyebrow" tone="tertiary">
+              {t('parent.kidDetail.history')}
+            </KroniText>
+            {historyLoading ? (
+              <View style={styles.historyLoading}>
+                <Spinner size={20} />
+              </View>
+            ) : (history ?? []).length === 0 ? (
+              <Card style={styles.historyEmpty}>
+                <KroniText variant="h2" tone="primary" style={styles.historyEmptyTitle}>
+                  {t('parent.kidDetail.emptyHistoryTitle')}
+                </KroniText>
+                <KroniText variant="body" tone="secondary" style={styles.historyEmptyBody}>
+                  {t('parent.kidDetail.emptyHistoryBody', { name: kid.name })}
+                </KroniText>
+              </Card>
+            ) : (
+              <Card style={styles.historyCard}>
+                {(history ?? []).map((entry, idx) => (
+                  <HistoryRow
+                    key={entry.id}
+                    entry={entry}
+                    isLast={idx === (history ?? []).length - 1}
+                  />
+                ))}
+              </Card>
+            )}
+          </View>
+
+          {/* TODO co-parent: place "Inviter forelder" button here once
+              parents↔household relation, invite tokens, and the accept flow
+              ship. Out of scope for this pass. */}
+
+          {/* Generer paringskode */}
           <Button
-            label={/* [REVIEW] */ 'Generer paringskode'}
+            label={t('parent.kidDetail.generatePairingCode')}
             onPress={handlePairingCode}
             variant="secondary"
             size="sm"
           />
         </ScrollView>
       )}
+
+      {kid ? (
+        <>
+          <AdjustBalanceModal
+            visible={adjustOpen}
+            onClose={() => setAdjustOpen(false)}
+            kidId={kid.id}
+            currentBalanceCents={balance?.balanceCents ?? 0}
+            onSaved={(newBalanceCents) => {
+              queryClient.setQueryData(
+                ['parent', 'kids', id, 'balance'],
+                (prev: { balanceCents: number; weekEarnedCents: number; weekSpentCents: number } | undefined) =>
+                  prev
+                    ? { ...prev, balanceCents: newBalanceCents }
+                    : { balanceCents: newBalanceCents, weekEarnedCents: 0, weekSpentCents: 0 },
+              );
+              void queryClient.invalidateQueries({ queryKey: ['parent', 'kids', id, 'balance'] });
+              void queryClient.invalidateQueries({ queryKey: ['parent', 'kids', id, 'history'] });
+            }}
+          />
+          <AllowanceModal
+            visible={allowanceOpen}
+            onClose={() => setAllowanceOpen(false)}
+            kidId={kid.id}
+            currentWeeklyAllowanceCents={kid.weeklyAllowanceCents}
+            onSaved={() => {
+              void queryClient.invalidateQueries({ queryKey: ['parent', 'kids', id] });
+              void queryClient.invalidateQueries({ queryKey: ['parent', 'kids'] });
+            }}
+          />
+        </>
+      ) : null}
     </SafeAreaView>
+  );
+}
+
+// ── History row ──────────────────────────────────────────────────────────────
+
+function HistoryRow({ entry, isLast }: { entry: BalanceEntry; isLast: boolean }) {
+  const theme = useTheme();
+  const tx = theme.text;
+  const isPositive = entry.amountCents >= 0;
+  return (
+    <View
+      style={[
+        styles.historyRow,
+        !isLast && {
+          borderBottomColor: theme.surface.border,
+          borderBottomWidth: 1,
+        },
+      ]}
+    >
+      <View style={[styles.historyIcon, { backgroundColor: theme.colors.gold[50] }]}>
+        <Text style={styles.historyEmoji}>{REASON_ICONS[entry.reason] ?? '💸'}</Text>
+      </View>
+      <View style={styles.historyInfo}>
+        <Text style={[styles.historyReason, { color: tx.primary }]}>
+          {t(`kid.balanceScreen.reasons.${entry.reason}`) || entry.reason}
+        </Text>
+        <Text style={[styles.historyDate, { color: tx.secondary }]}>
+          {formatRelativeDate(entry.createdAt)}
+        </Text>
+        {entry.note ? (
+          <Text style={[styles.historyNote, { color: tx.secondary }]} numberOfLines={2}>
+            {entry.note}
+          </Text>
+        ) : null}
+      </View>
+      <Text
+        style={[
+          styles.historyAmount,
+          {
+            color: isPositive
+              ? theme.colors.semantic.success
+              : theme.colors.semantic.danger,
+          },
+        ]}
+      >
+        {formatSignedNok(entry.amountCents)}
+      </Text>
+    </View>
+  );
+}
+
+// ── Adjust balance modal ─────────────────────────────────────────────────────
+
+interface AdjustBalanceModalProps {
+  visible: boolean;
+  onClose: () => void;
+  kidId: string;
+  currentBalanceCents: number;
+  onSaved: (newBalanceCents: number) => void;
+}
+
+function AdjustBalanceModal({
+  visible,
+  onClose,
+  kidId,
+  currentBalanceCents,
+  onSaved,
+}: AdjustBalanceModalProps) {
+  const theme = useTheme();
+  const tx = theme.text;
+  const api = useParentApi();
+  const [amount, setAmount] = useState('');
+  const [reason, setReason] = useState<AdjustReason>('adjustment');
+  const [note, setNote] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const reset = useCallback(() => {
+    setAmount('');
+    setReason('adjustment');
+    setNote('');
+    setError(null);
+  }, []);
+
+  const handleClose = useCallback(() => {
+    reset();
+    onClose();
+  }, [onClose, reset]);
+
+  const mutation = useMutation({
+    mutationFn: (input: { amountCents: number; reason: AdjustReason; note?: string }) =>
+      api.adjustKidBalance({
+        kidId,
+        amountCents: input.amountCents,
+        reason: input.reason,
+        note: input.note,
+      }),
+    onSuccess: (result) => {
+      onSaved(result.newBalanceCents);
+      reset();
+      onClose();
+    },
+    onError: (err: unknown) => {
+      if (err instanceof ApiError && err.status === 409) {
+        setError(t('parent.kidDetail.adjustModal.errorInsufficient'));
+        return;
+      }
+      if (err instanceof ApiError && err.problem.detail) {
+        setError(err.problem.detail);
+        return;
+      }
+      setError(t('parent.kidDetail.adjustModal.errorGeneric'));
+    },
+  });
+
+  const handleSubmit = useCallback(() => {
+    setError(null);
+    const ore = krToOre(amount);
+    if (ore === null) {
+      setError(t('parent.kidDetail.adjustModal.errorAmountInvalid'));
+      return;
+    }
+    if (ore === 0) {
+      setError(t('parent.kidDetail.adjustModal.errorAmountZero'));
+      return;
+    }
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    mutation.mutate({
+      amountCents: ore,
+      reason,
+      note: note.trim() === '' ? undefined : note.trim(),
+    });
+  }, [amount, mutation, note, reason]);
+
+  const previewOre = krToOre(amount);
+  const previewNew = previewOre !== null ? currentBalanceCents + previewOre : null;
+
+  return (
+    <Modal visible={visible} onClose={handleClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalContent}>
+          <KroniText variant="display" tone="primary" style={styles.modalTitle}>
+            {t('parent.kidDetail.adjustModal.title')}
+          </KroniText>
+
+          <View style={styles.modalField}>
+            <Label>{t('parent.kidDetail.adjustModal.amountLabel')}</Label>
+            <Input
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numbers-and-punctuation"
+              placeholder="0"
+              autoFocus
+            />
+            <KroniText variant="caption" tone="secondary" style={styles.helpText}>
+              {t('parent.kidDetail.adjustModal.amountHelp')}
+            </KroniText>
+            {previewNew !== null ? (
+              <KroniText variant="small" tone="tertiary" style={styles.helpText}>
+                {`${formatNok(currentBalanceCents)} → ${formatNok(previewNew)}`}
+              </KroniText>
+            ) : null}
+          </View>
+
+          <View style={styles.modalField}>
+            <Label>{t('parent.kidDetail.adjustModal.reasonLabel')}</Label>
+            <View style={styles.reasonRow}>
+              {ADJUST_REASONS.map((r) => {
+                const selected = reason === r;
+                return (
+                  <TouchableOpacity
+                    key={r}
+                    onPress={() => setReason(r)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    style={[
+                      styles.reasonChip,
+                      {
+                        borderColor: selected
+                          ? theme.colors.gold[500]
+                          : theme.surface.border,
+                        backgroundColor: selected
+                          ? theme.colors.gold[50]
+                          : theme.surface.card,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.reasonChipText,
+                        { color: selected ? theme.colors.gold[700] : tx.primary },
+                      ]}
+                    >
+                      {t(`parent.kidDetail.adjustModal.reasons.${r}`)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.modalField}>
+            <Label>{t('parent.kidDetail.adjustModal.noteLabel')}</Label>
+            <Input
+              value={note}
+              onChangeText={(value) => {
+                if (value.length <= 500) setNote(value);
+              }}
+              placeholder={t('parent.kidDetail.adjustModal.notePlaceholder')}
+              multiline
+              numberOfLines={3}
+              maxLength={500}
+              style={styles.noteInput}
+            />
+          </View>
+
+          {error ? (
+            <KroniText variant="small" tone="danger" style={styles.errorText}>
+              {error}
+            </KroniText>
+          ) : null}
+
+          <View style={styles.modalActions}>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={t('parent.kidDetail.adjustModal.cancel')}
+                onPress={handleClose}
+                variant="ghost"
+                size="sm"
+              />
+            </View>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={t('parent.kidDetail.adjustModal.save')}
+                onPress={handleSubmit}
+                variant="primary"
+                size="sm"
+                loading={mutation.isPending}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+// ── Allowance modal ──────────────────────────────────────────────────────────
+
+interface AllowanceModalProps {
+  visible: boolean;
+  onClose: () => void;
+  kidId: string;
+  currentWeeklyAllowanceCents: number;
+  onSaved: () => void;
+}
+
+function AllowanceModal({
+  visible,
+  onClose,
+  kidId,
+  currentWeeklyAllowanceCents,
+  onSaved,
+}: AllowanceModalProps) {
+  const api = useParentApi();
+  const [amount, setAmount] = useState(String(Math.round(currentWeeklyAllowanceCents / 100)));
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClose = useCallback(() => {
+    setAmount(String(Math.round(currentWeeklyAllowanceCents / 100)));
+    setError(null);
+    onClose();
+  }, [currentWeeklyAllowanceCents, onClose]);
+
+  const mutation = useMutation({
+    mutationFn: (weeklyAllowanceCents: number) =>
+      api.updateKid(kidId, { weeklyAllowanceCents }),
+    onSuccess: () => {
+      onSaved();
+      setError(null);
+      onClose();
+    },
+    onError: (err: unknown) => {
+      if (err instanceof ApiError && err.problem.detail) {
+        setError(err.problem.detail);
+        return;
+      }
+      setError(t('parent.kidDetail.allowanceModal.errorGeneric'));
+    },
+  });
+
+  const handleSubmit = useCallback(() => {
+    setError(null);
+    const ore = krToOre(amount);
+    if (ore === null || ore < 0) {
+      setError(t('parent.kidDetail.allowanceModal.errorInvalid'));
+      return;
+    }
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    mutation.mutate(ore);
+  }, [amount, mutation]);
+
+  // Refresh local value when the kid's persisted value changes between opens.
+  useMemo(() => {
+    if (visible) {
+      setAmount(String(Math.round(currentWeeklyAllowanceCents / 100)));
+      setError(null);
+    }
+  }, [visible, currentWeeklyAllowanceCents]);
+
+  return (
+    <Modal visible={visible} onClose={handleClose}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.modalContent}>
+          <KroniText variant="display" tone="primary" style={styles.modalTitle}>
+            {t('parent.kidDetail.allowanceModal.title')}
+          </KroniText>
+
+          <View style={styles.modalField}>
+            <Label>{t('parent.kidDetail.allowanceModal.amountLabel')}</Label>
+            <Input
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="number-pad"
+              placeholder="0"
+              autoFocus
+            />
+            <KroniText variant="caption" tone="secondary" style={styles.helpText}>
+              {t('parent.kidDetail.allowanceModal.amountHelp')}
+            </KroniText>
+          </View>
+
+          {error ? (
+            <KroniText variant="small" tone="danger" style={styles.errorText}>
+              {error}
+            </KroniText>
+          ) : null}
+
+          <View style={styles.modalActions}>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={t('parent.kidDetail.allowanceModal.cancel')}
+                onPress={handleClose}
+                variant="ghost"
+                size="sm"
+              />
+            </View>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={t('parent.kidDetail.allowanceModal.save')}
+                onPress={handleSubmit}
+                variant="primary"
+                size="sm"
+                loading={mutation.isPending}
+              />
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
@@ -153,18 +680,86 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600' },
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
+    fontSize: 17,
+    fontFamily: fonts.uiBold,
+  },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 24, gap: 20, alignItems: 'stretch' },
   profile: { alignItems: 'center', gap: 8 },
-  name: { fontSize: 28, fontWeight: '700' },
-  sub: { fontSize: 15 },
-  statsCard: { padding: 16 },
-  statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  name: { textAlign: 'center' },
+  bigCard: {
+    padding: 20,
+    gap: 8,
+    alignItems: 'flex-start',
   },
-  statLabel: { fontSize: 14 },
-  statValue: { fontSize: 15, fontWeight: '600' },
+  cardCta: { marginTop: 12, alignSelf: 'flex-start' },
+  rowCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 16,
+    gap: 12,
+  },
+  rowCardInfo: { flex: 1, gap: 4 },
+  allowanceValue: {
+    fontSize: 18,
+    fontFamily: fonts.uiBold,
+    letterSpacing: -0.2,
+  },
+  historySection: { gap: 12 },
+  historyLoading: { paddingVertical: 24, alignItems: 'center' },
+  historyCard: { paddingVertical: 4 },
+  historyEmpty: { padding: 24, gap: 6, alignItems: 'flex-start' },
+  historyEmptyTitle: { marginTop: 4 },
+  historyEmptyBody: {},
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    gap: 12,
+  },
+  historyIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  historyEmoji: { fontSize: 20 },
+  historyInfo: { flex: 1, gap: 2 },
+  historyReason: { fontSize: 15, fontFamily: fonts.uiBold },
+  historyDate: { fontSize: 13 },
+  historyNote: { fontSize: 12 },
+  historyAmount: { fontSize: 16, fontFamily: fonts.uiBold },
+  // Modal
+  modalContent: { gap: 16 },
+  modalTitle: { fontSize: 24, lineHeight: 28 },
+  modalField: { gap: 4 },
+  helpText: { marginTop: 4 },
+  noteInput: {
+    minHeight: 80,
+    textAlignVertical: 'top',
+    paddingTop: 12,
+  },
+  reasonRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+  reasonChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  reasonChipText: { fontSize: 14, fontFamily: fonts.uiBold },
+  errorText: { marginTop: 4 },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  modalActionBtn: { flex: 1 },
 });

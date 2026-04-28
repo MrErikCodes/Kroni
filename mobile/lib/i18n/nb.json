@@ -82,7 +82,46 @@
       "weeklyAllowance": "Ukentlig lommepenger",
       "deleteKid": "Slett barn",
       "deleteConfirm": "Er du sikker på at du vil slette %{name}? Dette kan ikke angres.",
-      "noTasks": "Ingen oppgaver tildelt ennå"
+      "noTasks": "Ingen oppgaver tildelt ennå",
+      "adjustBalance": "Endre saldo",
+      "edit": "Endre",
+      "perWeek": "%{amount} / uke",
+      "allowanceOff": "Ingen ukepenger",
+      "generatePairingCode": "Generer paringskode",
+      "bornIn": "Født %{year}",
+      "emptyHistoryTitle": "Ingen transaksjoner ennå",
+      "emptyHistoryBody": "Når %{name} fullfører oppgaver, vises de her.",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "for %{count} dager siden",
+      "adjustModal": {
+        "title": "Endre saldo",
+        "amountLabel": "Beløp (kr)",
+        "amountHelp": "Bruk minus for å trekke fra, f.eks. -50.",
+        "reasonLabel": "Årsak",
+        "noteLabel": "Notat (valgfritt)",
+        "notePlaceholder": "Kort begrunnelse...",
+        "save": "Lagre",
+        "cancel": "Avbryt",
+        "errorInsufficient": "Saldoen kan ikke bli negativ.",
+        "errorAmountZero": "Beløpet kan ikke være null.",
+        "errorAmountInvalid": "Skriv inn et gyldig beløp.",
+        "errorGeneric": "Kunne ikke lagre. Prøv igjen.",
+        "reasons": {
+          "adjustment": "Justering",
+          "gift": "Gave",
+          "reversal": "Tilbakebetaling"
+        }
+      },
+      "allowanceModal": {
+        "title": "Ukentlig ukepenger",
+        "amountLabel": "Beløp (kr)",
+        "amountHelp": "Sett til 0 for å skru av.",
+        "save": "Lagre",
+        "cancel": "Avbryt",
+        "errorInvalid": "Skriv inn et gyldig beløp.",
+        "errorGeneric": "Kunne ikke lagre. Prøv igjen."
+      }
     },
     "tasksList": {
       "title": "Oppgaver",
