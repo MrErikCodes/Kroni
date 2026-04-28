@@ -17,4 +17,13 @@ config.resolver.nodeModulesPaths = [
 // per-package metro hacks.
 config.resolver.disableHierarchicalLookup = false;
 
+// Pin react + react-dom to mobile's nested copy so the renderer bundled
+// inside react-native@0.81 (which pairs with react@19.1.0) doesn't get
+// shadowed by a higher 19.2.x copy that some sibling workspace hoisted
+// to root. Wrong pairing throws 'Incompatible React versions' at startup.
+config.resolver.extraNodeModules = {
+  react: path.resolve(projectRoot, 'node_modules/react'),
+  'react-dom': path.resolve(projectRoot, 'node_modules/react-dom'),
+};
+
 module.exports = config;
