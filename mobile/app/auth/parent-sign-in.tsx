@@ -29,7 +29,7 @@ export default function ParentSignIn() {
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [twoFactorStrategy, setTwoFactorStrategy] = useState<
-    'totp' | 'phone_code' | 'backup_code'
+    'totp' | 'phone_code' | 'backup_code' | 'email_code'
   >('totp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +66,10 @@ export default function ParentSignIn() {
         );
         const totp = supported.find((f) => f.strategy === 'totp');
         const phone = supported.find((f) => f.strategy === 'phone_code');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const emailFactor = supported.find((f: any) => f.strategy === 'email_code') as
+          | { strategy: 'email_code'; emailAddressId: string }
+          | undefined;
         const backup = supported.find((f) => f.strategy === 'backup_code');
         if (totp) {
           setTwoFactorStrategy('totp');
@@ -76,6 +80,15 @@ export default function ParentSignIn() {
             strategy: 'phone_code',
             phoneNumberId: phone.phoneNumberId,
           });
+          setStep('twoFactor');
+        } else if (emailFactor) {
+          setTwoFactorStrategy('email_code');
+          await signIn.prepareSecondFactor({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            strategy: 'email_code' as any,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            emailAddressId: emailFactor.emailAddressId,
+          } as any);
           setStep('twoFactor');
         } else if (backup) {
           setTwoFactorStrategy('backup_code');
@@ -104,7 +117,8 @@ export default function ParentSignIn() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       const result = await signIn.attemptSecondFactor({
-        strategy: twoFactorStrategy,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        strategy: twoFactorStrategy as any,
         code: twoFactorCode.trim(),
       });
       console.log('[sign-in:2fa] result.status', result.status);
@@ -224,7 +238,9 @@ export default function ParentSignIn() {
                     ? 'Skriv inn 6-sifret kode fra autentiseringsappen din.'
                     : twoFactorStrategy === 'phone_code'
                       ? 'Vi sendte en kode til telefonen din. Skriv den inn under.'
-                      : 'Skriv inn en av reservekodene dine.'}
+                      : twoFactorStrategy === 'email_code'
+                        ? 'Vi sendte en kode til e-posten din. Skriv den inn under.'
+                        : 'Skriv inn en av reservekodene dine.'}
                 </KroniText>
                 <View style={styles.field}>
                   <KroniText variant="caption" tone="tertiary" style={styles.label}>
