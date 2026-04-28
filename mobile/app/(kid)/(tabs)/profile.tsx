@@ -1,18 +1,19 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
-import { LogOut, User } from 'lucide-react-native';
+import * as Clipboard from 'expo-clipboard';
+import * as Application from 'expo-application';
+import { ClipboardCopy, LogOut, User } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { clearKidToken } from '../../../lib/auth';
@@ -21,6 +22,10 @@ import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
 import { KroniText } from '../../../components/ui/Text';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import { Modal as InAppModal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/Button';
+import { getInstallInfo } from '../../../lib/installInfo';
 import type { BalanceEntry } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
@@ -114,24 +119,41 @@ export default function KidProfileScreen() {
     queryFn: () => kidApi.getBalance(),
   });
 
-  const handleSignOut = useCallback(() => {
-    Alert.alert(
-      t('kid.profileScreen.signOut'),
-      t('kid.profileScreen.signOutConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('kid.profileScreen.signOut'),
-          style: 'destructive',
-          onPress: async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            await clearKidToken();
-            router.replace('/');
-          },
-        },
-      ],
-    );
+  const [signOutOpen, setSignOutOpen] = useState(false);
+  const handleSignOut = useCallback(() => setSignOutOpen(true), []);
+  const confirmSignOut = useCallback(async () => {
+    setSignOutOpen(false);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await clearKidToken();
+    router.replace('/');
   }, [router]);
+
+  // "Kopier app info" — same shape as the parent's, scoped to the kid
+  // identity. Pasted into a support DM so we can join from kid_id /
+  // install_id back to recent activity in `kid_installs` and the logs
+  // tagged via the auth-kid plugin.
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [diagText, setDiagText] = useState('');
+  const handleCopyAppInfo = useCallback(async () => {
+    const info = getInstallInfo();
+    const lines = [
+      `Rolle: barn`,
+      `Kroni ${info.appVersion ?? '?'}` +
+        (info.appBuild != null ? ` (${info.appBuild})` : ''),
+      `Bundle: ${Application.applicationId ?? 'unknown'}`,
+      `Plattform: ${info.platform} ${info.osVersion}`,
+      `Installasjons-ID: ${info.installId ?? 'unknown'}`,
+      `Barn-ID: ${me?.id ?? 'unknown'}`,
+      `Navn: ${me?.name ?? 'unknown'}`,
+      `Forelder-ID: ${me?.parentId ?? 'unknown'}`,
+      `Tidspunkt: ${new Date().toISOString()}`,
+    ];
+    const text = lines.join('\n');
+    await Clipboard.setStringAsync(text);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDiagText(text);
+    setDiagOpen(true);
+  }, [me]);
 
   if (isLoading) {
     return (
@@ -199,6 +221,19 @@ export default function KidProfileScreen() {
           )}
         </Card>
 
+        {/* Kopier app info — same shape as parent settings */}
+        <TouchableOpacity
+          onPress={handleCopyAppInfo}
+          style={[styles.diagBtn, { borderColor: theme.surface.border }]}
+          accessibilityRole="button"
+          accessibilityLabel={/* [REVIEW] */ 'Kopier app info'}
+        >
+          <ClipboardCopy size={18} color={tx.secondary} strokeWidth={2} />
+          <Text style={[styles.diagBtnLabel, { color: tx.secondary }]}>
+            {/* [REVIEW] */} Kopier app info
+          </Text>
+        </TouchableOpacity>
+
         {/* Sign out */}
         <TouchableOpacity
           onPress={handleSignOut}
@@ -212,6 +247,42 @@ export default function KidProfileScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <InAppModal visible={diagOpen} onClose={() => setDiagOpen(false)}>
+        <Text style={[styles.diagModalTitle, { color: tx.primary }]}>
+          {/* [REVIEW] */} Kopiert til utklippstavlen
+        </Text>
+        <ScrollView style={styles.diagScroll}>
+          <Text style={[styles.diagBody, { color: tx.secondary }]}>
+            {diagText}
+          </Text>
+        </ScrollView>
+        <View style={styles.diagActions}>
+          <Button
+            label={/* [REVIEW] */ 'Kopier igjen'}
+            variant="secondary"
+            size="sm"
+            onPress={() => {
+              void Clipboard.setStringAsync(diagText);
+            }}
+          />
+          <Button
+            label={t('common.close')}
+            size="sm"
+            onPress={() => setDiagOpen(false)}
+          />
+        </View>
+      </InAppModal>
+
+      <ConfirmDialog
+        visible={signOutOpen}
+        title={t('kid.profileScreen.signOut')}
+        message={t('kid.profileScreen.signOutConfirm')}
+        confirmLabel={t('kid.profileScreen.signOut')}
+        destructive
+        onConfirm={confirmSignOut}
+        onCancel={() => setSignOutOpen(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -247,4 +318,23 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   signOutLabel: { fontSize: 16, fontWeight: '600' },
+  diagBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    minHeight: 44,
+  },
+  diagBtnLabel: { fontSize: 14, fontWeight: '600' },
+  diagModalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
+  diagScroll: { maxHeight: 240, marginBottom: 16 },
+  diagBody: {
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: fonts.uiBold,
+  },
+  diagActions: { flexDirection: 'row', gap: 12 },
 });

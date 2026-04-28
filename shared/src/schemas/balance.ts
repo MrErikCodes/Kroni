@@ -17,6 +17,9 @@ export const BalanceEntrySchema = z.object({
   amountCents: SignedCents,
   reason: BalanceReason,
   referenceId: UUID.nullable(),
+  // Plaintext snapshot of the related task / reward title at write time;
+  // null for adjustments and rows from before this column existed.
+  referenceTitle: z.string().nullable(),
   note: z.string().max(500).nullable(),
   createdBy: UUID.nullable(),
   createdAt: IsoTimestamp,

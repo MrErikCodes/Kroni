@@ -62,6 +62,8 @@ export interface TodayTaskShape {
   icon: string | null;
   rewardCents: number;
   requiresApproval: boolean;
+  recurrence: 'daily' | 'weekly' | 'once';
+  daysOfWeek: number[] | null;
   status: TaskCompletionStatus;
   completedAt: string | null;
 }
@@ -85,6 +87,8 @@ export async function listTodayTasks(kidId: string): Promise<TodayTaskShape[]> {
       icon: tasks.icon,
       rewardCents: tasks.rewardCents,
       requiresApproval: tasks.requiresApproval,
+      recurrence: tasks.recurrence,
+      daysOfWeek: tasks.daysOfWeek,
       completion: taskCompletions,
     })
     .from(taskCompletions)
@@ -99,6 +103,8 @@ export async function listTodayTasks(kidId: string): Promise<TodayTaskShape[]> {
     icon: r.icon,
     rewardCents: r.rewardCents,
     requiresApproval: r.requiresApproval,
+    recurrence: r.recurrence as TodayTaskShape['recurrence'],
+    daysOfWeek: r.daysOfWeek,
     status: deriveStatus(r.completion),
     completedAt: r.completion.completedAt ? r.completion.completedAt.toISOString() : null,
   }));

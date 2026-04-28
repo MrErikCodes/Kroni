@@ -6,12 +6,14 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle } from 'lucide-react-native';
+import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -35,9 +37,23 @@ import { KroniText } from '../../../components/ui/Text';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { HouseholdSection } from '../../../components/household/HouseholdSection';
 import Constants from 'expo-constants';
+import * as Application from 'expo-application';
+import { Modal as InAppModal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/Button';
+import { getInstallInfo } from '../../../lib/installInfo';
 
+// Read straight from the binary (Info.plist / AndroidManifest) so the row
+// always matches the installed build, including OTA updates that don't
+// change the manifest. `Constants.expoConfig?.version` is the fallback for
+// dev (Expo Go / web), where the native binary value is unavailable.
+const nativeVersion = Application.nativeApplicationVersion;
+const nativeBuild = Application.nativeBuildVersion;
 const version: string =
-  (Constants.expoConfig?.version as string | undefined) ?? '1.0.0';
+  nativeVersion != null
+    ? nativeBuild != null
+      ? `${nativeVersion} (${nativeBuild})`
+      : nativeVersion
+    : (Constants.expoConfig?.version as string | undefined) ?? '1.0.0';
 
 function SettingsRow({
   icon,
@@ -107,6 +123,19 @@ export default function SettingsTab() {
     retry: false,
   });
 
+  // Subscription is owner-only — co-parents inherit the plan and shouldn't
+  // be shown billing controls. We reuse the cached household query the
+  // HouseholdSection already mounts (same key), so this is a cheap lookup.
+  const { data: household } = useQuery({
+    queryKey: ['parent', 'household'],
+    queryFn: () => api.getHousehold(),
+    retry: false,
+  });
+  const isOwner =
+    household != null &&
+    me != null &&
+    household.household.premiumOwnerParentId === me.id;
+
   useEffect(() => {
     if (me?.locale) setAppLocale(me.locale);
   }, [me?.locale]);
@@ -134,6 +163,36 @@ export default function SettingsTab() {
     await signOut();
     router.replace('/');
   }, [signOut, router]);
+
+  // "Kopier app info" — bundles the data support needs to triage a bug
+  // report from a single user message. We deliberately keep this local
+  // (no telemetry endpoint) so the user controls what gets shared and
+  // pastes it themselves.
+  const [diagOpen, setDiagOpen] = useState(false);
+  const [diagText, setDiagText] = useState('');
+  const handleCopyAppInfo = useCallback(async () => {
+    const info = getInstallInfo();
+    const lines = [
+      `Rolle: forelder`,
+      `Kroni ${info.appVersion ?? '?'}` +
+        (info.appBuild != null ? ` (${info.appBuild})` : ''),
+      `Bundle: ${Application.applicationId ?? 'unknown'}`,
+      `Plattform: ${info.platform} ${info.osVersion}`,
+      `Installasjons-ID: ${info.installId ?? 'unknown'}`,
+      `Forelder-ID: ${me?.id ?? 'unknown'}`,
+      `E-post: ${me?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'unknown'}`,
+      `Husholdning-ID: ${household?.household.id ?? 'unknown'}`,
+      `Eier: ${isOwner ? 'ja' : 'nei'}`,
+      `Abonnement: ${billing?.tier ?? 'unknown'}`,
+      `Språk: ${me?.locale ?? 'unknown'}`,
+      `Tidspunkt: ${new Date().toISOString()}`,
+    ];
+    const text = lines.join('\n');
+    await Clipboard.setStringAsync(text);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setDiagText(text);
+    setDiagOpen(true);
+  }, [me, household, isOwner, billing, user]);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
@@ -225,27 +284,31 @@ export default function SettingsTab() {
           {t('parent.settings.languageHelp')}
         </Text>
 
-        {/* Subscription */}
-        <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
-          {t('parent.settings.subscription')}
-        </Text>
-        <Card style={styles.section}>
-          <SettingsRow
-            icon={<Crown size={18} color={theme.colors.gold[500]} strokeWidth={2} />}
-            label={t('parent.settings.subscription')}
-            value={tierLabel[billing?.tier ?? 'free'] ?? 'Gratis'}
-          />
-          {billing?.tier === 'free' && (
-            <>
-              <View style={[styles.divider, { backgroundColor: s.border }]} />
+        {/* Subscription — only the household owner manages billing. */}
+        {isOwner ? (
+          <>
+            <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
+              {t('parent.settings.subscription')}
+            </Text>
+            <Card style={styles.section}>
               <SettingsRow
-                icon={<Text style={styles.rowEmoji}>⭐</Text>}
-                label={t('parent.settings.upgradePro')}
-                onPress={() => router.push('/(parent)/paywall')}
+                icon={<Crown size={18} color={theme.colors.gold[500]} strokeWidth={2} />}
+                label={t('parent.settings.subscription')}
+                value={tierLabel[billing?.tier ?? 'free'] ?? 'Gratis'}
               />
-            </>
-          )}
-        </Card>
+              {billing?.tier === 'free' && (
+                <>
+                  <View style={[styles.divider, { backgroundColor: s.border }]} />
+                  <SettingsRow
+                    icon={<Text style={styles.rowEmoji}>⭐</Text>}
+                    label={t('parent.settings.upgradePro')}
+                    onPress={() => router.push('/(parent)/paywall')}
+                  />
+                </>
+              )}
+            </Card>
+          </>
+        ) : null}
 
         {/* Legal */}
         <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
@@ -272,8 +335,14 @@ export default function SettingsTab() {
           />
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
-            icon={<Text style={styles.rowEmoji}>ℹ️</Text>}
+            icon={<Info size={18} color={tx.secondary} strokeWidth={2} />}
             label={t('parent.settings.version', { version })}
+          />
+          <View style={[styles.divider, { backgroundColor: s.border }]} />
+          <SettingsRow
+            icon={<ClipboardCopy size={18} color={tx.secondary} strokeWidth={2} />}
+            label={/* [REVIEW] */ 'Kopier app info'}
+            onPress={handleCopyAppInfo}
           />
         </Card>
 
@@ -297,11 +366,48 @@ export default function SettingsTab() {
         onConfirm={confirmSignOut}
         onCancel={() => setSignOutVisible(false)}
       />
+
+      {/* App-info copy confirmation. Shows the exact blob that landed on
+          the clipboard so the user can verify what they're about to paste
+          into a support DM. */}
+      <InAppModal visible={diagOpen} onClose={() => setDiagOpen(false)}>
+        <Text style={[styles.diagTitle, { color: tx.primary }]}>
+          {/* [REVIEW] */} Kopiert til utklippstavlen
+        </Text>
+        <ScrollView style={styles.diagScroll}>
+          <Text style={[styles.diagBody, { color: tx.secondary }]}>
+            {diagText}
+          </Text>
+        </ScrollView>
+        <View style={styles.diagActions}>
+          <Button
+            label={/* [REVIEW] */ 'Kopier igjen'}
+            variant="secondary"
+            size="sm"
+            onPress={() => {
+              void Clipboard.setStringAsync(diagText);
+            }}
+          />
+          <Button
+            label={t('common.close')}
+            size="sm"
+            onPress={() => setDiagOpen(false)}
+          />
+        </View>
+      </InAppModal>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  diagTitle: { fontSize: 18, fontWeight: '700', marginBottom: 12 },
+  diagScroll: { maxHeight: 240, marginBottom: 16 },
+  diagBody: {
+    fontSize: 13,
+    lineHeight: 20,
+    fontFamily: Platform.select({ ios: 'Menlo', android: 'monospace' }),
+  },
+  diagActions: { flexDirection: 'row', gap: 12 },
   container: { flex: 1 },
   header: {
     paddingHorizontal: 20,

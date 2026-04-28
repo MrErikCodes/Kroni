@@ -12,6 +12,12 @@ export interface AddEntryInput {
   amountCents: number; // signed: positive = credit, negative = debit
   reason: BalanceReason;
   referenceId?: string | null;
+  /**
+   * Plaintext snapshot of the underlying task / reward title (or "Lommepenger"
+   * for allowance) — written so the kid + parent history can show the actual
+   * thing, and so the line survives deletion of the source row.
+   */
+  referenceTitle?: string | null;
   note?: string | null;
   createdBy?: string | null;
   /** When true, refuse to write the entry if it would push balance negative. */
@@ -51,6 +57,7 @@ export async function addBalanceEntryInTx(
       amountCents: input.amountCents,
       reason: input.reason,
       referenceId: input.referenceId ?? null,
+      referenceTitle: input.referenceTitle ?? null,
       note: input.note ?? null,
       createdBy: input.createdBy ?? null,
     })

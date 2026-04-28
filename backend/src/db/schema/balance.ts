@@ -12,6 +12,10 @@ export const balanceEntries = pgTable(
     amountCents: integer().notNull(),
     reason: text().notNull(),
     referenceId: uuid(),
+    // Snapshot of the underlying task / reward title at the moment the
+    // entry was written. We keep this even if the task or reward is later
+    // deleted so the history line never collapses to a generic label.
+    referenceTitle: text(),
     note: text(),
     createdBy: uuid().references(() => parents.id),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),

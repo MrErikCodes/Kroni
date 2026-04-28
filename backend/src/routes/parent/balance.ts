@@ -148,6 +148,7 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
         amountCents: row.amountCents,
         reason: row.reason,
         referenceId: row.referenceId,
+        referenceTitle: row.referenceTitle,
         note: row.note,
         createdBy: row.createdBy,
         createdAt: row.createdAt.toISOString(),

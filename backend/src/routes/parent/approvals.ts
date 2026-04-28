@@ -5,6 +5,7 @@ import { and, eq, isNull, isNotNull, desc } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { taskCompletions, tasks } from '../../db/schema/tasks.js';
 import { kids } from '../../db/schema/kids.js';
+import { rewards, rewardRedemptions } from '../../db/schema/rewards.js';
 import { addBalanceEntryInTx } from '../../services/balance.service.js';
 import { approveRedemption, rejectRedemption } from '../../services/rewards.service.js';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../../lib/errors.js';
@@ -20,8 +21,19 @@ const PendingItem = z.object({
   rewardCents: z.number().int(),
   completedAt: z.string(),
 });
+const PendingRedemption = z.object({
+  redemptionId: z.string().uuid(),
+  rewardId: z.string().uuid(),
+  kidId: z.string().uuid(),
+  kidName: z.string(),
+  title: z.string(),
+  icon: z.string().nullable(),
+  costCents: z.number().int(),
+  requestedAt: z.string(),
+});
 const PendingResponse = z.object({
   taskCompletions: z.array(PendingItem),
+  rewardRedemptions: z.array(PendingRedemption),
 });
 
 export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void> {
@@ -36,7 +48,9 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
     async (req) => {
       const household = req.household;
       if (!household) throw new UnauthorizedError('household missing');
-      const rows = await getDb()
+      const db = getDb();
+
+      const taskRows = await db
         .select({
           completionId: taskCompletions.id,
           taskId: tasks.id,
@@ -58,8 +72,32 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
           ),
         )
         .orderBy(desc(taskCompletions.completedAt));
+
+      const redemptionRows = await db
+        .select({
+          redemptionId: rewardRedemptions.id,
+          rewardId: rewards.id,
+          kidId: kids.id,
+          kidName: kids.name,
+          title: rewards.title,
+          icon: rewards.icon,
+          costCents: rewardRedemptions.costCents,
+          requestedAt: rewardRedemptions.requestedAt,
+        })
+        .from(rewardRedemptions)
+        .innerJoin(rewards, eq(rewards.id, rewardRedemptions.rewardId))
+        .innerJoin(kids, eq(kids.id, rewardRedemptions.kidId))
+        .where(
+          and(
+            eq(rewards.householdId, household.id),
+            isNull(rewardRedemptions.approvedAt),
+            isNull(rewardRedemptions.rejectedAt),
+          ),
+        )
+        .orderBy(desc(rewardRedemptions.requestedAt));
+
       return {
-        taskCompletions: rows
+        taskCompletions: taskRows
           .filter((r) => r.completedAt !== null)
           .map((r) => ({
             completionId: r.completionId,
@@ -70,6 +108,16 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
             rewardCents: r.rewardCents,
             completedAt: r.completedAt!.toISOString(),
           })),
+        rewardRedemptions: redemptionRows.map((r) => ({
+          redemptionId: r.redemptionId,
+          rewardId: r.rewardId,
+          kidId: r.kidId,
+          kidName: r.kidName,
+          title: r.title,
+          icon: r.icon,
+          costCents: r.costCents,
+          requestedAt: r.requestedAt.toISOString(),
+        })),
       };
     },
   );
@@ -134,6 +182,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
           amountCents: row.completion.rewardCents,
           reason: 'task',
           referenceId: row.completion.id,
+          referenceTitle: row.task.title,
           createdBy: parent.id,
         });
 
@@ -191,7 +240,14 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   );
 
   const RedemptionParams = z.object({ redemptionId: z.string().uuid() });
-  const RedemptionApproveBody = z.object({ note: z.string().max(500).optional() });
+  // Mobile clients fire approve/reject without a body. Fastify still
+  // schema-validates `req.body`, and a missing body comes through as
+  // `null` here — so we have to explicitly accept that, otherwise the
+  // request fails with "Expected object, received null". `.nullish()`
+  // covers both `null` and `undefined`.
+  const RedemptionApproveBody = z
+    .object({ note: z.string().max(500).optional() })
+    .nullish();
   const RedemptionApproveResponse = z.object({
     redemptionId: z.string().uuid(),
     approved: z.literal(true),
@@ -204,7 +260,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       preHandler: app.requireParent,
       schema: {
         params: RedemptionParams,
-        body: RedemptionApproveBody.optional(),
+        body: RedemptionApproveBody,
         response: { 200: RedemptionApproveResponse },
       },
     },
@@ -216,7 +272,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
         redemptionId: req.params.redemptionId,
         householdId: household.id,
         approverParentId: parent.id,
-        note: req.body?.note,
+        note: req.body?.note ?? null,
       });
       return { redemptionId: out.redemptionId, approved: true as const, newBalanceCents: out.newBalanceCents };
     },
@@ -233,7 +289,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       preHandler: app.requireParent,
       schema: {
         params: RedemptionParams,
-        body: RedemptionApproveBody.optional(),
+        body: RedemptionApproveBody,
         response: { 200: RedemptionRejectResponse },
       },
     },
@@ -243,7 +299,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       const out = await rejectRedemption({
         redemptionId: req.params.redemptionId,
         householdId: household.id,
-        note: req.body?.note,
+        note: req.body?.note ?? null,
       });
       return { redemptionId: out.redemptionId, rejected: true as const };
     },

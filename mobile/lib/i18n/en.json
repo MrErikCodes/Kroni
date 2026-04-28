@@ -5,12 +5,17 @@
     "save": "Save",
     "delete": "Delete",
     "confirm": "Confirm",
-    "loading": "Loading...",
+    "loading": "Loading…",
     "error": "Something went wrong",
     "retry": "Try again",
     "empty": "Nothing here yet",
     "close": "Close",
-    "back": "Back"
+    "back": "Back",
+    "edit": "Edit",
+    "add": "Add",
+    "done": "Done",
+    "yes": "Yes",
+    "no": "No"
   },
   "auth": {
     "parent": {
@@ -21,13 +26,24 @@
       "continueWithApple": "Continue with Apple",
       "continueWithEmail": "Continue with email",
       "noAccount": "Don't have an account?",
-      "hasAccount": "Already have an account?"
+      "hasAccount": "Already have an account?",
+      "welcomeBack": "Welcome back",
+      "createAccount": "Create an account"
     },
     "kid": {
       "pair": "Connect to parent",
       "enterCode": "Enter the code you got from your parent",
-      "connecting": "Connecting...",
-      "paired": "Connected! Hi %{name}!"
+      "connecting": "Connecting…",
+      "paired": "Connected! Hi %{name}!",
+      "pairButton": "Connect",
+      "codeLabel": "6-digit code",
+      "nameLabel": "What's your name?",
+      "namePlaceholder": "First name",
+      "birthYearLabel": "Birth year (optional)",
+      "birthYearPlaceholder": "e.g. 2015",
+      "avatarLabel": "Pick an avatar",
+      "errorInvalidCode": "Invalid or expired code. Try again.",
+      "errorNetwork": "Couldn't connect. Check your internet."
     }
   },
   "parent": {
@@ -36,14 +52,381 @@
     "rewards": "Rewards",
     "approvals": "Approvals",
     "settings": "Settings",
-    "paywall": "Upgrade to Family"
+    "paywall": "Upgrade to Family",
+    "kidsList": {
+      "title": "Kids",
+      "empty": "No kids added yet",
+      "emptyBody": "Add your first kid to get started",
+      "addKid": "Add kid",
+      "kidCount": "%{count} kids"
+    },
+    "kidNew": {
+      "title": "New kid",
+      "namePlaceholder": "Kid's name",
+      "nameLabel": "Name",
+      "birthYearLabel": "Birth year (optional)",
+      "birthYearPlaceholder": "e.g. 2015",
+      "allowanceLabel": "Weekly allowance (kr)",
+      "allowancePlaceholder": "0",
+      "avatarLabel": "Pick an avatar",
+      "create": "Create kid",
+      "creating": "Creating…",
+      "successTitle": "Kid created!",
+      "successBody": "Now you can generate a pairing code to connect the kid to the app."
+    },
+    "kidDetail": {
+      "tasks": "Tasks",
+      "balance": "Balance",
+      "history": "History",
+      "editName": "Edit name",
+      "weeklyAllowance": "Weekly allowance",
+      "deleteKid": "Delete kid",
+      "deleteConfirm": "Are you sure you want to delete %{name}? This can't be undone.",
+      "noTasks": "No tasks assigned yet",
+      "adjustBalance": "Adjust balance",
+      "edit": "Edit",
+      "perWeek": "%{amount} / week",
+      "allowanceOff": "No allowance",
+      "generatePairingCode": "Generate pairing code",
+      "bornIn": "Born %{year}",
+      "emptyHistoryTitle": "No transactions yet",
+      "emptyHistoryBody": "When %{name} completes tasks, they'll show up here.",
+      "today": "today",
+      "yesterday": "yesterday",
+      "daysAgo": "%{count} days ago",
+      "adjustModal": {
+        "title": "Adjust balance",
+        "amountLabel": "Amount (kr)",
+        "amountHelp": "Use a minus to subtract, e.g. -50.",
+        "reasonLabel": "Reason",
+        "noteLabel": "Note (optional)",
+        "notePlaceholder": "Short reason…",
+        "save": "Save",
+        "cancel": "Cancel",
+        "errorInsufficient": "Balance can't go below zero.",
+        "errorAmountZero": "Amount can't be zero.",
+        "errorAmountInvalid": "Enter a valid amount.",
+        "errorGeneric": "Couldn't save. Try again.",
+        "reasons": {
+          "adjustment": "Adjustment",
+          "gift": "Gift",
+          "reversal": "Refund"
+        }
+      },
+      "allowanceModal": {
+        "title": "Allowance",
+        "amountLabel": "Amount (kr)",
+        "amountHelp": "0 turns it off.",
+        "frequencyLabel": "How often?",
+        "frequency": {
+          "none": "Off",
+          "weekly": "Weekly",
+          "biweekly": "Every 2 weeks",
+          "monthly": "Monthly"
+        },
+        "dayOfWeekLabel": "Which day of the week?",
+        "dayOfMonthLabel": "Which day of the month?",
+        "dayOfMonthHelp": "On shorter months, paid on the last day.",
+        "dayOfWeek": {
+          "mon": "Mon",
+          "tue": "Tue",
+          "wed": "Wed",
+          "thu": "Thu",
+          "fri": "Fri",
+          "sat": "Sat",
+          "sun": "Sun"
+        },
+        "save": "Save",
+        "cancel": "Cancel",
+        "errorInvalid": "Enter a valid amount.",
+        "errorMissingDayOfWeek": "Pick a day of the week.",
+        "errorMissingDayOfMonth": "Pick a day of the month.",
+        "errorGeneric": "Couldn't save. Try again."
+      },
+      "allowance": "Allowance",
+      "allowanceFrequencyLabel": {
+        "none": "Off",
+        "weekly": "Weekly",
+        "biweekly": "Every 2 weeks",
+        "monthly": "Monthly"
+      },
+      "nextPayment": "Next payment: %{date}",
+      "nextPaymentNone": "Next payment: —"
+    },
+    "tasksList": {
+      "title": "Tasks",
+      "empty": "No tasks created yet",
+      "emptyBody": "Create your first task",
+      "addTask": "New task",
+      "allKids": "All kids",
+      "groupedByKid": "Grouped by kid"
+    },
+    "taskNew": {
+      "title": "New task",
+      "titleLabel": "Task title",
+      "titlePlaceholder": "e.g. Tidy the room",
+      "descLabel": "Description (optional)",
+      "descPlaceholder": "Describe the task…",
+      "rewardLabel": "Reward (øre)",
+      "rewardPlaceholder": "e.g. 2000 = 20 kr",
+      "recurrenceLabel": "Repeats",
+      "kidLabel": "Assign to kid",
+      "kidNone": "All kids",
+      "requiresApproval": "Requires approval",
+      "create": "Create task",
+      "recurrence": {
+        "daily": "Daily",
+        "weekly": "Weekly",
+        "once": "Once"
+      }
+    },
+    "taskDetail": {
+      "title": "Edit task",
+      "save": "Save changes",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete task",
+      "deleteConfirm": "Are you sure you want to delete this task?"
+    },
+    "rewardsList": {
+      "title": "Rewards",
+      "empty": "No rewards created yet",
+      "emptyBody": "Create a reward kids can work toward",
+      "addReward": "New reward"
+    },
+    "rewardNew": {
+      "title": "New reward",
+      "titleLabel": "Reward title",
+      "titlePlaceholder": "e.g. Movie night",
+      "costLabel": "Cost (øre)",
+      "costPlaceholder": "e.g. 5000 = 50 kr",
+      "kidLabel": "Assign to kid",
+      "kidNone": "All kids",
+      "create": "Create reward"
+    },
+    "rewardDetail": {
+      "title": "Edit reward",
+      "save": "Save changes",
+      "delete": "Delete reward",
+      "deleteConfirm": "Are you sure you want to delete this reward?"
+    },
+    "approvals": {
+      "title": "Approvals",
+      "empty": "No pending approvals",
+      "emptyBody": "Nice — everything's clear.",
+      "approve": "Approve",
+      "reject": "Reject",
+      "taskSection": "Tasks",
+      "rewardSection": "Rewards",
+      "swipeHint": "Swipe to approve or reject",
+      "confirmApprove": "Approve completion of \"%{title}\"?",
+      "confirmReject": "Reject completion of \"%{title}\"?",
+      "approvedToast": "Approved! %{name} got %{amount}",
+      "rejectedToast": "Rejected"
+    },
+    "pairingCode": {
+      "title": "Pairing code",
+      "instructions": "Show this code to your kid. They enter it in the app to connect to your account.",
+      "expiresIn": "Expires in %{time}",
+      "expired": "Code expired",
+      "regenerate": "New code",
+      "copy": "Copy code",
+      "copied": "Copied!",
+      "generating": "Generating…"
+    },
+    "settings": {
+      "title": "Settings",
+      "account": "Account",
+      "displayName": "Display name",
+      "email": "Email",
+      "password": "Password",
+      "passwordValue": "••••••••",
+      "editAccount": "Edit account",
+      "subscription": "Subscription",
+      "subscriptionTier": {
+        "free": "Free",
+        "family": "Family",
+        "premium": "Premium"
+      },
+      "upgradePro": "Upgrade to Pro",
+      "signOut": "Sign out",
+      "signOutConfirm": "Are you sure you want to sign out?",
+      "language": "Language",
+      "languageHelp": "Used in the app and in emails from Kroni.",
+      "notifications": "Notifications",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "support": "Support",
+      "version": "Version %{version}"
+    },
+    "account": {
+      "title": "Account",
+      "nameSection": "Name",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "saveName": "Save name",
+      "nameSaved": "Name saved",
+      "emailSection": "Email",
+      "currentEmail": "Current email",
+      "newEmail": "New email",
+      "newEmailPlaceholder": "new@example.com",
+      "sendCode": "Send verification code",
+      "sendingCode": "Sending…",
+      "codeSent": "We sent a code to %{email}.",
+      "verifyCode": "Verify code",
+      "codeLabel": "Code from email",
+      "codePlaceholder": "123456",
+      "confirmEmail": "Change email",
+      "emailChanged": "Email updated",
+      "passwordSection": "Password",
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmPassword": "Confirm new password",
+      "savePassword": "Save password",
+      "passwordSaved": "Password updated",
+      "errorPasswordsDontMatch": "Passwords don't match.",
+      "errorPasswordTooShort": "Password must be at least 8 characters.",
+      "errorEmailInvalid": "Enter a valid email address.",
+      "errorGeneric": "Something went wrong. Try again."
+    },
+    "household": {
+      "sectionTitle": "Family",
+      "members": {
+        "title": "Members",
+        "emptyState": "No parents added yet",
+        "premiumOwnerLabel": "Premium owner",
+        "currentUserLabel": "(you)",
+        "invitedLabel": "Invited"
+      },
+      "inviteButton": "Invite parent",
+      "inviteModal": {
+        "title": "Invite parent",
+        "emailLabel": "Email (optional)",
+        "emailPlaceholder": "optional@example.com",
+        "generate": "Generate code",
+        "generating": "Generating…",
+        "errorRateLimit": "Too many attempts. Try again in a bit.",
+        "errorEmailInvalid": "Enter a valid email address.",
+        "errorGeneric": "Couldn't create code. Try again.",
+        "codeDisplayHeading": "Share the code with the parent",
+        "copyButton": "Copy",
+        "copiedToast": "Copied!",
+        "mailtoSubject": "Join the Kroni family",
+        "mailtoBody": "Hi!\n\nUse this code to join our family on Kroni: %{code}\n\nThe code expires %{expires}.",
+        "mailtoLink": "Send by email",
+        "expiresIn": "Expires in %{time}",
+        "share": "Share",
+        "close": "Close"
+      },
+      "invitesList": {
+        "title": "Active invitations",
+        "empty": "No active invitations",
+        "revokeConfirm": "Revoke invitation with code %{code}?",
+        "revokeAction": "Revoke"
+      },
+      "joinFlow": {
+        "linkLabel": "Got a family code? Join a family.",
+        "codeInputLabel": "Family code",
+        "codePlaceholder": "6-digit code",
+        "errorInvalid": "Invalid or expired code.",
+        "errorAlreadyJoined": "You're already in a family."
+      }
+    }
   },
   "kid": {
     "today": "Today",
     "balance": "Balance",
     "rewards": "Rewards",
     "profile": "Profile",
-    "celebrate": "Great job!"
+    "celebrate": "Great job!",
+    "todayScreen": {
+      "greeting": "Hi, %{name}!",
+      "greetingMorning": "Good morning, %{name}!",
+      "greetingAfternoon": "Good afternoon, %{name}!",
+      "greetingEvening": "Good evening, %{name}!",
+      "tasksToday": "%{count} tasks today",
+      "noTasks": "No tasks today!",
+      "noTasksBody": "You've got the day off. Enjoy!",
+      "pendingSection": "To do",
+      "doneSection": "Done",
+      "completedOverlay": "Great job!",
+      "waitingApproval": "Waiting for approval",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "progressLabel": "%{done} of %{total} done"
+    },
+    "balanceScreen": {
+      "title": "Balance",
+      "currentBalance": "Your balance",
+      "weekEarned": "Earned this week",
+      "weekSpent": "Spent this week",
+      "history": "History",
+      "emptyHistory": "No transactions yet",
+      "emptyHistoryBody": "Complete tasks to earn money!",
+      "today": "today",
+      "yesterday": "yesterday",
+      "daysAgo": "%{count} days ago",
+      "reasons": {
+        "task": "Task completed",
+        "allowance": "Weekly allowance",
+        "redemption": "Reward redeemed",
+        "adjustment": "Adjustment",
+        "gift": "Gift",
+        "reversal": "Refund"
+      }
+    },
+    "rewardsScreen": {
+      "title": "Rewards",
+      "empty": "No rewards available",
+      "emptyBody": "Your parent hasn't added any rewards yet",
+      "needMore": "Need %{amount} more",
+      "redeem": "Redeem",
+      "confirmRedeem": "Redeem \"%{title}\" for %{amount}?",
+      "waiting": "Waiting for approval",
+      "affordable": "You can afford this!",
+      "redeemed": "Sent for approval!"
+    },
+    "profileScreen": {
+      "title": "Profile",
+      "weeklyEarnings": "Earnings the last 7 days",
+      "signOut": "Disconnect",
+      "signOutConfirm": "Are you sure you want to disconnect this device?",
+      "avatarChange": "Change avatar",
+      "noEarnings": "No earnings yet"
+    },
+    "celebrate": {
+      "title": "Great job!",
+      "youGot": "You got",
+      "dismiss": "Yay!",
+      "newBalance": "Your balance now:"
+    }
+  },
+  "paywall": {
+    "title": "Kroni Family",
+    "subtitle": "Unlimited access for the whole family",
+    "features": {
+      "kids": "Unlimited kids",
+      "tasks": "Unlimited tasks",
+      "rewards": "All reward features",
+      "notifications": "Push notifications",
+      "history": "Full history"
+    },
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "save": "Save 32%",
+    "subscribe": "Subscribe now",
+    "restore": "Restore purchases",
+    "terms": "Terms of service",
+    "privacy": "Privacy",
+    "legalNote": "Subscription auto-renews at the same price. You can cancel any time in your App Store settings.",
+    "free": {
+      "kids": "1 kid",
+      "tasks": "5 active tasks"
+    },
+    "pro": {
+      "kids": "Unlimited kids",
+      "tasks": "Unlimited tasks"
+    }
   },
   "roleChooser": {
     "title": "Who are you?",

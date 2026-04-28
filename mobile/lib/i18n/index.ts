@@ -25,8 +25,26 @@ function normalize(locale: string | null | undefined): 'nb' | 'en' {
   return 'nb';
 }
 
+// Subscribers listen for locale flips so React can rerender any tree
+// downstream. We don't reach for context here — the root layout uses
+// `subscribeLocale` to bump a key on the navigation stack, which remounts
+// every screen and forces all `t(...)` calls to re-evaluate against the
+// new locale. Cheaper than threading a context through every screen.
+type LocaleListener = (locale: 'nb' | 'en') => void;
+const listeners = new Set<LocaleListener>();
+
+export function subscribeLocale(fn: LocaleListener): () => void {
+  listeners.add(fn);
+  return () => {
+    listeners.delete(fn);
+  };
+}
+
 export function setAppLocale(locale: string | null | undefined): void {
-  i18n.locale = normalize(locale);
+  const next = normalize(locale);
+  if (i18n.locale === next) return;
+  i18n.locale = next;
+  for (const fn of listeners) fn(next);
 }
 
 export { i18n };

@@ -29,7 +29,38 @@ import { BalanceText } from '../../../components/ui/BalanceText';
 import { Spinner } from '../../../components/ui/Spinner';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { KroniText } from '../../../components/ui/Text';
+import { Sheet } from '../../../components/ui/Sheet';
 import type { TodayTask } from '@kroni/shared';
+
+// Full Norwegian day names — match the convention used in the parent allowance
+// modal (0 = Sunday … 6 = Saturday) but display Man → Søn ordering.
+const DAY_NAMES_NB: Record<number, string> = {
+  0: 'Søndag',
+  1: 'Mandag',
+  2: 'Tirsdag',
+  3: 'Onsdag',
+  4: 'Torsdag',
+  5: 'Fredag',
+  6: 'Lørdag',
+};
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+
+function formatRecurrence(task: TodayTask): string {
+  if (task.recurrence === 'daily') return 'Hver dag';
+  if (task.recurrence === 'once') return 'Kun én gang';
+  // weekly
+  const days = (task.daysOfWeek ?? []).slice().sort(
+    (a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b),
+  );
+  if (days.length === 0) return 'Ukentlig';
+  // Mirrors the "Valgfri" shortcut in the parent task form: when all days
+  // are selected, the kid sees the same wording.
+  if (days.length === 7) return 'Valgfritt';
+  if (days.length === 1) return `Hver ${DAY_NAMES_NB[days[0]!]?.toLowerCase()}`;
+  const named = days.map((d) => DAY_NAMES_NB[d]).filter(Boolean) as string[];
+  if (named.length <= 2) return named.join(' og ');
+  return `${named.slice(0, -1).join(', ')} og ${named[named.length - 1]}`;
+}
 import 'react-native-get-random-values';
 
 // Foreground notification handler — suppressed here; root layout handles routing
@@ -62,10 +93,18 @@ function generateIdempotencyKey(): string {
 interface TaskCardProps {
   task: TodayTask;
   onComplete: (completionId: string) => void;
+  onUncomplete: (completionId: string) => void;
+  onOpenDetails: (task: TodayTask) => void;
   isCompleting: boolean;
 }
 
-function TaskCard({ task, onComplete, isCompleting }: TaskCardProps) {
+function TaskCard({
+  task,
+  onComplete,
+  onUncomplete,
+  onOpenDetails,
+  isCompleting,
+}: TaskCardProps) {
   const theme = useTheme();
   const s = theme.surface;
   const tx = theme.text;
@@ -80,9 +119,20 @@ function TaskCard({ task, onComplete, isCompleting }: TaskCardProps) {
     task.status === 'rejected';
 
   const isPending = task.status === 'pending';
+  // Undoable while waiting on a parent — once the parent acts (approved /
+  // rejected) the balance has moved or the task is closed, so we lock it.
+  const canUndo = task.status === 'completed_pending_approval';
 
-  function triggerSpringAndComplete() {
-    if (!isPending || isCompleting) return;
+  function handleCirclePress() {
+    if (isCompleting) return;
+
+    if (canUndo) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onUncomplete(task.completionId);
+      return;
+    }
+
+    if (!isPending) return;
 
     setShowOverlay(true);
     overlayOpacity.value = withSequence(
@@ -145,65 +195,83 @@ function TaskCard({ task, onComplete, isCompleting }: TaskCardProps) {
       : theme.colors.gold[300]
     : s.border;
 
+  const circleDisabled = (!isPending && !canUndo) || isCompleting;
+  const circleAccessibilityLabel = isPending
+    ? `Marker som ferdig: ${task.title}`
+    : canUndo
+      ? `Angre: ${task.title}`
+      : task.title;
+
   return (
-    <Animated.View style={animStyle}>
-      <TouchableOpacity
-        onPress={triggerSpringAndComplete}
-        disabled={!isPending || isCompleting}
-        activeOpacity={isPending ? 0.85 : 1}
-        accessibilityRole="button"
-        accessibilityLabel={task.title}
-        accessibilityState={{ disabled: !isPending }}
-        style={[
-          styles.taskCard,
-          {
-            backgroundColor: surfaceBg,
-            borderColor: surfaceBorder,
-            opacity: task.status === 'rejected' ? 0.55 : 1,
-          },
-        ]}
-      >
-        {/* "Bra jobba!" overlay */}
-        {showOverlay ? (
-          <Animated.View
-            style={[
-              styles.overlay,
-              { backgroundColor: theme.colors.gold[500] },
-              overlayStyle,
-            ]}
+    <Animated.View
+      style={[
+        animStyle,
+        styles.taskCard,
+        {
+          backgroundColor: surfaceBg,
+          borderColor: surfaceBorder,
+          opacity: task.status === 'rejected' ? 0.55 : 1,
+        },
+      ]}
+    >
+      {/* "Bra jobba!" overlay */}
+      {showOverlay ? (
+        <Animated.View
+          style={[
+            styles.overlay,
+            { backgroundColor: theme.colors.gold[500] },
+            overlayStyle,
+          ]}
+        >
+          <KroniText
+            variant="displayItalic"
+            tone="primary"
+            style={styles.overlayText}
           >
-            <KroniText
-              variant="displayItalic"
-              tone="primary"
-              style={styles.overlayText}
-            >
-              {t('kid.todayScreen.completedOverlay')}
-            </KroniText>
-          </Animated.View>
-        ) : null}
+            {t('kid.todayScreen.completedOverlay')}
+          </KroniText>
+        </Animated.View>
+      ) : null}
 
-        <View style={styles.taskCardInner}>
-          {/* Circular check stand-in — matches the website's PhoneMock dot. */}
-          <View
-            style={[
-              styles.taskCheck,
-              {
-                borderColor: isPending
-                  ? theme.colors.gold[500]
-                  : theme.colors.semantic.success,
-                backgroundColor: isPending
-                  ? 'transparent'
-                  : isDone
-                    ? theme.colors.semantic.success
-                    : 'transparent',
-              },
-            ]}
-          >
-            {isDone ? (
-              <CheckCircle size={20} color="#FFFFFF" strokeWidth={2.25} />
-            ) : null}
-          </View>
+      <View style={styles.taskCardInner}>
+        {/* Only the circle marks the task done / undoes it. Tap targets are
+            split so a curious kid can read the description without
+            accidentally checking the task off. */}
+        <TouchableOpacity
+          onPress={handleCirclePress}
+          disabled={circleDisabled}
+          activeOpacity={circleDisabled ? 1 : 0.7}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          accessibilityRole="button"
+          accessibilityLabel={circleAccessibilityLabel}
+          accessibilityState={{ disabled: circleDisabled, checked: isDone }}
+          style={[
+            styles.taskCheck,
+            {
+              borderColor: isPending
+                ? theme.colors.gold[500]
+                : theme.colors.semantic.success,
+              backgroundColor: isPending
+                ? 'transparent'
+                : isDone
+                  ? theme.colors.semantic.success
+                  : 'transparent',
+            },
+          ]}
+        >
+          {isDone ? (
+            <CheckCircle size={20} color="#FFFFFF" strokeWidth={2.25} />
+          ) : null}
+        </TouchableOpacity>
 
+        {/* Tap anywhere except the circle to open the detail sheet. */}
+        <TouchableOpacity
+          onPress={() => onOpenDetails(task)}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Detaljer for ${task.title}`}
+          style={styles.taskBodyTap}
+        >
           <View style={styles.taskMid}>
             <KroniText
               variant="h2"
@@ -216,6 +284,16 @@ function TaskCard({ task, onComplete, isCompleting }: TaskCardProps) {
             >
               {task.title}
             </KroniText>
+            {task.description ? (
+              <KroniText
+                variant="small"
+                tone="secondary"
+                style={styles.taskDescription}
+                numberOfLines={2}
+              >
+                {task.description}
+              </KroniText>
+            ) : null}
             {statusLabel ? (
               <View style={styles.statusRow}>
                 {statusIcon}
@@ -242,9 +320,64 @@ function TaskCard({ task, onComplete, isCompleting }: TaskCardProps) {
               {formatNok(task.rewardCents)}
             </Text>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </View>
     </Animated.View>
+  );
+}
+
+interface TaskDetailSheetProps {
+  task: TodayTask | null;
+  onClose: () => void;
+}
+
+function TaskDetailSheet({ task, onClose }: TaskDetailSheetProps) {
+  const theme = useTheme();
+  const tx = theme.text;
+  return (
+    <Sheet visible={task !== null} onClose={onClose}>
+      {task ? (
+        <View style={styles.sheetContent}>
+          <KroniText variant="eyebrow" tone="gold">
+            {formatNok(task.rewardCents)}
+          </KroniText>
+          <KroniText variant="display" tone="primary" style={styles.sheetTitle}>
+            {task.title}
+          </KroniText>
+
+          {task.description ? (
+            <KroniText
+              variant="body"
+              tone="secondary"
+              style={styles.sheetDescription}
+            >
+              {task.description}
+            </KroniText>
+          ) : null}
+
+          <View style={styles.sheetMeta}>
+            <View style={styles.metaRow}>
+              <Text style={[styles.metaLabel, { color: tx.tertiary }]}>
+                Når
+              </Text>
+              <Text style={[styles.metaValue, { color: tx.primary }]}>
+                {formatRecurrence(task)}
+              </Text>
+            </View>
+            <View style={styles.metaRow}>
+              <Text style={[styles.metaLabel, { color: tx.tertiary }]}>
+                Godkjenning
+              </Text>
+              <Text style={[styles.metaValue, { color: tx.primary }]}>
+                {task.requiresApproval
+                  ? 'Forelder må godkjenne'
+                  : 'Tilskrives saldo direkte'}
+              </Text>
+            </View>
+          </View>
+        </View>
+      ) : null}
+    </Sheet>
   );
 }
 
@@ -254,6 +387,9 @@ export default function TodayScreen() {
   const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
+
+  // null when the sheet is closed; set to the task whose details to show.
+  const [detailTask, setDetailTask] = useState<TodayTask | null>(null);
 
   // Request notification permissions on first visit
   useEffect(() => {
@@ -315,11 +451,25 @@ export default function TodayScreen() {
     },
   });
 
+  const uncompleteMutation = useMutation({
+    mutationFn: (completionId: string) => kidApi.uncompleteTask(completionId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['kid', 'today'] });
+    },
+  });
+
   const handleComplete = useCallback(
     (completionId: string) => {
       completeMutation.mutate({ completionId });
     },
     [completeMutation],
+  );
+
+  const handleUncomplete = useCallback(
+    (completionId: string) => {
+      uncompleteMutation.mutate(completionId);
+    },
+    [uncompleteMutation],
   );
 
   const pending = (tasks ?? []).filter((t) => t.status === 'pending');
@@ -403,7 +553,9 @@ export default function TodayScreen() {
                     key={task.completionId}
                     task={task}
                     onComplete={handleComplete}
-                    isCompleting={completeMutation.isPending}
+                    onUncomplete={handleUncomplete}
+                    onOpenDetails={setDetailTask}
+                    isCompleting={completeMutation.isPending || uncompleteMutation.isPending}
                   />
                 ))}
               </View>
@@ -419,7 +571,9 @@ export default function TodayScreen() {
                     key={task.completionId}
                     task={task}
                     onComplete={handleComplete}
-                    isCompleting={completeMutation.isPending}
+                    onUncomplete={handleUncomplete}
+                    onOpenDetails={setDetailTask}
+                    isCompleting={completeMutation.isPending || uncompleteMutation.isPending}
                   />
                 ))}
               </View>
@@ -434,6 +588,8 @@ export default function TodayScreen() {
           </>
         )}
       </ScrollView>
+
+      <TaskDetailSheet task={detailTask} onClose={() => setDetailTask(null)} />
     </SafeAreaView>
   );
 }
@@ -486,6 +642,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  taskBodyTap: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
   taskMid: { flex: 1, gap: 4 },
   taskTitle: {
     fontSize: 17,
@@ -493,6 +655,7 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
     letterSpacing: -0.2,
   },
+  taskDescription: { fontSize: 13, lineHeight: 18 },
   statusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rewardChip: {
     paddingHorizontal: 12,
@@ -521,4 +684,17 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingVertical: 16,
   },
+  // Detail sheet
+  sheetContent: { gap: 12, paddingBottom: 12 },
+  sheetTitle: { fontSize: 28, lineHeight: 32, letterSpacing: -0.6 },
+  sheetDescription: { fontSize: 16, lineHeight: 24 },
+  sheetMeta: { gap: 12, marginTop: 8 },
+  metaRow: { gap: 4 },
+  metaLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  metaValue: { fontSize: 16, fontWeight: '500' },
 });

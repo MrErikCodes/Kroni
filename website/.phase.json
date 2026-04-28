@@ -1,0 +1,8 @@
+{
+  "version": "2",
+  "phaseApp": "KRONI-WEBSITE",
+  "appId": "88e5557f-af3c-4049-bd04-e983f1c5a450",
+  "defaultEnv": "Development",
+  "envId": "a858e48b-21db-4f57-8c1b-58f952081be1",
+  "monorepoSupport": false
+}

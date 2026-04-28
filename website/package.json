@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack --port 3001",
-    "dev:turbo": "next dev --turbopack --port 3001",
-    "build": "next build",
-    "start": "next start",
+    "dev": "phase run \"next dev --webpack --port 3001\"",
+    "dev:turbo": "phase run \"next dev --turbopack --port 3001\"",
+    "build": "phase run \"next build\"",
+    "start": "phase run \"next start\"",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },

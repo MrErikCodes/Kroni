@@ -82,6 +82,7 @@ export async function approveRedemption(input: {
       amountCents: -row.red.costCents,
       reason: 'redemption',
       referenceId: row.red.id,
+      referenceTitle: row.rew.title,
       createdBy: input.approverParentId,
       preventNegative: true,
     });

@@ -14,6 +14,12 @@ export const pairingCodes = pgTable(
       .references(() => households.id, { onDelete: 'cascade' }),
     // Creator parent (audit). Nullable on parent delete.
     parentId: uuid().references(() => parents.id, { onDelete: 'set null' }),
+    // The kid this code pairs a device to. Required: parents pre-create the
+    // kid (with name + avatar) before issuing a code, so redemption only
+    // attaches a device — it never creates a kid record.
+    targetKidId: uuid()
+      .notNull()
+      .references(() => kids.id, { onDelete: 'cascade' }),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     usedAt: timestamp({ withTimezone: true }),
     usedByKidId: uuid().references(() => kids.id),

@@ -34,6 +34,7 @@ import type {
   JoinHouseholdResponse,
 } from '@kroni/shared';
 import { getKidToken, setKidToken, clearKidToken } from './auth';
+import { getDiagnosticHeaders } from './installInfo';
 
 // ── Config ───────────────────────────────────────────────────────────────────
 
@@ -101,6 +102,7 @@ async function parseErrorBody(res: Response): Promise<ProblemDetail> {
 async function fetchWithAuth(
   path: string,
   token: string,
+  role: 'parent' | 'kid',
   init: RequestInit = {},
 ): Promise<Response> {
   // Only declare Content-Type when we are actually sending a body. Fastify
@@ -109,6 +111,10 @@ async function fetchWithAuth(
   const hasBody = init.body !== undefined && init.body !== null;
   const headers: Record<string, string> = {
     Authorization: `Bearer ${token}`,
+    // Diagnostic headers — install id + platform + app version + role.
+    // Read by the backend auth plugins to tag logs and upsert
+    // parent_installs / kid_installs; same value goes into Sentry tags.
+    ...getDiagnosticHeaders(role),
   };
   if (hasBody) headers['Content-Type'] = 'application/json';
   const res = await fetch(`${API_URL}${path}`, {
@@ -149,6 +155,22 @@ export interface PendingApprovalItem {
   completedAt: string;
 }
 
+export interface PendingRedemptionItem {
+  redemptionId: string;
+  rewardId: string;
+  kidId: string;
+  kidName: string;
+  title: string;
+  icon: string | null;
+  costCents: number;
+  requestedAt: string;
+}
+
+export interface PendingApprovals {
+  taskCompletions: PendingApprovalItem[];
+  rewardRedemptions: PendingRedemptionItem[];
+}
+
 // Shape for billing status
 const BillingStatusSchema = z.object({
   tier: z.enum(['free', 'family', 'premium']),
@@ -177,7 +199,7 @@ export function clientFor(getToken: GetToken) {
         detail: 'No session token',
       });
     }
-    const res = await fetchWithAuth(path, token, init);
+    const res = await fetchWithAuth(path, token, 'parent', init);
 
     // Handle 402 Payment Required — redirect to paywall
     if (res.status === 402) {
@@ -260,8 +282,13 @@ export function clientFor(getToken: GetToken) {
     },
 
     // ── Pairing ─────────────────────────────────────────────────────────────
-    async generatePairingCode(): Promise<z.infer<typeof GeneratePairingCodeResponseSchema>> {
-      const json = await request('/api/parent/pairing-code', { method: 'POST' });
+    async generatePairingCode(
+      kidId: string,
+    ): Promise<z.infer<typeof GeneratePairingCodeResponseSchema>> {
+      const json = await request('/api/parent/pairing-code', {
+        method: 'POST',
+        body: JSON.stringify({ kidId }),
+      });
       return GeneratePairingCodeResponseSchema.parse(json);
     },
 
@@ -292,22 +319,44 @@ export function clientFor(getToken: GetToken) {
     },
 
     // ── Approvals ────────────────────────────────────────────────────────────
-    async getApprovals(): Promise<PendingApprovalItem[]> {
+    async getApprovals(): Promise<PendingApprovals> {
       const json = await request('/api/parent/approvals');
-      const parsed = z.object({
-        taskCompletions: z.array(
-          z.object({
-            completionId: z.string(),
-            taskId: z.string(),
-            kidId: z.string(),
-            kidName: z.string(),
-            title: z.string(),
-            rewardCents: z.number(),
-            completedAt: z.string(),
-          }),
-        ),
-      }).parse(json);
-      return parsed.taskCompletions;
+      const parsed = z
+        .object({
+          taskCompletions: z.array(
+            z.object({
+              completionId: z.string(),
+              taskId: z.string(),
+              kidId: z.string(),
+              kidName: z.string(),
+              title: z.string(),
+              rewardCents: z.number(),
+              completedAt: z.string(),
+            }),
+          ),
+          rewardRedemptions: z
+            .array(
+              z.object({
+                redemptionId: z.string(),
+                rewardId: z.string(),
+                kidId: z.string(),
+                kidName: z.string(),
+                title: z.string(),
+                icon: z.string().nullable(),
+                costCents: z.number(),
+                requestedAt: z.string(),
+              }),
+            )
+            // Tolerate older backend that didn't return this field — keeps
+            // the kid app installable while a phased deploy is in flight.
+            .optional()
+            .default([]),
+        })
+        .parse(json);
+      return {
+        taskCompletions: parsed.taskCompletions,
+        rewardRedemptions: parsed.rewardRedemptions,
+      };
     },
 
     async approveTask(completionId: string): Promise<{ newBalanceCents: number }> {
@@ -434,7 +483,7 @@ async function kidRequest(path: string, init: RequestInit = {}): Promise<unknown
     });
   }
 
-  const res = await fetchWithAuth(path, token, init);
+  const res = await fetchWithAuth(path, token, 'kid', init);
 
   // Honor x-token-refresh header
   const refreshed = res.headers.get('x-token-refresh');
@@ -473,6 +522,13 @@ export const kidApi = {
     });
   },
 
+  /** POST /api/kid/tasks/:completionId/uncomplete — undo a mistaken complete */
+  async uncompleteTask(completionId: string): Promise<void> {
+    await kidRequest(`/api/kid/tasks/${completionId}/uncomplete`, {
+      method: 'POST',
+    });
+  },
+
   /** GET /api/kid/balance */
   async getBalance(): Promise<z.infer<typeof BalanceSummarySchema>> {
     const json = await kidRequest('/api/kid/balance');
@@ -496,10 +552,29 @@ export const kidApi = {
     return z.array(RewardSchema).parse(json);
   },
 
-  /** POST /api/kid/rewards/:id/redeem */
-  async redeemReward(rewardId: string): Promise<z.infer<typeof RewardRedemptionSchema>> {
-    const json = await kidRequest(`/api/kid/rewards/${rewardId}/redeem`, { method: 'POST' });
-    return RewardRedemptionSchema.parse(json);
+  /** POST /api/kid/rewards/:id/redeem
+   *
+   * Backend returns the lightweight redemption descriptor — we don't need
+   * the full row here, just confirmation that the redemption was accepted
+   * and entered the parent's approval queue. Parsing against the larger
+   * `RewardRedemptionSchema` would fail (no `id`, no `requestedAt`) and
+   * surface as a silent generic error — which is the bug we're fixing.
+   */
+  async redeemReward(rewardId: string): Promise<{
+    redemptionId: string;
+    rewardId: string;
+    costCents: number;
+  }> {
+    const json = await kidRequest(`/api/kid/rewards/${rewardId}/redeem`, {
+      method: 'POST',
+    });
+    return z
+      .object({
+        redemptionId: z.string().uuid(),
+        rewardId: z.string().uuid(),
+        costCents: z.number().int().nonnegative(),
+      })
+      .parse(json);
   },
 
   /** POST /api/kid/device */

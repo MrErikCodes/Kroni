@@ -8,7 +8,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import Animated, {
@@ -19,14 +18,24 @@ import Animated, {
 } from 'react-native-reanimated';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, CheckCircle, XCircle, ClipboardList } from 'lucide-react-native';
-import { useTheme } from '../../lib/theme';
-import { useParentApi } from '../../lib/useParentApi';
-import { t } from '../../lib/i18n';
-import { EmptyState } from '../../components/ui/EmptyState';
-import { Spinner } from '../../components/ui/Spinner';
-import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
-import type { PendingApprovalItem } from '../../lib/api';
+import { CheckCircle, XCircle, ClipboardList } from 'lucide-react-native';
+import { useTheme } from '../../../lib/theme';
+import { useParentApi } from '../../../lib/useParentApi';
+import { t } from '../../../lib/i18n';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Spinner } from '../../../components/ui/Spinner';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
+import type {
+  PendingApprovalItem,
+  PendingRedemptionItem,
+} from '../../../lib/api';
+
+// Discriminated row so the same FlashList can render both task completions
+// (kid did a chore — parent credits balance) and reward redemptions (kid
+// spent saldo — parent fulfills it). Both use the same swipe / button UX.
+type ApprovalRow =
+  | { kind: 'task'; id: string; data: PendingApprovalItem }
+  | { kind: 'reward'; id: string; data: PendingRedemptionItem };
 
 const formatNok = (ore: number) =>
   new Intl.NumberFormat('nb-NO', {
@@ -47,17 +56,24 @@ function formatRelativeTime(iso: string): string {
 }
 
 interface ApprovalCardProps {
-  item: PendingApprovalItem;
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
+  row: ApprovalRow;
+  onApprove: (row: ApprovalRow) => void;
+  onReject: (row: ApprovalRow) => void;
   isApproving: boolean;
   isRejecting: boolean;
 }
 
-function ApprovalCard({ item, onApprove, onReject, isApproving, isRejecting }: ApprovalCardProps) {
+function ApprovalCard({ row, onApprove, onReject, isApproving, isRejecting }: ApprovalCardProps) {
   const theme = useTheme();
   const s = theme.surface;
   const tx = theme.text;
+
+  const isReward = row.kind === 'reward';
+  const kidName = row.data.kidName;
+  const title = row.data.title;
+  const amountCents = isReward ? row.data.costCents : row.data.rewardCents;
+  const timestampIso = isReward ? row.data.requestedAt : row.data.completedAt;
+  const icon = isReward ? row.data.icon : null;
 
   const translateX = useSharedValue(0);
   const opacity = useSharedValue(1);
@@ -75,10 +91,10 @@ function ApprovalCard({ item, onApprove, onReject, isApproving, isRejecting }: A
     })
     .onEnd((e) => {
       if (e.translationX > 80) {
-        animateOut('right', () => onApprove(item.completionId));
+        animateOut('right', () => onApprove(row));
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else if (e.translationX < -80) {
-        animateOut('left', () => onReject(item.completionId));
+        animateOut('left', () => onReject(row));
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       } else {
         translateX.value = withTiming(0);
@@ -99,33 +115,30 @@ function ApprovalCard({ item, onApprove, onReject, isApproving, isRejecting }: A
           animStyle,
         ]}
       >
-        {/* Swipe hint indicators */}
-        <View style={styles.swipeHintLeft}>
-          <XCircle size={20} color={theme.colors.semantic.danger} strokeWidth={2} />
-        </View>
-        <View style={styles.swipeHintRight}>
-          <CheckCircle size={20} color={theme.colors.semantic.success} strokeWidth={2} />
-        </View>
-
         <View style={styles.cardContent}>
           <View style={styles.cardHeader}>
-            <Text style={[styles.kidName, { color: theme.colors.gold[500] }]}>
-              {item.kidName}
-            </Text>
+            <View style={styles.cardHeaderLeft}>
+              <Text style={[styles.kindLabel, { color: isReward ? theme.colors.semantic.warning : theme.colors.gold[500] }]}>
+                {isReward ? /* [REVIEW] */ 'Belønning' : /* [REVIEW] */ 'Oppgave'}
+              </Text>
+              <Text style={[styles.kidName, { color: tx.secondary }]}>{kidName}</Text>
+            </View>
             <Text style={[styles.reward, { color: tx.primary }]}>
-              {formatNok(item.rewardCents)}
+              {isReward ? `−${formatNok(amountCents)}` : formatNok(amountCents)}
             </Text>
           </View>
-          <Text style={[styles.taskTitle, { color: tx.primary }]}>{item.title}</Text>
+          <Text style={[styles.taskTitle, { color: tx.primary }]}>
+            {icon ? `${icon} ` : ''}{title}
+          </Text>
           <Text style={[styles.time, { color: tx.secondary }]}>
-            {formatRelativeTime(item.completedAt)}
+            {formatRelativeTime(timestampIso)}
           </Text>
         </View>
 
         {/* Action buttons */}
         <View style={styles.actions}>
           <TouchableOpacity
-            onPress={() => onReject(item.completionId)}
+            onPress={() => onReject(row)}
             disabled={isRejecting}
             style={[styles.actionBtn, { backgroundColor: theme.colors.semantic.danger + '18' }]}
             accessibilityRole="button"
@@ -138,7 +151,7 @@ function ApprovalCard({ item, onApprove, onReject, isApproving, isRejecting }: A
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => onApprove(item.completionId)}
+            onPress={() => onApprove(row)}
             disabled={isApproving}
             style={[styles.actionBtn, { backgroundColor: theme.colors.semantic.success + '18' }]}
             accessibilityRole="button"
@@ -157,7 +170,6 @@ function ApprovalCard({ item, onApprove, onReject, isApproving, isRejecting }: A
 
 export default function ApprovalsScreen() {
   const theme = useTheme();
-  const router = useRouter();
   const api = useParentApi();
   const queryClient = useQueryClient();
   const s = theme.surface;
@@ -173,12 +185,19 @@ export default function ApprovalsScreen() {
   });
 
   const approveMutation = useMutation({
-    mutationFn: (completionId: string) => api.approveTask(completionId),
-    onSuccess: (_data, completionId) => {
+    mutationFn: async (row: ApprovalRow) => {
+      if (row.kind === 'task') {
+        await api.approveTask(row.id);
+      } else {
+        await api.approveReward(row.id);
+      }
+    },
+    onSuccess: (_data, row) => {
       // Optimistic removal from list
-      setRemovedIds((prev) => new Set([...prev, completionId]));
+      setRemovedIds((prev) => new Set([...prev, row.id]));
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       void queryClient.invalidateQueries({ queryKey: ['parent', 'approvals'] });
+      void queryClient.invalidateQueries({ queryKey: ['parent', 'kids'] });
     },
     onError: async () => {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -186,9 +205,12 @@ export default function ApprovalsScreen() {
   });
 
   const rejectMutation = useMutation({
-    mutationFn: (completionId: string) => api.rejectTask(completionId),
-    onSuccess: (_data, completionId) => {
-      setRemovedIds((prev) => new Set([...prev, completionId]));
+    mutationFn: (row: ApprovalRow) =>
+      row.kind === 'task'
+        ? api.rejectTask(row.id)
+        : api.rejectReward(row.id),
+    onSuccess: (_data, row) => {
+      setRemovedIds((prev) => new Set([...prev, row.id]));
       void queryClient.invalidateQueries({ queryKey: ['parent', 'approvals'] });
     },
     onError: async () => {
@@ -196,47 +218,56 @@ export default function ApprovalsScreen() {
     },
   });
 
-  const handleApprove = useCallback((completionId: string) => {
-    approveMutation.mutate(completionId);
-  }, [approveMutation]);
+  const handleApprove = useCallback(
+    (row: ApprovalRow) => {
+      approveMutation.mutate(row);
+    },
+    [approveMutation],
+  );
 
-  const [pendingRejectId, setPendingRejectId] = useState<string | null>(null);
-  const handleReject = useCallback((completionId: string) => {
-    setPendingRejectId(completionId);
+  const [pendingReject, setPendingReject] = useState<ApprovalRow | null>(null);
+  const handleReject = useCallback((row: ApprovalRow) => {
+    setPendingReject(row);
   }, []);
   const confirmReject = useCallback(() => {
-    if (!pendingRejectId) return;
-    rejectMutation.mutate(pendingRejectId);
-    setPendingRejectId(null);
-  }, [pendingRejectId, rejectMutation]);
-  const pendingRejectTitle =
-    approvals?.find((a) => a.completionId === pendingRejectId)?.title ?? '';
+    if (!pendingReject) return;
+    rejectMutation.mutate(pendingReject);
+    setPendingReject(null);
+  }, [pendingReject, rejectMutation]);
+  const pendingRejectTitle = pendingReject?.data.title ?? '';
 
-  const visibleApprovals = (approvals ?? []).filter(
-    (a) => !removedIds.has(a.completionId),
-  );
+  // Merge both queues into a single time-ordered list, then strip optimistic
+  // removals. Reward redemptions and task completions co-mingle so the
+  // parent works through them top-to-bottom in arrival order.
+  const visibleApprovals: ApprovalRow[] = (() => {
+    const taskRows: ApprovalRow[] = (approvals?.taskCompletions ?? []).map((d) => ({
+      kind: 'task' as const,
+      id: d.completionId,
+      data: d,
+    }));
+    const redemptionRows: ApprovalRow[] = (approvals?.rewardRedemptions ?? []).map((d) => ({
+      kind: 'reward' as const,
+      id: d.redemptionId,
+      data: d,
+    }));
+    const ts = (r: ApprovalRow) =>
+      r.kind === 'task' ? r.data.completedAt : r.data.requestedAt;
+    return [...taskRows, ...redemptionRows]
+      .filter((r) => !removedIds.has(r.id))
+      .sort((a, b) => (ts(a) < ts(b) ? 1 : -1));
+  })();
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={styles.headerBtn}
-          accessibilityRole="button"
-          accessibilityLabel={t('common.back')}
-        >
-          <ArrowLeft size={24} color={tx.primary} strokeWidth={2} />
-        </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: tx.primary }]}>
           {t('parent.approvals.title')}
         </Text>
-        <View style={[styles.headerBtn, styles.countBadge]}>
-          {visibleApprovals.length > 0 ? (
-            <View style={[styles.badge, { backgroundColor: theme.colors.gold[500] }]}>
-              <Text style={styles.badgeText}>{visibleApprovals.length}</Text>
-            </View>
-          ) : null}
-        </View>
+        {visibleApprovals.length > 0 ? (
+          <View style={[styles.badge, { backgroundColor: theme.colors.gold[500] }]}>
+            <Text style={styles.badgeText}>{visibleApprovals.length}</Text>
+          </View>
+        ) : null}
       </View>
 
       {isLoading ? (
@@ -259,10 +290,10 @@ export default function ApprovalsScreen() {
       ) : (
         <FlashList
           data={visibleApprovals}
-          keyExtractor={(item) => item.completionId}
+          keyExtractor={(item) => `${item.kind}:${item.id}`}
           renderItem={({ item }) => (
             <ApprovalCard
-              item={item}
+              row={item}
               onApprove={handleApprove}
               onReject={handleReject}
               isApproving={approveMutation.isPending}
@@ -281,13 +312,13 @@ export default function ApprovalsScreen() {
       )}
 
       <ConfirmDialog
-        visible={pendingRejectId !== null}
+        visible={pendingReject !== null}
         title={t('parent.approvals.reject')}
         message={t('parent.approvals.confirmReject', { title: pendingRejectTitle })}
         confirmLabel={t('parent.approvals.reject')}
         destructive
         onConfirm={confirmReject}
-        onCancel={() => setPendingRejectId(null)}
+        onCancel={() => setPendingReject(null)}
       />
     </SafeAreaView>
   );
@@ -298,25 +329,21 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     borderBottomWidth: 1,
   },
-  headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  countBadge: { position: 'relative' },
+  headerTitle: { fontSize: 24, fontWeight: '700' },
   badge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
+    minWidth: 24,
+    height: 24,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 8,
   },
-  badgeText: { color: '#FFFFFF', fontSize: 11, fontWeight: '700' },
-  headerTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600' },
+  badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '700' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   list: { padding: 16 },
   card: {
@@ -325,27 +352,20 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     overflow: 'hidden',
   },
-  swipeHintLeft: {
-    position: 'absolute',
-    left: 16,
-    top: '50%',
-    marginTop: -10,
-    opacity: 0.3,
-  },
-  swipeHintRight: {
-    position: 'absolute',
-    right: 16,
-    top: '50%',
-    marginTop: -10,
-    opacity: 0.3,
-  },
   cardContent: { padding: 16, gap: 4 },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  kidName: { fontSize: 13, fontWeight: '600' },
+  cardHeaderLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  kindLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 0.6,
+    textTransform: 'uppercase',
+  },
+  kidName: { fontSize: 13, fontWeight: '500' },
   reward: { fontSize: 16, fontWeight: '700' },
   taskTitle: { fontSize: 17, fontWeight: '600' },
   time: { fontSize: 13 },

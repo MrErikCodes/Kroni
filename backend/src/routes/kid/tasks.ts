@@ -83,6 +83,7 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
             amountCents: row.completion.rewardCents,
             reason: 'task',
             referenceId: row.completion.id,
+            referenceTitle: row.task.title,
           });
         }
 
@@ -103,6 +104,8 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
         icon: result.task.icon,
         rewardCents: result.task.rewardCents,
         requiresApproval: result.task.requiresApproval,
+        recurrence: result.task.recurrence,
+        daysOfWeek: result.task.daysOfWeek,
         status: deriveStatus(result.completion),
         completedAt: result.completion.completedAt
           ? result.completion.completedAt.toISOString()
@@ -111,6 +114,78 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
 
       await idemStore(idemKey, scope, { status: 200, body });
       return body as never;
+    },
+  );
+
+  // Lets the kid undo an accidental "ferdig" tap before a parent has acted on
+  // it. Only valid while the completion is in 'completed_pending_approval' —
+  // once approved or rejected the balance has moved, so we refuse rather
+  // than try to back out the balance entry. Removes the row from the parent
+  // approvals queue and returns the completion to 'pending'.
+  r.post(
+    '/api/kid/tasks/:completionId/uncomplete',
+    {
+      preHandler: app.requireKid,
+      schema: { params: Params, response: { 200: TodayTaskSchema } },
+    },
+    async (req) => {
+      const kid = req.kid;
+      if (!kid) throw new UnauthorizedError('kid missing');
+
+      const db = getDb();
+      const result = await db.transaction(async (tx) => {
+        const rows = await tx
+          .select({ completion: taskCompletions, task: tasks })
+          .from(taskCompletions)
+          .innerJoin(tasks, eq(tasks.id, taskCompletions.taskId))
+          .where(
+            and(
+              eq(taskCompletions.id, req.params.completionId),
+              eq(taskCompletions.kidId, kid.id),
+            ),
+          )
+          .for('update', { of: taskCompletions })
+          .limit(1);
+        const row = rows[0];
+        if (!row) throw new NotFoundError('completion not found');
+
+        if (row.completion.approvedAt || row.completion.rejectedAt) {
+          throw new ConflictError('completion already finalized');
+        }
+        if (!row.completion.completedAt) {
+          // Already pending — return current state (idempotent).
+          return row;
+        }
+
+        await tx
+          .update(taskCompletions)
+          .set({ completedAt: null })
+          .where(eq(taskCompletions.id, row.completion.id));
+
+        const refetched = await tx
+          .select({ completion: taskCompletions, task: tasks })
+          .from(taskCompletions)
+          .innerJoin(tasks, eq(tasks.id, taskCompletions.taskId))
+          .where(eq(taskCompletions.id, row.completion.id))
+          .limit(1);
+        return refetched[0]!;
+      });
+
+      return {
+        completionId: result.completion.id,
+        taskId: result.task.id,
+        title: result.task.title,
+        description: result.task.description,
+        icon: result.task.icon,
+        rewardCents: result.task.rewardCents,
+        requiresApproval: result.task.requiresApproval,
+        recurrence: result.task.recurrence,
+        daysOfWeek: result.task.daysOfWeek,
+        status: deriveStatus(result.completion),
+        completedAt: result.completion.completedAt
+          ? result.completion.completedAt.toISOString()
+          : null,
+      } as never;
     },
   );
 }

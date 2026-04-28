@@ -1,8 +1,15 @@
 import { z } from 'zod';
-import { IsoTimestamp, AvatarKey } from './common.js';
+import { UUID, IsoTimestamp } from './common.js';
 import { KidSchema } from './kid.js';
 
 export const PairingCodeRegex = /^\d{6}$/;
+
+// Parent → POST /api/parent/pairing-code: the kid (already created with name
+// + avatar in the parent flow) the code will pair to.
+export const GeneratePairingCodeRequestSchema = z.object({
+  kidId: UUID,
+});
+export type GeneratePairingCodeRequest = z.infer<typeof GeneratePairingCodeRequestSchema>;
 
 export const GeneratePairingCodeResponseSchema = z.object({
   code: z.string().regex(PairingCodeRegex),
@@ -10,13 +17,10 @@ export const GeneratePairingCodeResponseSchema = z.object({
 });
 export type GeneratePairingCodeResponse = z.infer<typeof GeneratePairingCodeResponseSchema>;
 
-const currentYear = new Date().getUTCFullYear();
-
+// Kid → POST /api/public/pair: code only. Identity comes from the kid record
+// the code targets.
 export const PairRequestSchema = z.object({
   code: z.string().regex(PairingCodeRegex),
-  name: z.string().min(1).max(40),
-  birthYear: z.number().int().min(currentYear - 25).max(currentYear).optional(),
-  avatarKey: AvatarKey.optional(),
   deviceId: z.string().min(8).max(128),
 });
 export type PairRequest = z.infer<typeof PairRequestSchema>;

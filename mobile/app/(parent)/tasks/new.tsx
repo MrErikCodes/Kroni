@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useForm, Controller, type Resolver } from 'react-hook-form';
+import { useForm, Controller, useWatch, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CreateTaskSchema, type CreateTaskInput } from '@kroni/shared';
@@ -33,6 +33,17 @@ const RECURRENCE_OPTIONS = [
   { value: 'once' as const, label: t('parent.taskNew.recurrence.once') },
 ];
 
+// dayOfWeek convention: 0 = Sunday … 6 = Saturday. Render Mon → Sun for nb-NO.
+const DOW_ORDER: Array<{ value: number; key: string }> = [
+  { value: 1, key: 'mon' },
+  { value: 2, key: 'tue' },
+  { value: 3, key: 'wed' },
+  { value: 4, key: 'thu' },
+  { value: 5, key: 'fri' },
+  { value: 6, key: 'sat' },
+  { value: 0, key: 'sun' },
+];
+
 export default function TaskNew() {
   const theme = useTheme();
   const router = useRouter();
@@ -46,7 +57,7 @@ export default function TaskNew() {
     queryFn: () => api.getKids(),
   });
 
-  const { control, handleSubmit, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, setValue, getValues, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(CreateTaskSchema) as Resolver<FormValues>,
     defaultValues: {
       title: '',
@@ -56,6 +67,10 @@ export default function TaskNew() {
       rewardCents: 1000,
     },
   });
+
+  // Drives the conditional day-of-week picker without re-rendering the
+  // whole form on every keystroke.
+  const recurrence = useWatch({ control, name: 'recurrence' });
 
   const mutation = useMutation({
     mutationFn: (data: FormValues) => api.createTask({
@@ -179,7 +194,17 @@ export default function TaskNew() {
                   {RECURRENCE_OPTIONS.map((opt) => (
                     <TouchableOpacity
                       key={opt.value}
-                      onPress={() => onChange(opt.value)}
+                      onPress={() => {
+                        onChange(opt.value);
+                        // Keep daysOfWeek in sync with recurrence so the
+                        // refine on CreateTaskSchema always passes: weekly
+                        // gets a default Monday, daily/once clears it.
+                        if (opt.value === 'weekly') {
+                          setValue('daysOfWeek', getValues('daysOfWeek') ?? [1]);
+                        } else {
+                          setValue('daysOfWeek', undefined);
+                        }
+                      }}
                       style={[
                         styles.segment,
                         {
@@ -205,6 +230,94 @@ export default function TaskNew() {
               )}
             />
           </View>
+
+          {/* Day-of-week picker — only for weekly recurrence */}
+          {recurrence === 'weekly' ? (
+            <View style={styles.field}>
+              <Label>{/* [REVIEW] */}Hvilke dager?</Label>
+              <Controller
+                control={control}
+                name="daysOfWeek"
+                render={({ field: { onChange, value } }) => {
+                  const selected = value ?? [];
+                  const allSelected = selected.length === DOW_ORDER.length;
+                  return (
+                    <View style={styles.dowGrid}>
+                      {/* "Valgfri" / any-day shortcut — toggles between
+                          all-7-days and Monday-only. Lets the parent set up
+                          a "do whenever" weekly task in one tap. */}
+                      <TouchableOpacity
+                        onPress={() =>
+                          onChange(allSelected ? [1] : DOW_ORDER.map((d) => d.value).sort((a, b) => a - b))
+                        }
+                        style={[
+                          styles.dowChip,
+                          {
+                            backgroundColor: allSelected ? theme.colors.gold[500] : s.card,
+                            borderColor: allSelected ? theme.colors.gold[500] : s.border,
+                          },
+                        ]}
+                        accessibilityRole="button"
+                        accessibilityLabel={/* [REVIEW] */ 'Valgfri — alle dager'}
+                      >
+                        <Text
+                          style={[
+                            styles.dowLabel,
+                            { color: allSelected ? '#FFFFFF' : tx.primary },
+                          ]}
+                        >
+                          {/* [REVIEW] */}
+                          Valgfri
+                        </Text>
+                      </TouchableOpacity>
+                      {DOW_ORDER.map(({ value: dow, key }) => {
+                        const on = selected.includes(dow);
+                        return (
+                          <TouchableOpacity
+                            key={key}
+                            onPress={() => {
+                              const next = on
+                                ? selected.filter((d) => d !== dow)
+                                : [...selected, dow].sort((a, b) => a - b);
+                              // Don't allow zero days when weekly — keep at
+                              // least one selected so submission stays valid.
+                              onChange(next.length === 0 ? selected : next);
+                            }}
+                            style={[
+                              styles.dowChip,
+                              {
+                                backgroundColor: on ? theme.colors.gold[500] : s.card,
+                                borderColor: on ? theme.colors.gold[500] : s.border,
+                              },
+                            ]}
+                            accessibilityRole="checkbox"
+                            accessibilityLabel={t(
+                              `parent.kidDetail.allowanceModal.dayOfWeek.${key}`,
+                            )}
+                            accessibilityState={{ checked: on }}
+                          >
+                            <Text
+                              style={[
+                                styles.dowLabel,
+                                { color: on ? '#FFFFFF' : tx.primary },
+                              ]}
+                            >
+                              {t(`parent.kidDetail.allowanceModal.dayOfWeek.${key}`)}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                  );
+                }}
+              />
+              {errors.daysOfWeek ? (
+                <Text style={[styles.fieldError, { color: theme.colors.semantic.danger }]}>
+                  {errors.daysOfWeek.message}
+                </Text>
+              ) : null}
+            </View>
+          ) : null}
 
           {/* Assign to kid */}
           <View style={styles.field}>
@@ -314,6 +427,18 @@ const styles = StyleSheet.create({
   fieldError: { fontSize: 13 },
   multiline: { height: 88, paddingTop: 12, textAlignVertical: 'top' },
   segmented: { flexDirection: 'row', gap: 8 },
+  dowGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  dowChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 44,
+    minWidth: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dowLabel: { fontSize: 14, fontWeight: '500' },
   kidPicker: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   segment: {
     flex: 1,

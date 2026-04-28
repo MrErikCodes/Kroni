@@ -8,8 +8,6 @@ import {
   Platform,
   ScrollView,
   TextInput,
-  TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -18,31 +16,17 @@ import Constants from 'expo-constants';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { KroniText } from '../../components/ui/Text';
 import { publicApi, ApiError } from '../../lib/api';
 import { setKidToken } from '../../lib/auth';
 
 const CODE_LENGTH = 6;
-const AVATAR_KEYS = [
-  'fox', 'bear', 'rabbit', 'owl', 'penguin', 'lion',
-  'panda', 'cat', 'dog', 'unicorn', 'dragon', 'astronaut',
-] as const;
-type AvatarKey = typeof AVATAR_KEYS[number];
-
-const AVATAR_EMOJI: Record<AvatarKey, string> = {
-  fox: '🦊', bear: '🐻', rabbit: '🐰', owl: '🦉', penguin: '🐧',
-  lion: '🦁', panda: '🐼', cat: '🐱', dog: '🐶', unicorn: '🦄',
-  dragon: '🐲', astronaut: '🧑‍🚀',
-};
 
 export default function KidPair() {
   const theme = useTheme();
   const router = useRouter();
 
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
-  const [name, setName] = useState('');
-  const [selectedAvatar, setSelectedAvatar] = useState<AvatarKey>('fox');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(TextInput | null)[]>([]);
@@ -75,7 +59,7 @@ export default function KidPair() {
   }, []);
 
   const handleConnect = useCallback(async () => {
-    if (code.length < CODE_LENGTH || !name.trim()) return;
+    if (code.length < CODE_LENGTH) return;
     setError(null);
     setLoading(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -86,12 +70,10 @@ export default function KidPair() {
       'unknown-device';
 
     try {
-      const result = await publicApi.pair({
-        code,
-        name: name.trim(),
-        avatarKey: selectedAvatar,
-        deviceId,
-      });
+      const result = await publicApi.pair({ code, deviceId });
+      // Token is stored in SecureStore — survives app restarts and OS reboots,
+      // and the JWT itself is effectively permanent. The kid stays signed in
+      // until a parent revokes by deleting the kid.
       await setKidToken(result.token);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(kid)/(tabs)/today');
@@ -105,7 +87,7 @@ export default function KidPair() {
     } finally {
       setLoading(false);
     }
-  }, [code, name, selectedAvatar, router]);
+  }, [code, router]);
 
   const s = theme.surface;
   const tx = theme.text;
@@ -191,57 +173,12 @@ export default function KidPair() {
             ))}
           </View>
 
-          {/* Name input */}
-          <View style={styles.field}>
-            <Text style={[styles.label, { color: tx.secondary }]}>
-              {t('auth.kid.nameLabel')}
-            </Text>
-            <Input
-              value={name}
-              onChangeText={setName}
-              placeholder={t('auth.kid.namePlaceholder')}
-              autoCapitalize="words"
-              accessibilityLabel={t('auth.kid.nameLabel')}
-            />
-          </View>
-
-          {/* Avatar picker */}
-          <View style={styles.avatarSection}>
-            <Text style={[styles.label, { color: tx.secondary }]}>
-              {t('auth.kid.avatarLabel')}
-            </Text>
-            <View style={styles.avatarGrid}>
-              {AVATAR_KEYS.map((key) => (
-                <TouchableOpacity
-                  key={key}
-                  onPress={() => setSelectedAvatar(key)}
-                  style={[
-                    styles.avatarPill,
-                    {
-                      backgroundColor:
-                        selectedAvatar === key
-                          ? theme.colors.gold[500]
-                          : s.card,
-                      borderColor:
-                        selectedAvatar === key ? theme.colors.gold[500] : borderColor,
-                    },
-                  ]}
-                  accessibilityRole="radio"
-                  accessibilityLabel={key}
-                  accessibilityState={{ selected: selectedAvatar === key }}
-                >
-                  <Text style={styles.avatarEmoji}>{AVATAR_EMOJI[key]}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-
           {/* Connect button */}
           <Button
             label={loading ? t('auth.kid.connecting') : t('auth.kid.pairButton')}
             onPress={handleConnect}
             loading={loading}
-            disabled={code.length < CODE_LENGTH || !name.trim()}
+            disabled={code.length < CODE_LENGTH}
             size="lg"
           />
         </ScrollView>
@@ -286,21 +223,4 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     textAlign: 'center',
   },
-  field: { gap: 6 },
-  label: { fontSize: 14, fontWeight: '500' },
-  avatarSection: { gap: 10 },
-  avatarGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  avatarPill: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarEmoji: { fontSize: 22 },
 });

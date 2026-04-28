@@ -5,9 +5,21 @@ import { eq } from 'drizzle-orm';
 import { getConfig } from '../config.js';
 import { getDb } from '../db/index.js';
 import { parents, type ParentRow } from '../db/schema/parents.js';
+import { parentInstalls } from '../db/schema/parent-installs.js';
 import { households, type HouseholdRow } from '../db/schema/households.js';
 import { ensureHouseholdForParent } from '../services/household.service.js';
 import { UnauthorizedError } from '../lib/errors.js';
+
+// Trim and clip client-supplied diagnostic headers so a malicious or
+// misbehaving client can't blow up our DB / log lines. Returns null for
+// missing or empty values.
+function readDiagnosticHeader(value: string | string[] | undefined, max = 200): string | null {
+  if (Array.isArray(value)) value = value[0];
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, max);
+}
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -99,5 +111,56 @@ export const authClerkPlugin = fp(async (app: FastifyInstance) => {
 
     req.parent = parent;
     req.household = household;
+
+    // Tag every subsequent log line for this request with the install id +
+    // app metadata so support can grep by install_id (the value pasted via
+    // "Kopier app info") and find a full server-side replay. Same fields
+    // become Sentry tags on the client. Client headers may be absent —
+    // we still tag with the parent + household ids so authenticated
+    // requests are always identifiable in logs.
+    const installId = readDiagnosticHeader(req.headers['x-kroni-install-id']);
+    const platform = readDiagnosticHeader(req.headers['x-kroni-platform'], 16);
+    const appVersion = readDiagnosticHeader(req.headers['x-kroni-app-version'], 32);
+    const appBuild = readDiagnosticHeader(req.headers['x-kroni-app-build'], 32);
+    const osVersion = readDiagnosticHeader(req.headers['x-kroni-os-version'], 32);
+    req.log = req.log.child({
+      app_role: 'parent',
+      parent_id: parent.id,
+      household_id: household.id,
+      ...(installId ? { install_id: installId } : {}),
+      ...(platform ? { platform } : {}),
+      ...(appVersion ? { app_version: appVersion } : {}),
+      ...(appBuild ? { app_build: appBuild } : {}),
+    });
+
+    // Upsert the install row. Fire-and-forget so a slow write never
+    // blocks the request; surface any error in logs only. Skip when the
+    // client didn't send an install id (older clients, web).
+    if (installId) {
+      void db
+        .insert(parentInstalls)
+        .values({
+          parentId: parent.id,
+          installId,
+          platform,
+          appVersion,
+          appBuild,
+          osVersion,
+          lastSeenAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [parentInstalls.parentId, parentInstalls.installId],
+          set: {
+            platform,
+            appVersion,
+            appBuild,
+            osVersion,
+            lastSeenAt: new Date(),
+          },
+        })
+        .catch((err) => {
+          req.log.warn({ err }, 'failed to upsert parent_install');
+        });
+    }
   });
 });

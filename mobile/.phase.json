@@ -1,0 +1,8 @@
+{
+  "version": "2",
+  "phaseApp": "KRONI-MOBILE",
+  "appId": "6abb131a-c5bf-4aeb-9118-636f12b48dfa",
+  "defaultEnv": "Development",
+  "envId": "1795cdf6-e5b3-4159-bcfa-126c28b994be",
+  "monorepoSupport": false
+}

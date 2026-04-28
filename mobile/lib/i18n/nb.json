@@ -58,7 +58,11 @@
       "empty": "Ingen barn lagt til ennå",
       "emptyBody": "Legg til ditt første barn for å komme i gang",
       "addKid": "Legg til barn",
-      "kidCount": "%{count} barn"
+      "kidCount": "%{count} barn",
+      "eyebrow": "Forelder",
+      "headlineA": "Familien",
+      "headlineB": "din",
+      "noAllowance": "Ingen lommepenger satt"
     },
     "kidNew": {
       "title": "Nytt barn",
@@ -159,7 +163,10 @@
       "emptyBody": "Opprett din første oppgave",
       "addTask": "Ny oppgave",
       "allKids": "Alle barn",
-      "groupedByKid": "Gruppert per barn"
+      "groupedByKid": "Gruppert per barn",
+      "eyebrow": "Oppgaver",
+      "headlineA": "Hva skal",
+      "headlineB": "gjøres"
     },
     "taskNew": {
       "title": "Ny oppgave",
@@ -167,13 +174,16 @@
       "titlePlaceholder": "F.eks. Rydde rommet",
       "descLabel": "Beskrivelse (valgfritt)",
       "descPlaceholder": "Beskriv oppgaven...",
-      "rewardLabel": "Belønning (øre)",
+      "rewardLabel": "Belønning (kr)",
       "rewardPlaceholder": "F.eks. 2000 = 20 kr",
       "recurrenceLabel": "Gjentagelse",
       "kidLabel": "Tildel til barn",
       "kidNone": "Alle barn",
       "requiresApproval": "Krever godkjenning",
       "create": "Opprett oppgave",
+      "daysLabel": "Hvilke dager?",
+      "anyDayLabel": "Valgfri",
+      "anyDayAccessibility": "Valgfri — alle dager",
       "recurrence": {
         "daily": "Daglig",
         "weekly": "Ukentlig",
@@ -192,13 +202,16 @@
       "title": "Belønninger",
       "empty": "Ingen belønninger opprettet ennå",
       "emptyBody": "Opprett en belønning barna kan jobbe mot",
-      "addReward": "Ny belønning"
+      "addReward": "Ny belønning",
+      "eyebrow": "Belønninger",
+      "headlineA": "Det de",
+      "headlineB": "vil ha"
     },
     "rewardNew": {
       "title": "Ny belønning",
       "titleLabel": "Belønningstittel",
       "titlePlaceholder": "F.eks. Kinobilletter",
-      "costLabel": "Kostnad (øre)",
+      "costLabel": "Kostnad (kr)",
       "costPlaceholder": "F.eks. 5000 = 50 kr",
       "kidLabel": "Tildel til barn",
       "kidNone": "Alle barn",
@@ -208,7 +221,8 @@
       "title": "Rediger belønning",
       "save": "Lagre endringer",
       "delete": "Slett belønning",
-      "deleteConfirm": "Er du sikker på at du vil slette denne belønningen?"
+      "deleteConfirm": "Er du sikker på at du vil slette denne belønningen?",
+      "activeLabel": "Aktiv"
     },
     "approvals": {
       "title": "Godkjenninger",
@@ -222,7 +236,9 @@
       "confirmApprove": "Godkjenn fullføring av \"%{title}\"?",
       "confirmReject": "Avvis fullføring av \"%{title}\"?",
       "approvedToast": "Godkjent! %{name} fikk %{amount}",
-      "rejectedToast": "Avvist"
+      "rejectedToast": "Avvist",
+      "kindReward": "Belønning",
+      "kindTask": "Oppgave"
     },
     "pairingCode": {
       "title": "Paringskode",
@@ -257,7 +273,20 @@
       "privacy": "Personvern",
       "terms": "Vilkår",
       "support": "Støtte",
-      "version": "Versjon %{version}"
+      "version": "Versjon %{version}",
+      "other": "Annet",
+      "eyebrow": "Konto",
+      "headlineSettings": "Innstillinger",
+      "appInfo": {
+        "copyButton": "Kopier app info",
+        "copiedTitle": "Kopiert til utklippstavlen",
+        "copyAgain": "Kopier igjen",
+        "roleLine": {
+          "parent": "Rolle: forelder",
+          "kid": "Rolle: barn"
+        },
+        "platformLine": "Plattform: %{platform} %{osVersion}"
+      }
     },
     "account": {
       "title": "Konto",
@@ -353,7 +382,30 @@
       "waitingApproval": "Venter på godkjenning",
       "approved": "Godkjent",
       "rejected": "Avvist",
-      "progressLabel": "%{done} av %{total} fullført"
+      "progressLabel": "%{done} av %{total} fullført",
+      "heroToday": "I dag,",
+      "balanceLabel": "Saldo",
+      "detailSheet": {
+        "whenLabel": "Når",
+        "approvalLabel": "Godkjenning",
+        "approvalRequired": "Forelder må godkjenne",
+        "approvalDirect": "Tilskrives saldo direkte",
+        "recurrenceDaily": "Hver dag",
+        "recurrenceOnce": "Kun én gang",
+        "recurrenceWeekly": "Ukentlig",
+        "recurrenceAllDays": "Valgfritt",
+        "recurrenceOneDay": "Hver %{day}",
+        "connector": "og",
+        "dayNames": {
+          "0": "søndag",
+          "1": "mandag",
+          "2": "tirsdag",
+          "3": "onsdag",
+          "4": "torsdag",
+          "5": "fredag",
+          "6": "lørdag"
+        }
+      }
     },
     "balanceScreen": {
       "title": "Saldo",
@@ -384,7 +436,11 @@
       "confirmRedeem": "Vil du løse inn \"%{title}\" for %{amount}?",
       "waiting": "Venter på godkjenning",
       "affordable": "Du har råd til dette!",
-      "redeemed": "Sendt til godkjenning!"
+      "redeemed": "Sendt til godkjenning!",
+      "errorInsufficient": "Du har ikke nok saldo for dette ennå.",
+      "eyebrow": "Belønninger",
+      "headlineA": "Det du",
+      "headlineB": "vil ha"
     },
     "profileScreen": {
       "title": "Profil",
@@ -392,7 +448,13 @@
       "signOut": "Koble fra",
       "signOutConfirm": "Er du sikker på at du vil koble fra denne enheten?",
       "avatarChange": "Endre avatar",
-      "noEarnings": "Ingen inntjening ennå"
+      "noEarnings": "Ingen inntjening ennå",
+      "eyebrow": "Profil",
+      "appInfo": {
+        "copyButton": "Kopier app info",
+        "copiedTitle": "Kopiert til utklippstavlen",
+        "copyAgain": "Kopier igjen"
+      }
     },
     "celebrate": {
       "title": "Bra jobba!",
@@ -426,7 +488,16 @@
     "pro": {
       "kids": "Ubegrenset barn",
       "tasks": "Ubegrenset oppgaver"
-    }
+    },
+    "headerEyebrow": "Familieplan",
+    "headerCaption": "Familieplan",
+    "headlineA": "Når familien",
+    "headlineB": "vokser",
+    "intro": "Ubegrenset antall barn og oppgaver, varsler og full historikk. Pause når familien er på ferie, slutt når du vil.",
+    "featuresEyebrow": "Det du får",
+    "trustCancel": "Avbestill når du vil",
+    "trustNoAds": "Ingen reklame",
+    "trustNoCash": "Aldri ekte penger"
   },
   "roleChooser": {
     "title": "Hva er du?",
@@ -438,6 +509,57 @@
     "kidCard": {
       "title": "Barn",
       "description": "Se dagens oppgaver, tjen penger og løs inn belønninger"
+    },
+    "eyebrow": "Velkommen til Kroni",
+    "headlineA": "Hvem er du —",
+    "headlineB": "i dag",
+    "intro": "Velg hvilken side av Kroni du logger inn på.",
+    "parentEyebrow": "Forelder",
+    "parentHeadline": "Sett opp familien.",
+    "parentBody": "Lag oppgaver, godkjenn ferdig arbeid og sett ukepenger. Fra kjøkkenbordet, ikke fra appen.",
+    "kidEyebrow": "Barn",
+    "kidHeadline": "Logg inn med kode.",
+    "kidBody": "Be foreldrene dine om en seks-sifret kode. Du får din egen oppgaveliste og saldo.",
+    "trustBuilt": "Bygd i Norge",
+    "trustNoCash": "Aldri ekte penger",
+    "trustAge": "For barn 6–14 år",
+    "parentAccessibility": "Forelder",
+    "kidAccessibility": "Barn"
+  },
+  "auth": {
+    "parentSignIn": {
+      "eyebrow": "Logg inn",
+      "headlineA": "Velkommen",
+      "headlineB": "hjem",
+      "twoFactor": {
+        "totp": "Skriv inn 6-sifret kode fra autentiseringsappen din.",
+        "phone_code": "Vi sendte en kode til telefonen din. Skriv den inn under.",
+        "email_code": "Vi sendte en kode til e-posten din. Skriv den inn under.",
+        "backup_code": "Skriv inn en av reservekodene dine.",
+        "codeLabel": "Kode",
+        "codeAccessibility": "6-sifret kode",
+        "confirmButton": "Bekreft",
+        "switchAccount": "Bytt konto",
+        "errorNotLoaded": "Klar om litt — appen laster fortsatt.",
+        "errorUnavailable": "Innlogging er ikke tilgjengelig. Prøv igjen.",
+        "errorStatus": "Status: %{status}. Prøv på nytt eller kontakt støtte.",
+        "errorStatus2fa": "Status: %{status}. Prøv koden på nytt.",
+        "errorNoMethod": "Ingen støttet to-faktor-metode (%{names})."
+      }
+    },
+    "parentSignUp": {
+      "eyebrow": "Ny konto",
+      "headlineA": "Begynn",
+      "headlineB": "gratis",
+      "verifyText": "Vi har sendt en bekreftelseskode til %{email}. Skriv inn koden under.",
+      "verifyCodeLabel": "Bekreftelseskode",
+      "verifyCodeAccessibility": "Bekreftelseskode"
+    },
+    "kidPair": {
+      "eyebrow": "Barn",
+      "headlineA": "Skriv inn",
+      "headlineB": "koden",
+      "digitAccessibility": "Siffer %{n}"
     }
   }
 }

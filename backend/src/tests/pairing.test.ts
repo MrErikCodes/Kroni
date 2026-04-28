@@ -13,7 +13,7 @@ const { getDb } = await import('../db/index.js');
 const { getRedis } = await import('../lib/redis.js');
 const { parents } = await import('../db/schema/parents.js');
 const { households } = await import('../db/schema/households.js');
-const { pairingCodes } = await import('../db/schema/pairing.js');
+const { pairingCodes, kidDevices } = await import('../db/schema/pairing.js');
 const { kids } = await import('../db/schema/kids.js');
 const { kidBalances } = await import('../db/schema/balance.js');
 const { signKidJwt, verifyKidJwt } = await import('../lib/jwt.js');
@@ -36,6 +36,22 @@ async function seedParent(): Promise<{ parentId: string; householdId: string }> 
   return { parentId: parent.id, householdId };
 }
 
+async function seedKid(
+  parentId: string,
+  householdId: string,
+  name = 'Ada',
+): Promise<{ kidId: string }> {
+  const db = getDb();
+  const inserted = await db
+    .insert(kids)
+    .values({ parentId, householdId, name })
+    .returning();
+  const kid = inserted[0];
+  assert.ok(kid);
+  await db.insert(kidBalances).values({ kidId: kid.id, balanceCents: 0 });
+  return { kidId: kid.id };
+}
+
 async function clearRedisRateLimits(): Promise<void> {
   const r = getRedis();
   const keys = await r.keys('rl:*');
@@ -49,41 +65,48 @@ test.after(async () => {
   await closeDb();
 });
 
-test('pairing — generate code as parent, redeem as kid', async () => {
+test('pairing — code redemption attaches device to existing kid', async () => {
   await clearRedisRateLimits();
   const { parentId, householdId } = await seedParent();
+  const { kidId } = await seedKid(parentId, householdId, 'Ada');
   const db = getDb();
 
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-  await db.insert(pairingCodes).values({ code, parentId, householdId, expiresAt });
+  await db
+    .insert(pairingCodes)
+    .values({ code, parentId, householdId, targetKidId: kidId, expiresAt });
 
+  const deviceId = 'dev_' + Math.random().toString(36).slice(2, 12);
   const app = await buildApp();
   try {
     const res = await app.inject({
       method: 'POST',
       url: '/api/public/pair',
-      payload: { code, name: 'Ada', deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
+      payload: { code, deviceId },
     });
     assert.equal(res.statusCode, 200);
     const body = res.json() as { token: string; kid: { id: string; parentId: string; name: string } };
     assert.ok(body.token.length > 20);
+    assert.equal(body.kid.id, kidId, 'returns the pre-existing kid, not a new one');
     assert.equal(body.kid.parentId, parentId);
     assert.equal(body.kid.name, 'Ada');
 
-    const kidRows = await db.select().from(kids).where(eq(kids.id, body.kid.id)).limit(1);
-    assert.equal(kidRows.length, 1);
-    assert.equal(kidRows[0]?.householdId, householdId);
+    // No new kid record should have been created.
+    const kidCount = await db.select().from(kids).where(eq(kids.householdId, householdId));
+    assert.equal(kidCount.length, 1);
 
-    const balanceRows = await db.select().from(kidBalances).where(eq(kidBalances.kidId, body.kid.id)).limit(1);
-    assert.equal(balanceRows.length, 1);
-    assert.equal(balanceRows[0]?.balanceCents, 0);
+    // Device row attached to the existing kid.
+    const devices = await db.select().from(kidDevices).where(eq(kidDevices.kidId, kidId));
+    assert.equal(devices.length, 1);
+    assert.equal(devices[0]?.deviceId, deviceId);
 
     const codeRows = await db.select().from(pairingCodes).where(eq(pairingCodes.code, code)).limit(1);
     assert.ok(codeRows[0]?.usedAt !== null, 'code marked used');
+    assert.equal(codeRows[0]?.usedByKidId, kidId);
 
     const payload = verifyKidJwt(body.token);
-    assert.equal(payload.sub, body.kid.id);
+    assert.equal(payload.sub, kidId);
     assert.equal(payload.parent_id, parentId);
   } finally {
     await app.close();
@@ -93,17 +116,20 @@ test('pairing — generate code as parent, redeem as kid', async () => {
 test('pairing — expired code is rejected', async () => {
   await clearRedisRateLimits();
   const { parentId, householdId } = await seedParent();
+  const { kidId } = await seedKid(parentId, householdId);
   const db = getDb();
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   const expiresAt = new Date(Date.now() - 60_000); // already expired
-  await db.insert(pairingCodes).values({ code, parentId, householdId, expiresAt });
+  await db
+    .insert(pairingCodes)
+    .values({ code, parentId, householdId, targetKidId: kidId, expiresAt });
 
   const app = await buildApp();
   try {
     const res = await app.inject({
       method: 'POST',
       url: '/api/public/pair',
-      payload: { code, name: 'Bob', deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
+      payload: { code, deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
     });
     assert.equal(res.statusCode, 401);
   } finally {
@@ -114,12 +140,14 @@ test('pairing — expired code is rejected', async () => {
 test('pairing — already-used code is rejected', async () => {
   await clearRedisRateLimits();
   const { parentId, householdId } = await seedParent();
+  const { kidId } = await seedKid(parentId, householdId);
   const db = getDb();
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   await db.insert(pairingCodes).values({
     code,
     parentId,
     householdId,
+    targetKidId: kidId,
     expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     usedAt: new Date(),
   });
@@ -129,7 +157,7 @@ test('pairing — already-used code is rejected', async () => {
     const res = await app.inject({
       method: 'POST',
       url: '/api/public/pair',
-      payload: { code, name: 'Eve', deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
+      payload: { code, deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
     });
     assert.equal(res.statusCode, 401);
   } finally {
@@ -146,7 +174,7 @@ test('pairing — IP rate limit kicks in after 5 attempts', async () => {
       const res = await app.inject({
         method: 'POST',
         url: '/api/public/pair',
-        payload: { code: '000000', name: 'X', deviceId: `dev_unique_${i}` },
+        payload: { code: '000000', deviceId: `dev_unique_${i}` },
         remoteAddress: '203.0.113.42',
       });
       last = res.statusCode;

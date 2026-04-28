@@ -127,8 +127,8 @@ export default function KidDetail() {
   }, [deleteMutation]);
 
   const handlePairingCode = useCallback(() => {
-    router.push('/(parent)/pairing-code');
-  }, [router]);
+    router.push({ pathname: '/(parent)/pairing-code', params: { kidId: id } });
+  }, [router, id]);
 
   const isLoading = kidLoading || balanceLoading;
 
@@ -333,8 +333,12 @@ function HistoryRow({ entry, isLast }: { entry: BalanceEntry; isLast: boolean })
         <Text style={styles.historyEmoji}>{REASON_ICONS[entry.reason] ?? '💸'}</Text>
       </View>
       <View style={styles.historyInfo}>
-        <Text style={[styles.historyReason, { color: tx.primary }]}>
-          {t(`kid.balanceScreen.reasons.${entry.reason}`) || entry.reason}
+        {/* Title-first rendering — matches the kid's history screen so a
+            parent recognises a task by name, not "Oppgave fullført". */}
+        <Text style={[styles.historyReason, { color: tx.primary }]} numberOfLines={2}>
+          {entry.referenceTitle ??
+            t(`kid.balanceScreen.reasons.${entry.reason}`) ??
+            entry.reason}
         </Text>
         <Text style={[styles.historyDate, { color: tx.secondary }]}>
           {formatRelativeDate(entry.createdAt)}

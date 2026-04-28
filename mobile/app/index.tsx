@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,7 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { setRolePreference } from '../lib/auth';
+import { getKidToken, setRolePreference } from '../lib/auth';
 import { colors, fonts } from '../lib/theme';
 import { KroniText } from '../components/ui/Text';
 
@@ -17,6 +17,29 @@ export default function RoleChooser() {
   const router = useRouter();
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
+
+  // Kids should never see the role chooser after first pair. The token in
+  // SecureStore + the now-permanent JWT mean a force-close → reopen lands
+  // straight back in the kid app. Only if no token exists do we render the
+  // chooser. Parents flow through Clerk in their own (parent) layout, so
+  // we don't auto-resume them here — Clerk's tokenCache handles that.
+  const [resolved, setResolved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const token = await getKidToken();
+      if (cancelled) return;
+      if (token) {
+        router.replace('/(kid)/(tabs)/today');
+        return;
+      }
+      setResolved(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   const bg = isDark ? colors.ink[900] : colors.sand[50];
   const cardBg = isDark ? colors.ink[800] : colors.sand[50];
@@ -33,6 +56,12 @@ export default function RoleChooser() {
     await setRolePreference('kid');
     router.push('/auth/kid-pair');
   }, [router]);
+
+  // While we're deciding whether to redirect, paint the background only —
+  // showing the role chooser for a frame then yanking it away looks broken.
+  if (!resolved) {
+    return <SafeAreaView style={[styles.container, { backgroundColor: bg }]} />;
+  }
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bg }]}>

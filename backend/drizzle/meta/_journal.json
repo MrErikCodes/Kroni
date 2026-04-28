@@ -22,6 +22,27 @@
       "when": 1782000000000,
       "tag": "0002_allowance_schedule",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1798800000000,
+      "tag": "0003_pairing_kid_target",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1798820000000,
+      "tag": "0004_balance_reference_title",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1777394065856,
+      "tag": "0005_install_tracking",
+      "breakpoints": true
     }
   ]
 }

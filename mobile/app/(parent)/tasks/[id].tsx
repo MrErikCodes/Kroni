@@ -144,6 +144,25 @@ export default function TaskDetail() {
             </View>
 
             <View style={styles.field}>
+              <Label>{t('parent.taskNew.descLabel')}</Label>
+              <Controller
+                control={control}
+                name="description"
+                render={({ field: { onChange, value } }) => (
+                  <Input
+                    value={value ?? ''}
+                    onChangeText={(v) => onChange(v.length === 0 ? null : v)}
+                    placeholder={t('parent.taskNew.descPlaceholder')}
+                    multiline
+                    numberOfLines={3}
+                    style={styles.multiline}
+                    accessibilityLabel={t('parent.taskNew.descLabel')}
+                  />
+                )}
+              />
+            </View>
+
+            <View style={styles.field}>
               <Label>{/* [REVIEW] */}Belønning (kr)</Label>
               <Controller
                 control={control}
@@ -252,6 +271,7 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 20, gap: 20 },
   field: { gap: 8 },
+  multiline: { height: 88, paddingTop: 12, textAlignVertical: 'top' },
   segmented: { flexDirection: 'row', gap: 8 },
   segment: {
     flex: 1,

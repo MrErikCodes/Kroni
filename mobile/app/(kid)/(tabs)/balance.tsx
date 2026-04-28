@@ -57,8 +57,13 @@ function HistoryRow({ entry }: { entry: BalanceEntry }) {
         <Text style={styles.historyEmoji}>{REASON_ICONS[entry.reason] ?? '💸'}</Text>
       </View>
       <View style={styles.historyInfo}>
-        <Text style={[styles.historyReason, { color: tx.primary }]}>
-          {t(`kid.balanceScreen.reasons.${entry.reason}`) || entry.reason}
+        {/* Show the actual task / reward title when we have it; fall back
+            to the generic reason label for adjustments and pre-snapshot
+            entries. */}
+        <Text style={[styles.historyReason, { color: tx.primary }]} numberOfLines={2}>
+          {entry.referenceTitle ??
+            t(`kid.balanceScreen.reasons.${entry.reason}`) ??
+            entry.reason}
         </Text>
         <Text style={[styles.historyDate, { color: tx.secondary }]}>
           {formatRelativeDate(entry.createdAt)}

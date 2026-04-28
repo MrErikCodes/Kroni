@@ -66,6 +66,7 @@ export async function runAllowance(): Promise<void> {
         kidId: kid.id,
         amountCents: kid.amountCents,
         reason: 'allowance',
+        referenceTitle: 'Lommepenger',
       });
       await db
         .update(kids)

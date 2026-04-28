@@ -4,11 +4,9 @@ import { getDb } from '../db/index.js';
 import { getRedis } from '../lib/redis.js';
 import { pairingCodes, kidDevices } from '../db/schema/pairing.js';
 import { kids } from '../db/schema/kids.js';
-import { kidBalances } from '../db/schema/balance.js';
 import { generatePairingCode } from '../lib/codes.js';
 import { signKidJwt } from '../lib/jwt.js';
-import { ConflictError, UnauthorizedError } from '../lib/errors.js';
-import bcrypt from 'bcryptjs';
+import { ConflictError, UnauthorizedError, NotFoundError } from '../lib/errors.js';
 import type { AvatarKey } from '@kroni/shared';
 
 const CODE_TTL_MIN = 15;
@@ -22,20 +20,35 @@ export interface CreatedPairingCode {
 }
 
 // Generate a 6-digit pairing code unique among non-expired non-used codes.
-// Retries on collision up to 5 times (vanishingly small probability).
-// Scoped to a household — any parent in that household can pair a kid.
+// Retries on collision up to 5 times (vanishingly small probability). The
+// code targets a specific kid the parent has already created; redemption
+// only attaches a device to that kid.
 export async function createPairingCode(
   householdId: string,
   parentId: string,
+  targetKidId: string,
 ): Promise<CreatedPairingCode> {
   const db = getDb();
   const redis = getRedis();
+
+  // Validate the kid is actually in this household before issuing a code.
+  const kidRows = await db
+    .select({ id: kids.id, householdId: kids.householdId })
+    .from(kids)
+    .where(eq(kids.id, targetKidId))
+    .limit(1);
+  const kidRow = kidRows[0];
+  if (!kidRow || kidRow.householdId !== householdId) {
+    throw new NotFoundError('kid not found in household');
+  }
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = generatePairingCode();
     const expiresAt = new Date(Date.now() + CODE_TTL_SEC * 1000);
     try {
-      await db.insert(pairingCodes).values({ code, householdId, parentId, expiresAt });
+      await db
+        .insert(pairingCodes)
+        .values({ code, householdId, parentId, targetKidId, expiresAt });
       // Cache householdId so the public pair endpoint can fast-path lookup.
       await redis.set(codeCacheKey(code), householdId, 'EX', CODE_TTL_SEC);
       return { code, expiresAt };
@@ -50,10 +63,6 @@ export async function createPairingCode(
 
 export interface PairInput {
   code: string;
-  name: string;
-  birthYear?: number | undefined;
-  avatarKey?: string | undefined;
-  pin?: string | undefined;
   deviceId: string;
 }
 
@@ -78,17 +87,17 @@ export interface PairOutput {
 }
 
 export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
-  const { code, name, birthYear, avatarKey, pin, deviceId } = input;
+  const { code, deviceId } = input;
   const db = getDb();
   const redis = getRedis();
 
   // Cache lookup is informational — the transaction below is the source of
-  // truth and re-validates expiry/usage. Read kept for parity with the old
-  // implementation in case future code wants a fast pre-auth check.
+  // truth and re-validates expiry/usage. Read kept for parity in case
+  // future code wants a fast pre-auth check.
   void (await redis.get(codeCacheKey(code)));
 
   // Atomic transaction. Lock pairing row to prevent races, mark used,
-  // create kid, balance row, device.
+  // attach device to the pre-existing target kid.
   const result = await db.transaction(async (tx) => {
     const codeRows = await tx
       .select()
@@ -105,28 +114,21 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
     const codeRow = codeRows[0];
     if (!codeRow) throw new UnauthorizedError('invalid or expired pairing code');
 
-    const hashedPin = pin ? await bcrypt.hash(pin, 10) : null;
+    const kidRows = await tx
+      .select()
+      .from(kids)
+      .where(eq(kids.id, codeRow.targetKidId))
+      .limit(1);
+    const kid = kidRows[0];
+    // Cascade on kids delete should remove the code too, but guard anyway.
+    if (!kid) throw new UnauthorizedError('paired kid no longer exists');
 
-    const insertedKids = await tx
-      .insert(kids)
-      .values({
-        householdId: codeRow.householdId,
-        parentId: codeRow.parentId,
-        name,
-        birthYear: birthYear ?? null,
-        avatarKey: avatarKey ?? null,
-        pin: hashedPin,
-      })
-      .returning();
-    const kid = insertedKids[0];
-    if (!kid) throw new ConflictError('kid insert failed');
-
-    await tx.insert(kidBalances).values({ kidId: kid.id, balanceCents: 0 });
-
-    await tx.insert(kidDevices).values({
-      kidId: kid.id,
-      deviceId,
-    });
+    // Idempotent device attach: the unique key (kidId, deviceId) makes
+    // re-pairing the same device a no-op so a kid can rotate codes safely.
+    await tx
+      .insert(kidDevices)
+      .values({ kidId: kid.id, deviceId })
+      .onConflictDoNothing({ target: [kidDevices.kidId, kidDevices.deviceId] });
 
     await tx
       .update(pairingCodes)
@@ -136,7 +138,6 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
     return kid;
   });
 
-  // Invalidate cache after successful redemption.
   await redis.del(codeCacheKey(code));
 
   // Pairing route requires an authenticated parent, so parentId is always
@@ -156,7 +157,6 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
       parentId: result.parentId,
       name: result.name,
       birthYear: result.birthYear,
-      // avatarKey is constrained to AvatarKey at write time (Zod-validated input).
       avatarKey: result.avatarKey as AvatarKey | null,
       allowanceFrequency: result.allowanceFrequency as PairOutput['kid']['allowanceFrequency'],
       allowanceCents: result.allowanceCents,

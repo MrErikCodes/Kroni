@@ -3,8 +3,17 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/index.js';
 import { kids, type KidRow } from '../db/schema/kids.js';
+import { kidInstalls } from '../db/schema/kid-installs.js';
 import { UnauthorizedError } from '../lib/errors.js';
 import { verifyKidJwt, shouldRefreshKidJwt, refreshKidJwt, type KidJwtPayload } from '../lib/jwt.js';
+
+function readDiagnosticHeader(value: string | string[] | undefined, max = 200): string | null {
+  if (Array.isArray(value)) value = value[0];
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  return trimmed.slice(0, max);
+}
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -38,6 +47,51 @@ export const authKidPlugin = fp(async (app: FastifyInstance) => {
 
     req.kid = kid;
     req.kidJwt = payload;
+
+    // Tag log + upsert kid_installs so support can join from a "Kopier
+    // app info" blob to recent server activity. Mirrors the parent
+    // pipeline; same Sentry tag surface coming up.
+    const installId = readDiagnosticHeader(req.headers['x-kroni-install-id']);
+    const platform = readDiagnosticHeader(req.headers['x-kroni-platform'], 16);
+    const appVersion = readDiagnosticHeader(req.headers['x-kroni-app-version'], 32);
+    const appBuild = readDiagnosticHeader(req.headers['x-kroni-app-build'], 32);
+    const osVersion = readDiagnosticHeader(req.headers['x-kroni-os-version'], 32);
+    req.log = req.log.child({
+      app_role: 'kid',
+      kid_id: kid.id,
+      household_id: kid.householdId,
+      ...(installId ? { install_id: installId } : {}),
+      ...(platform ? { platform } : {}),
+      ...(appVersion ? { app_version: appVersion } : {}),
+      ...(appBuild ? { app_build: appBuild } : {}),
+    });
+
+    if (installId) {
+      void db
+        .insert(kidInstalls)
+        .values({
+          kidId: kid.id,
+          installId,
+          platform,
+          appVersion,
+          appBuild,
+          osVersion,
+          lastSeenAt: new Date(),
+        })
+        .onConflictDoUpdate({
+          target: [kidInstalls.kidId, kidInstalls.installId],
+          set: {
+            platform,
+            appVersion,
+            appBuild,
+            osVersion,
+            lastSeenAt: new Date(),
+          },
+        })
+        .catch((err) => {
+          req.log.warn({ err }, 'failed to upsert kid_install');
+        });
+    }
 
     if (shouldRefreshKidJwt(payload)) {
       void reply.header('x-token-refresh', refreshKidJwt(payload));

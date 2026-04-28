@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   RefreshControl,
   ScrollView,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -23,6 +22,7 @@ import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
+import { ApiError } from '../../../lib/api';
 
 const formatNok = (ore: number) =>
   new Intl.NumberFormat('nb-NO', {
@@ -93,6 +93,8 @@ export default function KidRewardsScreen() {
   const tx = theme.text;
 
   const [confirmReward, setConfirmReward] = useState<Reward | null>(null);
+  const [redeemError, setRedeemError] = useState<string | null>(null);
+  const [successOpen, setSuccessOpen] = useState(false);
 
   const { data: balance } = useQuery({
     queryKey: ['kid', 'balance'],
@@ -111,23 +113,40 @@ export default function KidRewardsScreen() {
       void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
       void queryClient.invalidateQueries({ queryKey: ['kid', 'rewards'] });
       setConfirmReward(null);
-      Alert.alert('', t('kid.rewardsScreen.redeemed'));
+      setRedeemError(null);
+      setSuccessOpen(true);
     },
-    onError: async () => {
+    onError: async (err: unknown) => {
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      // Surface the failure inline so the kid (and we) can see *why*
+      // nothing happened — the previous silent-fail was the bug.
+      if (err instanceof ApiError && err.status === 409) {
+        setRedeemError(/* [REVIEW] */ 'Du har ikke nok saldo for dette ennå.');
+      } else if (err instanceof ApiError && err.problem.detail) {
+        setRedeemError(err.problem.detail);
+      } else {
+        setRedeemError(t('common.error'));
+      }
     },
   });
 
   const handleRedeemPress = useCallback((reward: Reward) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setRedeemError(null);
     setConfirmReward(reward);
   }, []);
 
   const handleConfirm = useCallback(() => {
     if (confirmReward) {
+      setRedeemError(null);
       redeemMutation.mutate(confirmReward.id);
     }
   }, [confirmReward, redeemMutation]);
+
+  const handleCloseConfirm = useCallback(() => {
+    setConfirmReward(null);
+    setRedeemError(null);
+  }, []);
 
   const balanceCents = balance?.balanceCents ?? 0;
   const activeRewards = (rewards ?? []).filter((r) => r.active);
@@ -208,10 +227,24 @@ export default function KidRewardsScreen() {
         />
       )}
 
+      {/* Success confirmation — replaces native Alert. */}
+      <Modal visible={successOpen} onClose={() => setSuccessOpen(false)}>
+        <Text style={[styles.modalTitle, { color: tx.primary }]}>
+          {t('kid.rewardsScreen.redeemed')}
+        </Text>
+        <View style={styles.modalActions}>
+          <Button
+            label={t('common.ok')}
+            onPress={() => setSuccessOpen(false)}
+            size="lg"
+          />
+        </View>
+      </Modal>
+
       {/* Confirm modal */}
       <Modal
         visible={!!confirmReward}
-        onClose={() => setConfirmReward(null)}
+        onClose={handleCloseConfirm}
       >
         <Text style={[styles.modalTitle, { color: tx.primary }]}>
           {t('kid.rewardsScreen.confirmRedeem', {
@@ -219,10 +252,22 @@ export default function KidRewardsScreen() {
             amount: formatNok(confirmReward?.costCents ?? 0),
           })}
         </Text>
+        {redeemError ? (
+          <View
+            style={[
+              styles.modalError,
+              { backgroundColor: theme.colors.semantic.danger + '18' },
+            ]}
+          >
+            <Text style={[styles.modalErrorText, { color: theme.colors.semantic.danger }]}>
+              {redeemError}
+            </Text>
+          </View>
+        ) : null}
         <View style={styles.modalActions}>
           <Button
             label={t('common.cancel')}
-            onPress={() => setConfirmReward(null)}
+            onPress={handleCloseConfirm}
             variant="secondary"
           />
           <Button
@@ -299,5 +344,7 @@ const styles = StyleSheet.create({
   },
   affordText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
   modalTitle: { fontSize: 17, fontWeight: '600', textAlign: 'center', marginBottom: 20, lineHeight: 24 },
+  modalError: { borderRadius: 12, padding: 12, marginBottom: 12 },
+  modalErrorText: { fontSize: 14, fontWeight: '500', textAlign: 'center' },
   modalActions: { flexDirection: 'row', gap: 12 },
 });

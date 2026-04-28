@@ -515,12 +515,25 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
     queryKey: ['parent', 'household'],
     queryFn: () => api.getHousehold(),
     retry: false,
+    // The owner needs to see a co-parent appear within seconds of them
+    // joining. Refetch on focus + a slow background poll covers both
+    // foreground tabs and the device coming back from sleep.
+    refetchInterval: 30_000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: 'always',
   });
+
+  const premiumOwnerId =
+    householdQuery.data?.household.premiumOwnerParentId ?? null;
+  const isOwner = premiumOwnerId !== null && premiumOwnerId === currentParentId;
 
   const invitesQuery = useQuery({
     queryKey: ['parent', 'householdInvites'],
     queryFn: () => api.listHouseholdInvites(),
     retry: false,
+    // Only the owner can issue / revoke invites, so non-owners shouldn't
+    // even hit this endpoint.
+    enabled: isOwner,
   });
 
   const revokeMutation = useMutation({
@@ -543,7 +556,6 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
   }, [pendingRevokeCode, revokeMutation]);
 
   const members = householdQuery.data?.members ?? [];
-  const premiumOwnerId = householdQuery.data?.household.premiumOwnerParentId ?? null;
   const activeInvites = (invitesQuery.data ?? []).filter((inv) => inv.usedAt === null);
 
   return (
@@ -579,46 +591,53 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
         )}
       </Card>
 
-      <View style={styles.inviteButtonWrap}>
-        <Button
-          label={t('parent.household.inviteButton')}
-          variant="secondary"
-          onPress={() => setInviteModalVisible(true)}
-          size="sm"
-        />
-      </View>
-
-      <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
-        {t('parent.household.invitesList.title')}
-      </Text>
-      <Card style={styles.section}>
-        {invitesQuery.isLoading ? (
-          <View style={styles.loadingRow}>
-            <Spinner size={20} />
+      {/* Inviting + revoking is owner-only. A co-parent who joined via a
+          code shouldn't be able to invite a third party — that's a
+          billing / capacity decision for the Premium-eier. */}
+      {isOwner ? (
+        <>
+          <View style={styles.inviteButtonWrap}>
+            <Button
+              label={t('parent.household.inviteButton')}
+              variant="secondary"
+              onPress={() => setInviteModalVisible(true)}
+              size="sm"
+            />
           </View>
-        ) : activeInvites.length === 0 ? (
-          <View style={styles.emptyRow}>
-            <Text style={[styles.emptyText, { color: tx.secondary }]}>
-              {t('parent.household.invitesList.empty')}
-            </Text>
-          </View>
-        ) : (
-          activeInvites.map((invite, index) => (
-            <View key={invite.code}>
-              <InviteRow invite={invite} onRevoke={handleRevoke} />
-              {index < activeInvites.length - 1 ? (
-                <View style={[styles.divider, { backgroundColor: s.border }]} />
-              ) : null}
-            </View>
-          ))
-        )}
-      </Card>
 
-      <InviteModal
-        visible={inviteModalVisible}
-        onClose={() => setInviteModalVisible(false)}
-        api={api}
-      />
+          <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
+            {t('parent.household.invitesList.title')}
+          </Text>
+          <Card style={styles.section}>
+            {invitesQuery.isLoading ? (
+              <View style={styles.loadingRow}>
+                <Spinner size={20} />
+              </View>
+            ) : activeInvites.length === 0 ? (
+              <View style={styles.emptyRow}>
+                <Text style={[styles.emptyText, { color: tx.secondary }]}>
+                  {t('parent.household.invitesList.empty')}
+                </Text>
+              </View>
+            ) : (
+              activeInvites.map((invite, index) => (
+                <View key={invite.code}>
+                  <InviteRow invite={invite} onRevoke={handleRevoke} />
+                  {index < activeInvites.length - 1 ? (
+                    <View style={[styles.divider, { backgroundColor: s.border }]} />
+                  ) : null}
+                </View>
+              ))
+            )}
+          </Card>
+
+          <InviteModal
+            visible={inviteModalVisible}
+            onClose={() => setInviteModalVisible(false)}
+            api={api}
+          />
+        </>
+      ) : null}
 
       <ConfirmDialog
         visible={pendingRevokeCode !== null}

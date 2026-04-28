@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
 import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
@@ -24,6 +24,9 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { registerNavigate } from '../lib/api';
+import { subscribeLocale } from '../lib/i18n';
+// RevenueCat is parent-only; configured lazily inside the identity bridge
+// once a Clerk session appears.
 import {
   configureRevenueCat,
   loginRevenueCat,
@@ -71,20 +74,29 @@ function NavigationRegistrar() {
 }
 
 /**
- * Mirrors the Clerk parent identity into RevenueCat. On Clerk sign-in we call
- * `Purchases.logIn(userId)` so any anonymous purchases attached to the device
- * transfer onto that Clerk user; on Clerk sign-out we call `Purchases.logOut`
- * so a different parent signing in on the same device starts with a fresh
- * anonymous id and doesn't inherit the previous parent's entitlements.
+ * Mirrors the Clerk parent identity into RevenueCat. RevenueCat is parent-
+ * only — kids never enter a paywall flow, so we lazily configure the SDK
+ * the first time a Clerk session appears on the device. On Clerk sign-in
+ * we call `Purchases.logIn(userId)` so any anonymous purchases attached to
+ * the device transfer onto that Clerk user; on Clerk sign-out we call
+ * `Purchases.logOut` so a different parent signing in on the same device
+ * starts with a fresh anonymous id and doesn't inherit the previous
+ * parent's entitlements.
  */
 function RevenueCatIdentityBridge() {
   const { userId, isLoaded } = useAuth();
   const lastUserIdRef = useRef<string | null>(null);
+  const configuredRef = useRef(false);
 
   useEffect(() => {
     if (!isLoaded) return;
     const previous = lastUserIdRef.current;
     if (userId && previous !== userId) {
+      // First parent activity on this install — initialize the SDK now.
+      if (!configuredRef.current) {
+        configureRevenueCat();
+        configuredRef.current = true;
+      }
       lastUserIdRef.current = userId;
       void loginRevenueCat(userId);
     } else if (!userId && previous !== null) {
@@ -97,6 +109,14 @@ function RevenueCatIdentityBridge() {
 }
 
 export default function RootLayout() {
+  // Locale-version key — bumped whenever setAppLocale fires. The Stack
+  // below uses this as its `key`, so every screen remounts and re-runs
+  // its `t(...)` calls against the new locale. ClerkProvider and
+  // QueryClientProvider sit above the key boundary, so auth + cached
+  // data survive the swap.
+  const [localeKey, setLocaleKey] = useState(0);
+  useEffect(() => subscribeLocale(() => setLocaleKey((n) => n + 1)), []);
+
   // Load Newsreader (display serif) + Inter (UI sans). Italic variants are
   // used for the single-noun emphasis in display headlines, mirroring the
   // website's editorial language.
@@ -119,11 +139,6 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
-  // Initialize RevenueCat once on mount
-  useEffect(() => {
-    configureRevenueCat();
-  }, []);
-
   if (!fontsLoaded) {
     return null;
   }
@@ -138,7 +153,7 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationRegistrar />
           <RevenueCatIdentityBridge />
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack key={localeKey} screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>
       </QueryClientProvider>
     </ClerkProvider>

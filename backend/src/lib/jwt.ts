@@ -14,8 +14,15 @@ export interface KidJwtPayload {
   exp: number;          // unix seconds
 }
 
-const KID_TOKEN_TTL_DAYS = 90;
-const REFRESH_THRESHOLD_DAYS = 30;
+// Kid tokens are effectively permanent. Once a parent has paired a child's
+// device, that device should stay signed in indefinitely so the kid never
+// has to re-enter a code. Revocation happens by deleting the kid (cascades
+// to kid_devices) — not by token expiry. Refresh-on-use still rotates the
+// token forward so the exp claim never goes stale.
+const KID_TOKEN_TTL_DAYS = 365 * 100;
+// Refresh once we're more than ~5 years past issuance, just to keep the
+// `iat` claim from drifting too far. Practically a no-op for users.
+const REFRESH_THRESHOLD_DAYS = 365 * 95;
 
 function base64url(input: Buffer | string): string {
   const buf = typeof input === 'string' ? Buffer.from(input) : input;

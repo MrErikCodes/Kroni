@@ -79,7 +79,9 @@ export const TaskCompletionSchema = z.object({
 });
 export type TaskCompletion = z.infer<typeof TaskCompletionSchema>;
 
-// What the kid sees on /today — joined task + computed status.
+// What the kid sees on /today — joined task + computed status. Includes
+// recurrence + daysOfWeek so the kid's task-detail sheet can render the
+// schedule ("Hver mandag og onsdag") without a second round-trip.
 export const TodayTaskSchema = z.object({
   completionId: UUID,
   taskId: UUID,
@@ -88,6 +90,8 @@ export const TodayTaskSchema = z.object({
   icon: z.string().nullable(),
   rewardCents: Cents,
   requiresApproval: z.boolean(),
+  recurrence: RecurrenceSchema,
+  daysOfWeek: z.array(z.number().int().min(0).max(6)).nullable(),
   status: TaskCompletionStatus,
   completedAt: IsoTimestamp.nullable(),
 });

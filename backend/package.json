@@ -5,17 +5,18 @@
   "type": "module",
   "main": "./dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "dev:jobs": "tsx watch src/jobs/runner.ts",
-    "build": "tsc",
-    "start": "node --enable-source-maps dist/server.js",
-    "start:jobs": "node --enable-source-maps dist/jobs/runner.js",
+    "dev": "phase run \"tsx watch src/server.ts\"",
+    "dev:jobs": "phase run \"tsx watch src/jobs/runner.ts\"",
+    "build": "phase run tsc",
+    "start": "phase run \"node --enable-source-maps dist/server.js\"",
+    "start:jobs": "phase run \"node --enable-source-maps dist/jobs/runner.js\"",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "tsx src/db/migrate.ts",
-    "db:studio": "drizzle-kit studio",
+    "db:migrate": "phase run \"tsx src/db/migrate.ts\"",
+    "db:studio": "phase run \"drizzle-kit studio\"",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts"
+    "ngrok": "ngrok http http://localhost:3000 --domain=square-logically-shark.ngrok-free.app",
+    "test": "phase run \"tsx --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts\""
   },
   "dependencies": {
     "@clerk/backend": "^1.21.4",

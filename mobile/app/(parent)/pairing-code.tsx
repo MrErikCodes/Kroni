@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
@@ -40,6 +40,7 @@ export default function PairingCode() {
   const theme = useTheme();
   const router = useRouter();
   const api = useParentApi();
+  const { kidId } = useLocalSearchParams<{ kidId: string }>();
   const s = theme.surface;
   const tx = theme.text;
 
@@ -50,7 +51,11 @@ export default function PairingCode() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const mutation = useMutation({
-    mutationFn: () => api.generatePairingCode(),
+    mutationFn: () => {
+      // Codes are tied to a specific pre-created kid; route guarantees kidId.
+      if (!kidId) throw new Error('missing kidId');
+      return api.generatePairingCode(kidId);
+    },
     onSuccess: (data) => {
       setCode(data.code);
       // Clock-skew safe: anchor the countdown on the device clock at the
