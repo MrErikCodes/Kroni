@@ -1,0 +1,49 @@
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
+import { colors } from '../../lib/theme';
+
+interface SpinnerProps {
+  size?: number;
+  color?: string;
+  className?: string;
+}
+
+export function Spinner({ size = 24, color = colors.gold[500], className }: SpinnerProps) {
+  const rotation = useSharedValue(0);
+
+  useEffect(() => {
+    rotation.value = withRepeat(
+      withTiming(360, { duration: 800, easing: Easing.linear }),
+      -1,
+      false,
+    );
+  }, [rotation]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${rotation.value}deg` }],
+  }));
+
+  return (
+    <View style={{ width: size, height: size }} className={className}>
+      <Animated.View style={[StyleSheet.absoluteFill, animStyle]}>
+        <View
+          style={{
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            borderWidth: Math.max(2, size / 10),
+            borderColor: color + '33',
+            borderTopColor: color,
+          }}
+        />
+      </Animated.View>
+    </View>
+  );
+}

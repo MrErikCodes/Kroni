@@ -1,0 +1,60 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "empty": "Nothing here yet",
+    "close": "Close",
+    "back": "Back"
+  },
+  "auth": {
+    "parent": {
+      "signIn": "Sign in",
+      "signUp": "Create account",
+      "email": "Email address",
+      "password": "Password",
+      "continueWithApple": "Continue with Apple",
+      "continueWithEmail": "Continue with email",
+      "noAccount": "Don't have an account?",
+      "hasAccount": "Already have an account?"
+    },
+    "kid": {
+      "pair": "Connect to parent",
+      "enterCode": "Enter the code you got from your parent",
+      "connecting": "Connecting...",
+      "paired": "Connected! Hi %{name}!"
+    }
+  },
+  "parent": {
+    "kids": "Kids",
+    "tasks": "Tasks",
+    "rewards": "Rewards",
+    "approvals": "Approvals",
+    "settings": "Settings",
+    "paywall": "Upgrade to Family"
+  },
+  "kid": {
+    "today": "Today",
+    "balance": "Balance",
+    "rewards": "Rewards",
+    "profile": "Profile",
+    "celebrate": "Great job!"
+  },
+  "roleChooser": {
+    "title": "Who are you?",
+    "subtitle": "Choose your role to get started",
+    "parentCard": {
+      "title": "Parent",
+      "description": "Create tasks, approve completions, and manage rewards"
+    },
+    "kidCard": {
+      "title": "Kid",
+      "description": "See today's tasks, earn money, and redeem rewards"
+    }
+  }
+}

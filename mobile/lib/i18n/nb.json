@@ -1,0 +1,60 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Avbryt",
+    "save": "Lagre",
+    "delete": "Slett",
+    "confirm": "Bekreft",
+    "loading": "Laster...",
+    "error": "Noe gikk galt",
+    "retry": "Prøv igjen",
+    "empty": "Ingenting her ennå",
+    "close": "Lukk",
+    "back": "Tilbake"
+  },
+  "auth": {
+    "parent": {
+      "signIn": "Logg inn",
+      "signUp": "Opprett konto",
+      "email": "E-postadresse",
+      "password": "Passord",
+      "continueWithApple": "Fortsett med Apple",
+      "continueWithEmail": "Fortsett med e-post",
+      "noAccount": "Har du ikke konto?",
+      "hasAccount": "Har du allerede konto?"
+    },
+    "kid": {
+      "pair": "Koble til forelder",
+      "enterCode": "Skriv inn koden du fikk av forelderen din",
+      "connecting": "Kobler til...",
+      "paired": "Tilkoblet! Hei %{name}!"
+    }
+  },
+  "parent": {
+    "kids": "Barn",
+    "tasks": "Oppgaver",
+    "rewards": "Belønninger",
+    "approvals": "Godkjenninger",
+    "settings": "Innstillinger",
+    "paywall": "Oppgrader til Familie"
+  },
+  "kid": {
+    "today": "I dag",
+    "balance": "Saldo",
+    "rewards": "Belønninger",
+    "profile": "Profil",
+    "celebrate": "Bra jobba!"
+  },
+  "roleChooser": {
+    "title": "Hva er du?",
+    "subtitle": "Velg din rolle for å komme i gang",
+    "parentCard": {
+      "title": "Forelder",
+      "description": "Opprett oppgaver, godkjenn fullføringer og administrer belønninger"
+    },
+    "kidCard": {
+      "title": "Barn",
+      "description": "Se dagens oppgaver, tjen penger og løs inn belønninger"
+    }
+  }
+}
