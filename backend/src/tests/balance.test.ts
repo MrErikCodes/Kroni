@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+await import('dotenv/config');
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL ??= 'postgres://kroni:kroni@localhost:5432/kroni_test';
-process.env.REDIS_URL ??= 'redis://localhost:6379';
 process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
 process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
 process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
@@ -18,6 +17,12 @@ const { addBalanceEntry, recomputeBalance } = await import('../services/balance.
 const { eq } = await import('drizzle-orm');
 const { todayInAppTz } = await import('../lib/time.js');
 const { randomUUID } = await import('node:crypto');
+const { closeRedis } = await import('../lib/redis.js');
+const { closeDb } = await import('../db/index.js');
+test.after(async () => {
+  await closeRedis();
+  await closeDb();
+});
 
 async function seed(): Promise<{ parentId: string; kidId: string }> {
   const db = getDb();

@@ -38,7 +38,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   const cfg = getConfig();
 
   const app = Fastify({
-    logger,
+    loggerInstance: logger,
     trustProxy: true,
     disableRequestLogging: cfg.NODE_ENV === 'test',
     ...opts.fastifyOpts,

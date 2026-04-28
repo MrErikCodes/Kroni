@@ -3,15 +3,18 @@ import assert from 'node:assert/strict';
 
 // Health route doesn't depend on DB or Redis, so this test only needs valid env.
 // Provide minimal config before importing the app.
+// Load .env first so backend/.env values populate process.env before any module reads config.
+await import('dotenv/config');
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL ??= 'postgres://kroni:kroni@localhost:5432/kroni_test';
-process.env.REDIS_URL ??= 'redis://localhost:6379';
+// Provide non-secret placeholders only for vars not already set by .env.
 process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
 process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
 process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
 process.env.KID_JWT_SECRET ??= '0'.repeat(64);
 
 const { buildApp } = await import('../app.js');
+const { closeRedis } = await import('../lib/redis.js');
+const { closeDb } = await import('../db/index.js');
 
 test('GET /api/public/health returns 200 ok', async () => {
   const app = await buildApp();
@@ -25,4 +28,9 @@ test('GET /api/public/health returns 200 ok', async () => {
   } finally {
     await app.close();
   }
+});
+
+test.after(async () => {
+  await closeRedis();
+  await closeDb();
 });

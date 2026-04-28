@@ -1,9 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
+await import('dotenv/config');
 process.env.NODE_ENV = 'test';
-process.env.DATABASE_URL ??= 'postgres://kroni:kroni@localhost:5432/kroni_test';
-process.env.REDIS_URL ??= 'redis://localhost:6379';
 process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
 process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
 process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
@@ -38,6 +37,13 @@ async function clearRedisRateLimits(): Promise<void> {
   const keys = await r.keys('rl:*');
   if (keys.length) await r.del(...keys);
 }
+
+const { closeRedis } = await import('../lib/redis.js');
+const { closeDb } = await import('../db/index.js');
+test.after(async () => {
+  await closeRedis();
+  await closeDb();
+});
 
 test('pairing — generate code as parent, redeem as kid', async () => {
   await clearRedisRateLimits();
