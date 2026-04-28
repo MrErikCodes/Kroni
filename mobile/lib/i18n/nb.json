@@ -10,7 +10,12 @@
     "retry": "Prøv igjen",
     "empty": "Ingenting her ennå",
     "close": "Lukk",
-    "back": "Tilbake"
+    "back": "Tilbake",
+    "edit": "Rediger",
+    "add": "Legg til",
+    "done": "Ferdig",
+    "yes": "Ja",
+    "no": "Nei"
   },
   "auth": {
     "parent": {
@@ -21,13 +26,24 @@
       "continueWithApple": "Fortsett med Apple",
       "continueWithEmail": "Fortsett med e-post",
       "noAccount": "Har du ikke konto?",
-      "hasAccount": "Har du allerede konto?"
+      "hasAccount": "Har du allerede konto?",
+      "welcomeBack": "Velkommen tilbake",
+      "createAccount": "Lag en konto"
     },
     "kid": {
       "pair": "Koble til forelder",
       "enterCode": "Skriv inn koden du fikk av forelderen din",
       "connecting": "Kobler til...",
-      "paired": "Tilkoblet! Hei %{name}!"
+      "paired": "Tilkoblet! Hei %{name}!",
+      "pairButton": "Koble til",
+      "codeLabel": "6-sifret kode",
+      "nameLabel": "Hva heter du?",
+      "namePlaceholder": "Fornavn",
+      "birthYearLabel": "Fødselsår (valgfritt)",
+      "birthYearPlaceholder": "F.eks. 2015",
+      "avatarLabel": "Velg avatar",
+      "errorInvalidCode": "Ugyldig eller utløpt kode. Prøv igjen.",
+      "errorNetwork": "Kunne ikke koble til. Sjekk internettforbindelsen."
     }
   },
   "parent": {
@@ -36,14 +52,235 @@
     "rewards": "Belønninger",
     "approvals": "Godkjenninger",
     "settings": "Innstillinger",
-    "paywall": "Oppgrader til Familie"
+    "paywall": "Oppgrader til Familie",
+    "kidsList": {
+      "title": "Barn",
+      "empty": "Ingen barn lagt til ennå",
+      "emptyBody": "Legg til ditt første barn for å komme i gang",
+      "addKid": "Legg til barn",
+      "kidCount": "%{count} barn"
+    },
+    "kidNew": {
+      "title": "Nytt barn",
+      "namePlaceholder": "Barnets navn",
+      "nameLabel": "Navn",
+      "birthYearLabel": "Fødselsår (valgfritt)",
+      "birthYearPlaceholder": "F.eks. 2015",
+      "allowanceLabel": "Ukentlig lommepenger (kr)",
+      "allowancePlaceholder": "0",
+      "avatarLabel": "Velg avatar",
+      "create": "Opprett barn",
+      "creating": "Oppretter...",
+      "successTitle": "Barn opprettet!",
+      "successBody": "Nå kan du generere en paringskode for å koble barnet til appen."
+    },
+    "kidDetail": {
+      "tasks": "Oppgaver",
+      "balance": "Saldo",
+      "history": "Historikk",
+      "editName": "Rediger navn",
+      "weeklyAllowance": "Ukentlig lommepenger",
+      "deleteKid": "Slett barn",
+      "deleteConfirm": "Er du sikker på at du vil slette %{name}? Dette kan ikke angres.",
+      "noTasks": "Ingen oppgaver tildelt ennå"
+    },
+    "tasksList": {
+      "title": "Oppgaver",
+      "empty": "Ingen oppgaver opprettet ennå",
+      "emptyBody": "Opprett din første oppgave",
+      "addTask": "Ny oppgave",
+      "allKids": "Alle barn",
+      "groupedByKid": "Gruppert per barn"
+    },
+    "taskNew": {
+      "title": "Ny oppgave",
+      "titleLabel": "Oppgavetittel",
+      "titlePlaceholder": "F.eks. Rydde rommet",
+      "descLabel": "Beskrivelse (valgfritt)",
+      "descPlaceholder": "Beskriv oppgaven...",
+      "rewardLabel": "Belønning (øre)",
+      "rewardPlaceholder": "F.eks. 2000 = 20 kr",
+      "recurrenceLabel": "Gjentagelse",
+      "kidLabel": "Tildel til barn",
+      "kidNone": "Alle barn",
+      "requiresApproval": "Krever godkjenning",
+      "create": "Opprett oppgave",
+      "recurrence": {
+        "daily": "Daglig",
+        "weekly": "Ukentlig",
+        "once": "Én gang"
+      }
+    },
+    "taskDetail": {
+      "title": "Rediger oppgave",
+      "save": "Lagre endringer",
+      "deactivate": "Deaktiver",
+      "activate": "Aktiver",
+      "delete": "Slett oppgave",
+      "deleteConfirm": "Er du sikker på at du vil slette denne oppgaven?"
+    },
+    "rewardsList": {
+      "title": "Belønninger",
+      "empty": "Ingen belønninger opprettet ennå",
+      "emptyBody": "Opprett en belønning barna kan jobbe mot",
+      "addReward": "Ny belønning"
+    },
+    "rewardNew": {
+      "title": "Ny belønning",
+      "titleLabel": "Belønningstittel",
+      "titlePlaceholder": "F.eks. Kinobilletter",
+      "costLabel": "Kostnad (øre)",
+      "costPlaceholder": "F.eks. 5000 = 50 kr",
+      "kidLabel": "Tildel til barn",
+      "kidNone": "Alle barn",
+      "create": "Opprett belønning"
+    },
+    "rewardDetail": {
+      "title": "Rediger belønning",
+      "save": "Lagre endringer",
+      "delete": "Slett belønning",
+      "deleteConfirm": "Er du sikker på at du vil slette denne belønningen?"
+    },
+    "approvals": {
+      "title": "Godkjenninger",
+      "empty": "Ingen ventende godkjenninger",
+      "emptyBody": "Bra! Alt er i orden.",
+      "approve": "Godkjenn",
+      "reject": "Avvis",
+      "taskSection": "Oppgaver",
+      "rewardSection": "Belønninger",
+      "swipeHint": "Sveip for å godkjenne eller avvise",
+      "confirmApprove": "Godkjenn fullføring av \"%{title}\"?",
+      "confirmReject": "Avvis fullføring av \"%{title}\"?",
+      "approvedToast": "Godkjent! %{name} fikk %{amount}",
+      "rejectedToast": "Avvist"
+    },
+    "pairingCode": {
+      "title": "Paringskode",
+      "instructions": "Vis denne koden til barnet ditt. De skriver den inn i appen for å koble seg til kontoen din.",
+      "expiresIn": "Utløper om %{time}",
+      "expired": "Koden har utløpt",
+      "regenerate": "Generer ny kode",
+      "copy": "Kopier kode",
+      "copied": "Kopiert!",
+      "generating": "Genererer..."
+    },
+    "settings": {
+      "title": "Innstillinger",
+      "account": "Konto",
+      "displayName": "Visningsnavn",
+      "email": "E-post",
+      "subscription": "Abonnement",
+      "subscriptionTier": {
+        "free": "Gratis",
+        "family": "Familie",
+        "premium": "Premium"
+      },
+      "upgradePro": "Oppgrader til Pro",
+      "signOut": "Logg ut",
+      "signOutConfirm": "Er du sikker på at du vil logge ut?",
+      "language": "Språk",
+      "notifications": "Varslinger",
+      "privacy": "Personvern",
+      "terms": "Vilkår",
+      "support": "Støtte",
+      "version": "Versjon %{version}"
+    }
   },
   "kid": {
     "today": "I dag",
     "balance": "Saldo",
     "rewards": "Belønninger",
     "profile": "Profil",
-    "celebrate": "Bra jobba!"
+    "celebrate": "Bra jobba!",
+    "todayScreen": {
+      "greeting": "Hei, %{name}!",
+      "greetingMorning": "God morgen, %{name}!",
+      "greetingAfternoon": "God ettermiddag, %{name}!",
+      "greetingEvening": "God kveld, %{name}!",
+      "tasksToday": "%{count} oppgaver i dag",
+      "noTasks": "Ingen oppgaver i dag!",
+      "noTasksBody": "Du har fri i dag. Nyt det!",
+      "pendingSection": "Å gjøre",
+      "doneSection": "Ferdig",
+      "completedOverlay": "Bra jobba!",
+      "waitingApproval": "Venter på godkjenning",
+      "approved": "Godkjent",
+      "rejected": "Avvist",
+      "progressLabel": "%{done} av %{total} fullført"
+    },
+    "balanceScreen": {
+      "title": "Saldo",
+      "currentBalance": "Din saldo",
+      "weekEarned": "Tjent denne uken",
+      "weekSpent": "Brukt denne uken",
+      "history": "Historikk",
+      "emptyHistory": "Ingen transaksjoner ennå",
+      "emptyHistoryBody": "Fullfør oppgaver for å tjene penger!",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "for %{count} dager siden",
+      "reasons": {
+        "task": "Oppgave fullført",
+        "allowance": "Ukentlig lommepenger",
+        "redemption": "Belønning innløst",
+        "adjustment": "Justering",
+        "gift": "Gave",
+        "reversal": "Tilbakebetaling"
+      }
+    },
+    "rewardsScreen": {
+      "title": "Belønninger",
+      "empty": "Ingen belønninger tilgjengelig",
+      "emptyBody": "Forelderen din har ikke lagt til belønninger ennå",
+      "needMore": "Trenger %{amount} til",
+      "redeem": "Løs inn",
+      "confirmRedeem": "Vil du løse inn \"%{title}\" for %{amount}?",
+      "waiting": "Venter på godkjenning",
+      "affordable": "Du har råd til dette!",
+      "redeemed": "Sendt til godkjenning!"
+    },
+    "profileScreen": {
+      "title": "Profil",
+      "weeklyEarnings": "Inntjening siste 7 dager",
+      "signOut": "Koble fra",
+      "signOutConfirm": "Er du sikker på at du vil koble fra denne enheten?",
+      "avatarChange": "Endre avatar",
+      "noEarnings": "Ingen inntjening ennå"
+    },
+    "celebrate": {
+      "title": "Bra jobba!",
+      "youGot": "Du fikk",
+      "dismiss": "Juhu!",
+      "newBalance": "Din saldo nå:"
+    }
+  },
+  "paywall": {
+    "title": "Kroni Familie",
+    "subtitle": "Ubegrenset tilgang for hele familien",
+    "features": {
+      "kids": "Ubegrenset antall barn",
+      "tasks": "Ubegrenset antall oppgaver",
+      "rewards": "Alle belønningsfunksjoner",
+      "notifications": "Push-varsler",
+      "history": "Fullstendig historikk"
+    },
+    "monthly": "Månedlig",
+    "yearly": "Årlig",
+    "save": "Spar 32%",
+    "subscribe": "Abonner nå",
+    "restore": "Gjenopprett kjøp",
+    "terms": "Vilkår for bruk",
+    "privacy": "Personvern",
+    "legalNote": "Abonnementet fornyes automatisk til samme pris. Du kan avslutte når som helst i App Store-innstillingene.",
+    "free": {
+      "kids": "1 barn",
+      "tasks": "5 aktive oppgaver"
+    },
+    "pro": {
+      "kids": "Ubegrenset barn",
+      "tasks": "Ubegrenset oppgaver"
+    }
   },
   "roleChooser": {
     "title": "Hva er du?",

@@ -1,0 +1,265 @@
+// [REVIEW] Norwegian copy — verify with native speaker
+import { useCallback, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  RefreshControl,
+  ScrollView,
+  Alert,
+} from 'react-native';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { FlashList } from '@shopify/flash-list';
+import * as Haptics from 'expo-haptics';
+import { Gift } from 'lucide-react-native';
+import { useTheme } from '../../../lib/theme';
+import { kidApi } from '../../../lib/api';
+import { t } from '../../../lib/i18n';
+import { EmptyState } from '../../../components/ui/EmptyState';
+import { Spinner } from '../../../components/ui/Spinner';
+import { Modal } from '../../../components/ui/Modal';
+import { Button } from '../../../components/ui/Button';
+import type { Reward } from '@kroni/shared';
+
+const formatNok = (ore: number) =>
+  new Intl.NumberFormat('nb-NO', {
+    style: 'currency',
+    currency: 'NOK',
+    maximumFractionDigits: 0,
+  }).format(ore / 100);
+
+interface RewardCardProps {
+  reward: Reward;
+  balanceCents: number;
+  onRedeem: (reward: Reward) => void;
+  isRedeeming: boolean;
+}
+
+function RewardCard({ reward, balanceCents, onRedeem, isRedeeming }: RewardCardProps) {
+  const theme = useTheme();
+  const s = theme.surface;
+  const tx = theme.text;
+  const canAfford = balanceCents >= reward.costCents;
+  const needMore = reward.costCents - balanceCents;
+
+  return (
+    <TouchableOpacity
+      onPress={() => canAfford && onRedeem(reward)}
+      disabled={!canAfford || isRedeeming}
+      activeOpacity={canAfford ? 0.8 : 1}
+      accessibilityRole="button"
+      accessibilityLabel={`${reward.title}: ${formatNok(reward.costCents)}`}
+      accessibilityState={{ disabled: !canAfford }}
+      style={[
+        styles.card,
+        {
+          backgroundColor: canAfford ? theme.colors.gold[50] : s.card,
+          borderColor: canAfford ? theme.colors.gold[300] : s.border,
+          opacity: canAfford ? 1 : 0.75,
+        },
+      ]}
+    >
+      <View style={styles.iconWrap}>
+        <Text style={styles.iconEmoji}>{reward.icon ?? '🎁'}</Text>
+      </View>
+      <Text style={[styles.rewardTitle, { color: tx.primary }]} numberOfLines={2}>
+        {reward.title}
+      </Text>
+      <Text style={[styles.rewardCost, { color: canAfford ? theme.colors.gold[500] : tx.secondary }]}>
+        {formatNok(reward.costCents)}
+      </Text>
+      {!canAfford ? (
+        <View style={[styles.needMoreBadge, { backgroundColor: s.background }]}>
+          <Text style={[styles.needMoreText, { color: tx.secondary }]}>
+            {t('kid.rewardsScreen.needMore', { amount: formatNok(needMore) })}
+          </Text>
+        </View>
+      ) : (
+        <View style={[styles.affordBadge, { backgroundColor: theme.colors.gold[500] }]}>
+          <Text style={styles.affordText}>{t('kid.rewardsScreen.redeem')}</Text>
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
+export default function KidRewardsScreen() {
+  const theme = useTheme();
+  const queryClient = useQueryClient();
+  const s = theme.surface;
+  const tx = theme.text;
+
+  const [confirmReward, setConfirmReward] = useState<Reward | null>(null);
+
+  const { data: balance } = useQuery({
+    queryKey: ['kid', 'balance'],
+    queryFn: () => kidApi.getBalance(),
+  });
+
+  const { data: rewards, isLoading, isError, refetch } = useQuery({
+    queryKey: ['kid', 'rewards'],
+    queryFn: () => kidApi.getRewards(),
+  });
+
+  const redeemMutation = useMutation({
+    mutationFn: (rewardId: string) => kidApi.redeemReward(rewardId),
+    onSuccess: async () => {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
+      void queryClient.invalidateQueries({ queryKey: ['kid', 'rewards'] });
+      setConfirmReward(null);
+      Alert.alert('', t('kid.rewardsScreen.redeemed'));
+    },
+    onError: async () => {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    },
+  });
+
+  const handleRedeemPress = useCallback((reward: Reward) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setConfirmReward(reward);
+  }, []);
+
+  const handleConfirm = useCallback(() => {
+    if (confirmReward) {
+      redeemMutation.mutate(confirmReward.id);
+    }
+  }, [confirmReward, redeemMutation]);
+
+  const balanceCents = balance?.balanceCents ?? 0;
+  const activeRewards = (rewards ?? []).filter((r) => r.active);
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
+      {/* Header */}
+      <View style={[styles.header, { borderBottomColor: s.border }]}>
+        <Text style={[styles.title, { color: tx.primary }]}>
+          {t('kid.rewardsScreen.title')}
+        </Text>
+        <Text style={[styles.balanceSub, { color: theme.colors.gold[500] }]}>
+          {formatNok(balanceCents)}
+        </Text>
+      </View>
+
+      {isLoading ? (
+        <View style={styles.center}>
+          <Spinner size={36} />
+        </View>
+      ) : isError ? (
+        <View style={styles.center}>
+          <Text style={{ color: theme.colors.semantic.danger }}>{t('common.error')}</Text>
+          <TouchableOpacity onPress={() => void refetch()} style={{ marginTop: 8 }}>
+            <Text style={{ color: theme.colors.gold[500] }}>{t('common.retry')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : activeRewards.length === 0 ? (
+        <EmptyState
+          icon={Gift}
+          title={t('kid.rewardsScreen.empty')}
+          body={t('kid.rewardsScreen.emptyBody')}
+        />
+      ) : (
+        <FlashList
+          data={activeRewards}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <RewardCard
+              reward={item}
+              balanceCents={balanceCents}
+              onRedeem={handleRedeemPress}
+              isRedeeming={redeemMutation.isPending}
+            />
+          )}
+          numColumns={2}
+          contentContainerStyle={styles.grid}
+          refreshControl={
+            <RefreshControl
+              refreshing={isLoading}
+              onRefresh={() => void refetch()}
+              tintColor={theme.colors.gold[500]}
+            />
+          }
+        />
+      )}
+
+      {/* Confirm modal */}
+      <Modal
+        visible={!!confirmReward}
+        onClose={() => setConfirmReward(null)}
+      >
+        <Text style={[styles.modalTitle, { color: tx.primary }]}>
+          {t('kid.rewardsScreen.confirmRedeem', {
+            title: confirmReward?.title ?? '',
+            amount: formatNok(confirmReward?.costCents ?? 0),
+          })}
+        </Text>
+        <View style={styles.modalActions}>
+          <Button
+            label={t('common.cancel')}
+            onPress={() => setConfirmReward(null)}
+            variant="secondary"
+          />
+          <Button
+            label={redeemMutation.isPending ? t('common.loading') : t('kid.rewardsScreen.redeem')}
+            onPress={handleConfirm}
+            loading={redeemMutation.isPending}
+            size="lg"
+          />
+        </View>
+      </Modal>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  header: {
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+  },
+  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  balanceSub: { fontSize: 20, fontWeight: '700' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  grid: { padding: 12 },
+  card: {
+    margin: 6,
+    flex: 1,
+    borderRadius: 24,
+    borderWidth: 2,
+    padding: 16,
+    alignItems: 'center',
+    gap: 8,
+    minHeight: 180,
+  },
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.6)',
+  },
+  iconEmoji: { fontSize: 28 },
+  rewardTitle: { fontSize: 15, fontWeight: '600', textAlign: 'center', lineHeight: 20 },
+  rewardCost: { fontSize: 17, fontWeight: '700' },
+  needMoreBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  needMoreText: { fontSize: 11, fontWeight: '500', textAlign: 'center' },
+  affordBadge: {
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+  },
+  affordText: { color: '#FFFFFF', fontSize: 13, fontWeight: '700' },
+  modalTitle: { fontSize: 17, fontWeight: '600', textAlign: 'center', marginBottom: 20, lineHeight: 24 },
+  modalActions: { flexDirection: 'row', gap: 12 },
+});
