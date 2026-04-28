@@ -14,6 +14,8 @@ import { rateLimitPlugin } from './plugins/rate-limit.js';
 import { authClerkPlugin } from './plugins/auth-clerk.js';
 import { authKidPlugin } from './plugins/auth-kid.js';
 import { healthRoutes } from './routes/public/health.js';
+import { publicPairRoutes } from './routes/public/pair.js';
+import { parentPairingRoutes } from './routes/parent/pairing.js';
 
 export interface BuildOptions {
   fastifyOpts?: FastifyServerOptions;
@@ -51,6 +53,8 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(authKidPlugin);
 
   await app.register(healthRoutes);
+  await app.register(publicPairRoutes);
+  await app.register(parentPairingRoutes);
 
   return app;
 }
