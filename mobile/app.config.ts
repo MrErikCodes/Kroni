@@ -16,7 +16,7 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   android: {
     package: 'no.kroni.app',
     adaptiveIcon: {
-      backgroundColor: '#F5B015',
+      backgroundColor: '#FBFAF6',
       foregroundImage: './assets/images/android-icon-foreground.png',
     },
     edgeToEdgeEnabled: true,
@@ -32,7 +32,7 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
       'expo-splash-screen',
       {
         image: './assets/images/splash-icon.png',
-        imageWidth: 200,
+        imageWidth: 96,
         resizeMode: 'contain',
         backgroundColor: '#FBFAF6',
         dark: {
