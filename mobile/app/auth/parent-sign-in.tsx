@@ -30,7 +30,15 @@ export default function ParentSignIn() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = useCallback(async () => {
-    if (!isLoaded || !signIn) return;
+    console.log('[sign-in] press', { isLoaded, hasSignIn: !!signIn, email });
+    if (!isLoaded) {
+      setError('Klar om litt — appen laster fortsatt.');
+      return;
+    }
+    if (!signIn) {
+      setError('Innlogging er ikke tilgjengelig. Prøv igjen.');
+      return;
+    }
     setError(null);
     setLoading(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -39,11 +47,18 @@ export default function ParentSignIn() {
         identifier: email.trim(),
         password,
       });
+      console.log('[sign-in] result.status', result.status);
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
         router.replace('/(parent)/(tabs)/kids');
+        return;
       }
+      // Anything else means more steps are required (needs_factor_one,
+      // needs_factor_two, needs_identifier, needs_new_password). Surface a
+      // readable message rather than silently doing nothing.
+      setError(`Status: ${result.status}. Prøv på nytt eller kontakt støtte.`);
     } catch (err: unknown) {
+      console.log('[sign-in] error', err);
       const message = formatClerkError(err);
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
