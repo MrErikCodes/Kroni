@@ -24,7 +24,9 @@ export type SignedCents = z.infer<typeof SignedCents>;
 export const Locale = z.enum(['nb-NO', 'sv-SE', 'da-DK', 'en-US']);
 export type Locale = z.infer<typeof Locale>;
 
-export const SubscriptionTier = z.enum(['free', 'family', 'premium']);
+// One paid tier; `family` is the only entitlement we sell. A future
+// higher tier would be a new value here (and a corresponding RC product).
+export const SubscriptionTier = z.enum(['free', 'family']);
 export type SubscriptionTier = z.infer<typeof SubscriptionTier>;
 
 export const PaginationQuery = z.object({

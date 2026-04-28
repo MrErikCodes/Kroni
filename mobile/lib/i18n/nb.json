@@ -301,10 +301,9 @@
       "subscription": "Abonnement",
       "subscriptionTier": {
         "free": "Gratis",
-        "family": "Familie",
-        "premium": "Premium"
+        "family": "Familie"
       },
-      "upgradePro": "Oppgrader til Pro",
+      "upgradePro": "Oppgrader til Familie",
       "signOut": "Logg ut",
       "signOutConfirm": "Er du sikker på at du vil logge ut?",
       "language": "Språk",
@@ -541,7 +540,34 @@
     "featuresEyebrow": "Det du får",
     "trustCancel": "Avbestill når du vil",
     "trustNoAds": "Ingen reklame",
-    "trustNoCash": "Aldri ekte penger"
+    "trustNoCash": "Aldri ekte penger",
+    "lifetime": "Livstid",
+    "lifetimeBadge": "Mest verdi",
+    "lifetimePrice": "1 200 kr én gang",
+    "lifetimeNote": "Tre års årsabonnement i én sum — aldri betal igjen.",
+    "trial": "7 dager gratis",
+    "trialNote": "Cancel i App Store senest 24 timer før prøveperioden er over for å ikke bli belastet."
+  },
+  "subscriptionDetail": {
+    "title": "Abonnement",
+    "eyebrow": "Plan",
+    "tierFamily": "Kroni Familie",
+    "tierFree": "Gratis",
+    "tierLifetime": "Kroni Familie · Livstid",
+    "renewsOn": "Fornyes %{date}",
+    "expiresOn": "Utløper %{date}",
+    "lifetimeBlurb": "Du eier Kroni Familie for alltid. Aldri mer betaling.",
+    "freeBlurb": "Du er på gratisplanen — 1 barn og 5 aktive oppgaver.",
+    "trialActive": "Prøveperiode aktiv",
+    "trialActiveBody": "Prøveperioden varer til %{date}. Du belastes automatisk hvis du ikke avbestiller minst 24 timer før.",
+    "manageButton": "Administrer i App Store",
+    "manageHint": "Avbestilling, betalingsmåte og familiedeling håndteres av butikken.",
+    "restoreButton": "Gjenopprett kjøp",
+    "restoring": "Gjenoppretter…",
+    "restoreSuccess": "Kjøp gjenopprettet",
+    "restoreEmpty": "Fant ingen tidligere kjøp på denne kontoen.",
+    "restoreError": "Kunne ikke gjenopprette. Prøv igjen.",
+    "upgradeButton": "Oppgrader nå"
   },
   "roleChooser": {
     "title": "Hva er du?",

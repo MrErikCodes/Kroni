@@ -9,7 +9,7 @@ import type { HouseholdRow } from '../db/schema/households.js';
 const FREE_KID_LIMIT = 1;
 const FREE_ACTIVE_TASK_LIMIT = 5;
 
-export type Tier = 'free' | 'family' | 'premium';
+export type Tier = 'free' | 'family';
 
 export function isHouseholdPaid(household: HouseholdRow): boolean {
   if (household.subscriptionTier === 'free') return false;

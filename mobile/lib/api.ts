@@ -173,8 +173,12 @@ export interface PendingApprovals {
 
 // Shape for billing status
 const BillingStatusSchema = z.object({
-  tier: z.enum(['free', 'family', 'premium']),
+  tier: z.enum(['free', 'family']),
   expiresAt: z.string().nullable(),
+  // Older backends didn't return these; .default keeps existing builds
+  // safe during a phased deploy.
+  lifetimePaid: z.boolean().optional().default(false),
+  isPaid: z.boolean().optional().default(false),
 });
 export type BillingStatus = z.infer<typeof BillingStatusSchema>;
 

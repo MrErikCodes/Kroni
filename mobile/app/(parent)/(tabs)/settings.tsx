@@ -292,9 +292,14 @@ export default function SettingsTab() {
               <SettingsRow
                 icon={<Crown size={18} color={theme.colors.gold[500]} strokeWidth={2} />}
                 label={t('parent.settings.subscription')}
-                value={tierLabel[billing?.tier ?? 'free'] ?? 'Gratis'}
+                value={
+                  billing?.lifetimePaid
+                    ? t('subscriptionDetail.tierLifetime')
+                    : tierLabel[billing?.tier ?? 'free'] ?? tierLabel.free
+                }
+                onPress={() => router.push('/(parent)/subscription')}
               />
-              {billing?.tier === 'free' && (
+              {billing?.tier === 'free' && !billing?.lifetimePaid ? (
                 <>
                   <View style={[styles.divider, { backgroundColor: s.border }]} />
                   <SettingsRow
@@ -303,7 +308,7 @@ export default function SettingsTab() {
                     onPress={() => router.push('/(parent)/paywall')}
                   />
                 </>
-              )}
+              ) : null}
             </Card>
           </>
         ) : null}

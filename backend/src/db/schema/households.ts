@@ -1,14 +1,19 @@
-import { pgTable, uuid, char, text, timestamp, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, char, text, timestamp, boolean, index } from 'drizzle-orm/pg-core';
 import { sql } from 'drizzle-orm';
 import { parents } from './parents.js';
 
 export const households = pgTable('households', {
   id: uuid().primaryKey().defaultRandom(),
   name: text(),
-  // Denormalized snapshot of the household plan. RevenueCat webhook (future)
+  // Denormalized snapshot of the household plan. RevenueCat webhook
   // updates this when the premium-owner parent buys / cancels.
   subscriptionTier: text().notNull().default('free'),
   subscriptionExpiresAt: timestamp({ withTimezone: true }),
+  // True when the household has bought the lifetime IAP (`kroni_lifetime`).
+  // Independent of subscriptionTier so a lifetime owner survives a future
+  // tier rename and can't accidentally lose access when a recurring sub
+  // expires. `isHouseholdPaid` returns true if either is set.
+  lifetimePaid: boolean().notNull().default(false),
   // Nullable until a parent buys a subscription. References parents(id) at
   // application level only (no FK to avoid circular dependency with
   // parents.householdId — both tables are populated together in the
