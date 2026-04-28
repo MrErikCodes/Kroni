@@ -17,7 +17,8 @@
     "build:website": "npm --workspace=website run build",
     "lint": "npm --workspaces --if-present run lint",
     "typecheck": "npm --workspaces --if-present run typecheck",
-    "test": "npm --workspaces --if-present run test"
+    "test": "npm --workspaces --if-present run test",
+    "postinstall": "node scripts/postinstall.cjs"
   },
   "engines": {
     "node": ">=22"
@@ -25,5 +26,10 @@
   "devDependencies": {
     "tailwindcss": "^4.2.4",
     "@tailwindcss/postcss": "^4.2.4"
+  },
+  "overrides": {
+    "nativewind": {
+      "tailwindcss": "^3.4.19"
+    }
   }
 }
