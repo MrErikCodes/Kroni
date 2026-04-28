@@ -28,6 +28,7 @@ import { kidTodayRoutes } from './routes/kid/today.js';
 import { kidTasksRoutes } from './routes/kid/tasks.js';
 import { kidBalanceRoutes } from './routes/kid/balance.js';
 import { kidDeviceRoutes } from './routes/kid/device.js';
+import { kidRewardsRoutes } from './routes/kid/rewards.js';
 
 export interface BuildOptions {
   fastifyOpts?: FastifyServerOptions;
@@ -81,6 +82,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(kidTasksRoutes);
   await app.register(kidBalanceRoutes);
   await app.register(kidDeviceRoutes);
+  await app.register(kidRewardsRoutes);
 
   return app;
 }

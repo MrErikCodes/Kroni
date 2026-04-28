@@ -6,6 +6,7 @@ import { getDb } from '../../db/index.js';
 import { taskCompletions, tasks } from '../../db/schema/tasks.js';
 import { kids } from '../../db/schema/kids.js';
 import { addBalanceEntryInTx } from '../../services/balance.service.js';
+import { approveRedemption, rejectRedemption } from '../../services/rewards.service.js';
 import { ConflictError, NotFoundError, UnauthorizedError } from '../../lib/errors.js';
 
 const Params = z.object({ completionId: z.string().uuid() });
@@ -184,6 +185,63 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
         throw new NotFoundError('completion not found');
       }
       return { completionId: row.id, rejected: true as const };
+    },
+  );
+
+  const RedemptionParams = z.object({ redemptionId: z.string().uuid() });
+  const RedemptionApproveBody = z.object({ note: z.string().max(500).optional() });
+  const RedemptionApproveResponse = z.object({
+    redemptionId: z.string().uuid(),
+    approved: z.literal(true),
+    newBalanceCents: z.number().int(),
+  });
+
+  r.post(
+    '/api/parent/approvals/rewards/:redemptionId/approve',
+    {
+      preHandler: app.requireParent,
+      schema: {
+        params: RedemptionParams,
+        body: RedemptionApproveBody.optional(),
+        response: { 200: RedemptionApproveResponse },
+      },
+    },
+    async (req) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      const out = await approveRedemption({
+        redemptionId: req.params.redemptionId,
+        parentId: parent.id,
+        note: req.body?.note,
+      });
+      return { redemptionId: out.redemptionId, approved: true as const, newBalanceCents: out.newBalanceCents };
+    },
+  );
+
+  const RedemptionRejectResponse = z.object({
+    redemptionId: z.string().uuid(),
+    rejected: z.literal(true),
+  });
+
+  r.post(
+    '/api/parent/approvals/rewards/:redemptionId/reject',
+    {
+      preHandler: app.requireParent,
+      schema: {
+        params: RedemptionParams,
+        body: RedemptionApproveBody.optional(),
+        response: { 200: RedemptionRejectResponse },
+      },
+    },
+    async (req) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      const out = await rejectRedemption({
+        redemptionId: req.params.redemptionId,
+        parentId: parent.id,
+        note: req.body?.note,
+      });
+      return { redemptionId: out.redemptionId, rejected: true as const };
     },
   );
 }
