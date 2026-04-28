@@ -1,6 +1,4 @@
-// [REVIEW] copy generated; native review needed.
 import type { ReactNode } from "react";
-import DraftBanner from "./DraftBanner";
 
 type Section = {
   id: string;
@@ -30,7 +28,6 @@ export default function PolicyShell({
       {/* Header */}
       <header className="border-b border-sand-200 pb-12">
         <div className="flex flex-wrap items-center gap-3">
-          <DraftBanner />
           <span className="inline-flex items-center gap-1.5 rounded-full border border-sand-200 bg-sand-50 px-3 py-1 text-[11.5px] font-medium tracking-tight text-sand-700">
             <span
               aria-hidden="true"
