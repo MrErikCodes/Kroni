@@ -15,6 +15,7 @@ import { useSignUp } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
+import { formatClerkError } from '../../lib/clerkErrors';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { KroniText } from '../../components/ui/Text';
@@ -41,7 +42,7 @@ export default function ParentSignUp() {
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
       setStep('verify');
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('common.error');
+      const message = formatClerkError(err);
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
@@ -62,7 +63,7 @@ export default function ParentSignUp() {
         router.replace('/(parent)/(tabs)/kids');
       }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : t('common.error');
+      const message = formatClerkError(err);
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
