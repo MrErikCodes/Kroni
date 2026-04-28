@@ -1,25 +1,37 @@
-// [REVIEW] Avatar icons are lucide placeholders — replace with proper SVG assets per avatar key
-import { View, Text, StyleSheet } from 'react-native';
+// [REVIEW] Avatar icons are lucide placeholders — replace with proper SVG assets per avatar key.
+// Keys must stay in sync with @kroni/shared's AvatarKey enum
+// (fox, bear, rabbit, owl, penguin, lion, panda, cat, dog, unicorn, dragon, astronaut).
+import { View, StyleSheet } from 'react-native';
 import {
-  Squirrel, Bot, Rabbit, Cat, Dog, Bird,
-  Fish, Turtle, Bug, Star, Moon, Sun,
+  Squirrel,
+  PawPrint,
+  Rabbit,
+  Bird,
+  Snowflake,
+  Crown,
+  Smile,
+  Cat,
+  Dog,
+  Sparkles,
+  Flame,
+  Rocket,
+  Bot,
 } from 'lucide-react-native';
 import { colors } from '../../lib/theme';
 
-// 12 avatar keys mapped to lucide icon placeholders
 const AVATAR_MAP = {
-  fox:      Squirrel,
-  bear:     Bot,
-  rabbit:   Rabbit,
-  cat:      Cat,
-  dog:      Dog,
-  bird:     Bird,
-  fish:     Fish,
-  turtle:   Turtle,
-  bug:      Bug,
-  star:     Star,
-  moon:     Moon,
-  sun:      Sun,
+  fox: Squirrel,
+  bear: PawPrint,
+  rabbit: Rabbit,
+  owl: Bird,
+  penguin: Snowflake,
+  lion: Crown,
+  panda: Smile,
+  cat: Cat,
+  dog: Dog,
+  unicorn: Sparkles,
+  dragon: Flame,
+  astronaut: Rocket,
 } as const;
 
 export type AvatarKey = keyof typeof AVATAR_MAP;
