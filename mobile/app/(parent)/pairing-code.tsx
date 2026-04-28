@@ -11,7 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
-import { Clipboard } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import { ArrowLeft, Copy, RefreshCw } from 'lucide-react-native';
 import { useTheme } from '../../lib/theme';
@@ -105,7 +105,7 @@ export default function PairingCode() {
 
   const handleCopy = useCallback(async () => {
     if (!code) return;
-    Clipboard.setString(code);
+    await Clipboard.setStringAsync(code);
     setCopied(true);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setTimeout(() => setCopied(false), 2000);

@@ -7,10 +7,10 @@ import {
   TouchableOpacity,
   Alert,
   Linking,
-  Clipboard,
 } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
+import * as Clipboard from 'expo-clipboard';
 import { Copy, Trash2 } from 'lucide-react-native';
 import type { HouseholdInvite, HouseholdMember } from '@kroni/shared';
 import { useTheme, fonts } from '../../lib/theme';
@@ -46,11 +46,24 @@ function formatRelativeExpiry(expiresAt: string): string {
   const diffMs = expiry - Date.now();
   if (diffMs <= 0) return '00:00';
   const totalSeconds = Math.floor(diffMs / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
+  if (days > 0) {
+    const dayLabel = days === 1 ? 'dag' : 'dager';
+    if (hours > 0) {
+      const hourLabel = hours === 1 ? 'time' : 'timer';
+      return `${days} ${dayLabel} ${hours} ${hourLabel}`;
+    }
+    return `${days} ${dayLabel}`;
+  }
   if (hours > 0) {
-    return `${hours}t ${String(minutes).padStart(2, '0')}m`;
+    const hourLabel = hours === 1 ? 'time' : 'timer';
+    if (minutes > 0) {
+      return `${hours} ${hourLabel} ${minutes} min`;
+    }
+    return `${hours} ${hourLabel}`;
   }
   return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
@@ -222,7 +235,7 @@ function InviteModal({ visible, onClose, api }: InviteModalProps) {
 
   const handleCopy = useCallback(async () => {
     if (!issued) return;
-    Clipboard.setString(issued.code);
+    await Clipboard.setStringAsync(issued.code);
     setCopied(true);
     await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setTimeout(() => setCopied(false), 2000);
@@ -245,12 +258,11 @@ function InviteModal({ visible, onClose, api }: InviteModalProps) {
 
   const expiryLabel = useMemo(() => {
     if (!issued) return '';
-    const total = secondsLeft;
-    const minutes = Math.floor(total / 60);
-    const seconds = total % 60;
     return t('parent.household.inviteModal.expiresIn', {
-      time: `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`,
+      time: formatRelativeExpiry(issued.expiresAt),
     });
+    // secondsLeft is in deps so the label re-renders each tick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [issued, secondsLeft]);
 
   return (

@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,8 +11,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
-import { useQuery } from '@tanstack/react-query';
-import { LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle } from 'lucide-react-native';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -30,7 +30,7 @@ function openLink(key: keyof typeof WEB_LINKS): void {
 }
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
-import { t } from '../../../lib/i18n';
+import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../../lib/i18n';
 import { Card } from '../../../components/ui/Card';
 import { KroniText } from '../../../components/ui/Text';
 import { HouseholdSection } from '../../../components/household/HouseholdSection';
@@ -91,6 +91,7 @@ export default function SettingsTab() {
   const { signOut } = useAuth();
   const { user } = useUser();
   const api = useParentApi();
+  const qc = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
 
@@ -104,6 +105,19 @@ export default function SettingsTab() {
     queryKey: ['parent', 'me'],
     queryFn: () => api.getMe(),
     retry: false,
+  });
+
+  useEffect(() => {
+    if (me?.locale) setAppLocale(me.locale);
+  }, [me?.locale]);
+
+  const localeMut = useMutation({
+    mutationFn: (locale: AppLocale) => api.updateMe({ locale }),
+    onSuccess: async (updated) => {
+      setAppLocale(updated.locale);
+      await Haptics.selectionAsync();
+      await qc.invalidateQueries({ queryKey: ['parent', 'me'] });
+    },
   });
 
   const tierLabel: Record<string, string> = {
@@ -162,14 +176,64 @@ export default function SettingsTab() {
             icon={<Text style={styles.rowEmoji}>👤</Text>}
             label={t('parent.settings.displayName')}
             value={user?.fullName ?? user?.firstName ?? '—'}
+            onPress={() => router.push('/(parent)/account')}
           />
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
             icon={<Text style={styles.rowEmoji}>✉️</Text>}
             label={t('parent.settings.email')}
             value={user?.primaryEmailAddress?.emailAddress ?? '—'}
+            onPress={() => router.push('/(parent)/account')}
+          />
+          <View style={[styles.divider, { backgroundColor: s.border }]} />
+          <SettingsRow
+            icon={<Text style={styles.rowEmoji}>🔒</Text>}
+            label={t('parent.settings.password')}
+            value={t('parent.settings.passwordValue')}
+            onPress={() => router.push('/(parent)/account')}
           />
         </Card>
+
+        {/* Language */}
+        <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
+          {t('parent.settings.language')}
+        </Text>
+        <Card style={styles.section}>
+          {SUPPORTED_LOCALES.map((opt, idx) => {
+            const active = (me?.locale ?? 'nb-NO') === opt.code;
+            return (
+              <View key={opt.code}>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!active) localeMut.mutate(opt.code);
+                  }}
+                  style={styles.row}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={opt.label}
+                >
+                  <View style={styles.rowLeft}>
+                    <Text style={styles.rowEmoji}>
+                      {opt.code === 'nb-NO' ? '🇳🇴' : '🇬🇧'}
+                    </Text>
+                    <Text style={[styles.rowLabel, { color: tx.primary }]}>
+                      {opt.label}
+                    </Text>
+                  </View>
+                  {active ? (
+                    <Check size={18} color={theme.colors.gold[500]} strokeWidth={2.5} />
+                  ) : null}
+                </TouchableOpacity>
+                {idx < SUPPORTED_LOCALES.length - 1 ? (
+                  <View style={[styles.divider, { backgroundColor: s.border }]} />
+                ) : null}
+              </View>
+            );
+          })}
+        </Card>
+        <Text style={[styles.helpText, { color: tx.secondary }]}>
+          {t('parent.settings.languageHelp')}
+        </Text>
 
         {/* Subscription */}
         <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
@@ -279,4 +343,10 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 15, fontWeight: '500' },
   rowValue: { fontSize: 14 },
   divider: { height: 1, marginHorizontal: 16 },
+  helpText: {
+    fontSize: 12,
+    paddingHorizontal: 8,
+    marginTop: 6,
+    lineHeight: 16,
+  },
 });
