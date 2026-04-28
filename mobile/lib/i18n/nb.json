@@ -114,14 +114,44 @@
         }
       },
       "allowanceModal": {
-        "title": "Ukentlig ukepenger",
+        "title": "Lommepenger",
         "amountLabel": "Beløp (kr)",
-        "amountHelp": "Sett til 0 for å skru av.",
+        "amountHelp": "0 betyr av.",
+        "frequencyLabel": "Hvor ofte?",
+        "frequency": {
+          "none": "Av",
+          "weekly": "Ukentlig",
+          "biweekly": "Hver 2. uke",
+          "monthly": "Månedlig"
+        },
+        "dayOfWeekLabel": "Hvilken ukedag?",
+        "dayOfMonthLabel": "Hvilken dag i måneden?",
+        "dayOfMonthHelp": "Hvis måneden er kortere, betales på siste dag i måneden.",
+        "dayOfWeek": {
+          "mon": "Man",
+          "tue": "Tir",
+          "wed": "Ons",
+          "thu": "Tor",
+          "fri": "Fre",
+          "sat": "Lør",
+          "sun": "Søn"
+        },
         "save": "Lagre",
         "cancel": "Avbryt",
         "errorInvalid": "Skriv inn et gyldig beløp.",
+        "errorMissingDayOfWeek": "Velg ukedag.",
+        "errorMissingDayOfMonth": "Velg dag i måneden.",
         "errorGeneric": "Kunne ikke lagre. Prøv igjen."
-      }
+      },
+      "allowance": "Lommepenger",
+      "allowanceFrequencyLabel": {
+        "none": "Av",
+        "weekly": "Ukentlig",
+        "biweekly": "Hver 2. uke",
+        "monthly": "Månedlig"
+      },
+      "nextPayment": "Neste utbetaling: %{date}",
+      "nextPaymentNone": "Neste utbetaling: —"
     },
     "tasksList": {
       "title": "Oppgaver",

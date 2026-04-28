@@ -3,7 +3,7 @@ import { getRedis } from '../lib/redis.js';
 import { getConfig } from '../config.js';
 import { logger } from '../lib/logger.js';
 import { runDailyReset } from './daily-reset.js';
-import { runWeeklyAllowance } from './weekly-allowance.js';
+import { runAllowance } from './allowance.js';
 import { runApprovalReminders } from './approval-reminders.js';
 import { runCleanup } from './cleanup.js';
 
@@ -11,7 +11,7 @@ const QUEUE_NAME = 'kroni-cron';
 
 interface JobMap {
   'daily-reset': void;
-  'weekly-allowance': void;
+  allowance: void;
   'approval-reminders': void;
   cleanup: void;
 }
@@ -20,14 +20,16 @@ type JobName = keyof JobMap;
 
 const handlers: Record<JobName, () => Promise<void>> = {
   'daily-reset': runDailyReset,
-  'weekly-allowance': runWeeklyAllowance,
+  allowance: runAllowance,
   'approval-reminders': runApprovalReminders,
   cleanup: runCleanup,
 };
 
 const schedule: Array<{ name: JobName; cron: string }> = [
   { name: 'daily-reset', cron: '5 0 * * *' },
-  { name: 'weekly-allowance', cron: '0 8 * * 1' },
+  // Daily 08:00 Oslo. Per-kid schedule (weekly / biweekly / monthly) is
+  // resolved inside the handler. See jobs/allowance.ts.
+  { name: 'allowance', cron: '0 8 * * *' },
   { name: 'approval-reminders', cron: '*/30 * * * *' },
   { name: 'cleanup', cron: '0 * * * *' },
 ];

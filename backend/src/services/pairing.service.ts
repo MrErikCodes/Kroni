@@ -68,7 +68,11 @@ export interface PairOutput {
     name: string;
     birthYear: number | null;
     avatarKey: AvatarKey | null;
-    weeklyAllowanceCents: number;
+    allowanceFrequency: 'none' | 'weekly' | 'biweekly' | 'monthly';
+    allowanceCents: number;
+    allowanceDayOfWeek: number | null;
+    allowanceDayOfMonth: number | null;
+    allowanceLastPaidAt: string | null;
     createdAt: string;
   };
 }
@@ -154,7 +158,11 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
       birthYear: result.birthYear,
       // avatarKey is constrained to AvatarKey at write time (Zod-validated input).
       avatarKey: result.avatarKey as AvatarKey | null,
-      weeklyAllowanceCents: result.weeklyAllowanceCents,
+      allowanceFrequency: result.allowanceFrequency as PairOutput['kid']['allowanceFrequency'],
+      allowanceCents: result.allowanceCents,
+      allowanceDayOfWeek: result.allowanceDayOfWeek,
+      allowanceDayOfMonth: result.allowanceDayOfMonth,
+      allowanceLastPaidAt: result.allowanceLastPaidAt ? result.allowanceLastPaidAt.toISOString() : null,
       createdAt: result.createdAt.toISOString(),
     },
   };

@@ -18,6 +18,7 @@ import type {
   SubscriptionTier,
   AvatarKey,
   Recurrence,
+  AllowanceFrequency,
 } from '@kroni/shared';
 
 export function serializeParent(p: ParentRow): ParentDto {
@@ -43,7 +44,13 @@ export function serializeKid(k: KidRow): KidDto {
     name: k.name,
     birthYear: k.birthYear,
     avatarKey: k.avatarKey as AvatarKey | null,
-    weeklyAllowanceCents: k.weeklyAllowanceCents as KidDto['weeklyAllowanceCents'],
+    allowanceFrequency: k.allowanceFrequency as AllowanceFrequency,
+    allowanceCents: k.allowanceCents as KidDto['allowanceCents'],
+    allowanceDayOfWeek: k.allowanceDayOfWeek,
+    allowanceDayOfMonth: k.allowanceDayOfMonth,
+    allowanceLastPaidAt: k.allowanceLastPaidAt
+      ? (k.allowanceLastPaidAt.toISOString() as KidDto['allowanceLastPaidAt'])
+      : null,
     createdAt: k.createdAt.toISOString() as KidDto['createdAt'],
   };
 }

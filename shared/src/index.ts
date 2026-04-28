@@ -7,3 +7,4 @@ export * from './schemas/task.js';
 export * from './schemas/reward.js';
 export * from './schemas/balance.js';
 export * from './schemas/errors.js';
+export * from './allowance.js';

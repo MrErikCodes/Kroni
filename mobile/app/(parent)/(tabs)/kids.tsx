@@ -49,15 +49,15 @@ function KidRow({ kid }: { kid: Kid }) {
           <KroniText variant="h2" tone="primary" style={styles.kidName}>
             {kid.name}
           </KroniText>
-          {kid.weeklyAllowanceCents > 0 ? (
+          {kid.allowanceFrequency !== 'none' && kid.allowanceCents > 0 ? (
             <KroniText variant="small" tone="secondary">
               {/* [REVIEW] */}
-              {formatNok(kid.weeklyAllowanceCents)} · per uke
+              {formatNok(kid.allowanceCents)} · {t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}
             </KroniText>
           ) : (
             <KroniText variant="small" tone="secondary">
               {/* [REVIEW] */}
-              Ingen ukepenger satt
+              Ingen lommepenger satt
             </KroniText>
           )}
         </View>

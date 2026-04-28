@@ -11,14 +11,30 @@ export async function kidMeRoutes(app: FastifyInstance): Promise<void> {
     async (req) => {
       const kid = req.kid;
       if (!kid) throw new UnauthorizedError('kid missing');
-      const { id, parentId, name, birthYear, avatarKey, weeklyAllowanceCents, createdAt } = kid;
+      const {
+        id,
+        parentId,
+        name,
+        birthYear,
+        avatarKey,
+        allowanceFrequency,
+        allowanceCents,
+        allowanceDayOfWeek,
+        allowanceDayOfMonth,
+        allowanceLastPaidAt,
+        createdAt,
+      } = kid;
       return {
         id,
         parentId,
         name,
         birthYear,
         avatarKey,
-        weeklyAllowanceCents,
+        allowanceFrequency,
+        allowanceCents,
+        allowanceDayOfWeek,
+        allowanceDayOfMonth,
+        allowanceLastPaidAt: allowanceLastPaidAt ? allowanceLastPaidAt.toISOString() : null,
         createdAt: createdAt.toISOString(),
       } as never;
     },

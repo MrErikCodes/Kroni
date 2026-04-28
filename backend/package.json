@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio",
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts"
+    "test": "tsx --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts"
   },
   "dependencies": {
     "@clerk/backend": "^1.21.4",

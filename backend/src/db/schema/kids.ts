@@ -18,7 +18,14 @@ export const kids = pgTable(
     birthYear: integer(),
     avatarKey: text(),
     pin: text(),
-    weeklyAllowanceCents: integer().notNull().default(0),
+    // Allowance schedule. 'none' = disabled; 'weekly'/'biweekly' use
+    // allowanceDayOfWeek (0 = Sun … 6 = Sat); 'monthly' uses
+    // allowanceDayOfMonth (1–31, clamped to last day of short months).
+    allowanceFrequency: text().notNull().default('none'),
+    allowanceCents: integer().notNull().default(0),
+    allowanceDayOfWeek: integer(),
+    allowanceDayOfMonth: integer(),
+    allowanceLastPaidAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('idx_kids_household').on(t.householdId)],

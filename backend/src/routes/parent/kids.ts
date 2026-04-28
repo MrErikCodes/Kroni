@@ -3,7 +3,14 @@ import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
-import { CreateKidSchema, UpdateKidSchema, KidSchema } from '@kroni/shared';
+import {
+  CreateKidSchema,
+  UpdateKidSchema,
+  KidSchema,
+  type CreateKidInput,
+  type UpdateKidInput,
+  type AllowanceFrequency,
+} from '@kroni/shared';
 import { getDb } from '../../db/index.js';
 import { kids } from '../../db/schema/kids.js';
 import { kidBalances } from '../../db/schema/balance.js';
@@ -12,6 +19,74 @@ import { assertCanAddKid } from '../../services/billing.service.js';
 import { serializeKid } from './_serializers.js';
 
 const IdParam = z.object({ id: z.string().uuid() });
+
+// Resolve the legacy [DEPRECATED weeklyAllowanceCents] alias on writes. When
+// the new fields are not provided but weeklyAllowanceCents is, treat it as
+// "weekly on Monday". The shared schema's refinement enforces consistency
+// of the new fields once they are present.
+interface AllowanceWrite {
+  allowanceFrequency: AllowanceFrequency;
+  allowanceCents: number;
+  allowanceDayOfWeek: number | null;
+  allowanceDayOfMonth: number | null;
+}
+
+function resolveAllowanceCreate(body: CreateKidInput): AllowanceWrite {
+  if (body.weeklyAllowanceCents !== undefined && body.allowanceFrequency === 'none' && body.allowanceCents === 0) {
+    if (body.weeklyAllowanceCents > 0) {
+      return {
+        allowanceFrequency: 'weekly',
+        allowanceCents: body.weeklyAllowanceCents,
+        allowanceDayOfWeek: 1, // Monday
+        allowanceDayOfMonth: null,
+      };
+    }
+    return {
+      allowanceFrequency: 'none',
+      allowanceCents: 0,
+      allowanceDayOfWeek: null,
+      allowanceDayOfMonth: null,
+    };
+  }
+  return {
+    allowanceFrequency: body.allowanceFrequency,
+    allowanceCents: body.allowanceCents,
+    allowanceDayOfWeek: body.allowanceDayOfWeek ?? null,
+    allowanceDayOfMonth: body.allowanceDayOfMonth ?? null,
+  };
+}
+
+function applyAllowanceUpdate(
+  body: UpdateKidInput,
+  update: Record<string, unknown>,
+): void {
+  // New-style fields take precedence. The shared refinement guarantees
+  // that any frequency change carries the matching day field(s).
+  if (body.allowanceFrequency !== undefined) update.allowanceFrequency = body.allowanceFrequency;
+  if (body.allowanceCents !== undefined) update.allowanceCents = body.allowanceCents;
+  if (body.allowanceDayOfWeek !== undefined) update.allowanceDayOfWeek = body.allowanceDayOfWeek;
+  if (body.allowanceDayOfMonth !== undefined) update.allowanceDayOfMonth = body.allowanceDayOfMonth;
+
+  // Legacy alias: [DEPRECATED weeklyAllowanceCents]. Only honored when the
+  // new fields are absent. Maps to weekly + Monday + the supplied cents.
+  if (
+    body.weeklyAllowanceCents !== undefined &&
+    body.allowanceFrequency === undefined &&
+    body.allowanceCents === undefined
+  ) {
+    if (body.weeklyAllowanceCents > 0) {
+      update.allowanceFrequency = 'weekly';
+      update.allowanceCents = body.weeklyAllowanceCents;
+      update.allowanceDayOfWeek = 1;
+      update.allowanceDayOfMonth = null;
+    } else {
+      update.allowanceFrequency = 'none';
+      update.allowanceCents = 0;
+      update.allowanceDayOfWeek = null;
+      update.allowanceDayOfMonth = null;
+    }
+  }
+}
 
 export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
@@ -42,6 +117,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       if (!parent || !household) throw new UnauthorizedError('household missing');
       await assertCanAddKid(household);
       const hashedPin = req.body.pin ? await bcrypt.hash(req.body.pin, 10) : null;
+      const allowance = resolveAllowanceCreate(req.body);
       const inserted = await getDb()
         .insert(kids)
         .values({
@@ -51,7 +127,10 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
           birthYear: req.body.birthYear ?? null,
           avatarKey: req.body.avatarKey ?? null,
           pin: hashedPin,
-          weeklyAllowanceCents: req.body.weeklyAllowanceCents,
+          allowanceFrequency: allowance.allowanceFrequency,
+          allowanceCents: allowance.allowanceCents,
+          allowanceDayOfWeek: allowance.allowanceDayOfWeek,
+          allowanceDayOfMonth: allowance.allowanceDayOfMonth,
         })
         .returning();
       const kid = inserted[0];
@@ -95,9 +174,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       if (req.body.name !== undefined) update.name = req.body.name;
       if (req.body.birthYear !== undefined) update.birthYear = req.body.birthYear;
       if (req.body.avatarKey !== undefined) update.avatarKey = req.body.avatarKey;
-      if (req.body.weeklyAllowanceCents !== undefined) {
-        update.weeklyAllowanceCents = req.body.weeklyAllowanceCents;
-      }
+      applyAllowanceUpdate(req.body, update);
       if (req.body.pin !== undefined) {
         update.pin = req.body.pin ? await bcrypt.hash(req.body.pin, 10) : null;
       }

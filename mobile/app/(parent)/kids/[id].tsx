@@ -15,7 +15,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import { ArrowLeft, Trash2 } from 'lucide-react-native';
-import type { BalanceEntry } from '@kroni/shared';
+import type { BalanceEntry, AllowanceFrequency, Kid } from '@kroni/shared';
+import { nextPaymentDate as computeNextPaymentDate } from '@kroni/shared';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
@@ -209,19 +210,20 @@ export default function KidDetail() {
             </View>
           </Card>
 
-          {/* Ukepenger card */}
+          {/* Lommepenger card */}
           <Card style={styles.rowCard}>
             <View style={styles.rowCardInfo}>
               <KroniText variant="eyebrow" tone="tertiary">
-                {t('parent.kidDetail.weeklyAllowance')}
+                {t('parent.kidDetail.allowance')}
               </KroniText>
               <Text style={[styles.allowanceValue, { color: tx.primary }]}>
-                {kid.weeklyAllowanceCents > 0
-                  ? t('parent.kidDetail.perWeek', {
-                      amount: formatNok(kid.weeklyAllowanceCents),
-                    })
+                {kid.allowanceFrequency !== 'none' && kid.allowanceCents > 0
+                  ? `${formatNok(kid.allowanceCents)} · ${t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}`
                   : t('parent.kidDetail.allowanceOff')}
               </Text>
+              <KroniText variant="caption" tone="secondary">
+                {formatNextPaymentLine(kid)}
+              </KroniText>
             </View>
             <Button
               label={t('parent.kidDetail.edit')}
@@ -299,7 +301,7 @@ export default function KidDetail() {
             visible={allowanceOpen}
             onClose={() => setAllowanceOpen(false)}
             kidId={kid.id}
-            currentWeeklyAllowanceCents={kid.weeklyAllowanceCents}
+            kid={kid}
             onSaved={() => {
               void queryClient.invalidateQueries({ queryKey: ['parent', 'kids', id] });
               void queryClient.invalidateQueries({ queryKey: ['parent', 'kids'] });
@@ -556,11 +558,24 @@ function AdjustBalanceModal({
 
 // ── Allowance modal ──────────────────────────────────────────────────────────
 
+const FREQUENCY_OPTIONS: AllowanceFrequency[] = ['none', 'weekly', 'biweekly', 'monthly'];
+// dayOfWeek convention: 0 = Sun … 6 = Sat. We render Mon → Sun for nb-NO.
+const DOW_ORDER: Array<{ value: number; key: string }> = [
+  { value: 1, key: 'mon' },
+  { value: 2, key: 'tue' },
+  { value: 3, key: 'wed' },
+  { value: 4, key: 'thu' },
+  { value: 5, key: 'fri' },
+  { value: 6, key: 'sat' },
+  { value: 0, key: 'sun' },
+];
+const DOM_OPTIONS: number[] = Array.from({ length: 31 }, (_, i) => i + 1);
+
 interface AllowanceModalProps {
   visible: boolean;
   onClose: () => void;
   kidId: string;
-  currentWeeklyAllowanceCents: number;
+  kid: Kid;
   onSaved: () => void;
 }
 
@@ -568,22 +583,43 @@ function AllowanceModal({
   visible,
   onClose,
   kidId,
-  currentWeeklyAllowanceCents,
+  kid,
   onSaved,
 }: AllowanceModalProps) {
+  const theme = useTheme();
+  const tx = theme.text;
   const api = useParentApi();
-  const [amount, setAmount] = useState(String(Math.round(currentWeeklyAllowanceCents / 100)));
+  const [frequency, setFrequency] = useState<AllowanceFrequency>(kid.allowanceFrequency);
+  const [amount, setAmount] = useState(String(Math.round(kid.allowanceCents / 100)));
+  const [dayOfWeek, setDayOfWeek] = useState<number | null>(kid.allowanceDayOfWeek);
+  const [dayOfMonth, setDayOfMonth] = useState<number | null>(kid.allowanceDayOfMonth);
   const [error, setError] = useState<string | null>(null);
 
-  const handleClose = useCallback(() => {
-    setAmount(String(Math.round(currentWeeklyAllowanceCents / 100)));
+  const reset = useCallback(() => {
+    setFrequency(kid.allowanceFrequency);
+    setAmount(String(Math.round(kid.allowanceCents / 100)));
+    setDayOfWeek(kid.allowanceDayOfWeek);
+    setDayOfMonth(kid.allowanceDayOfMonth);
     setError(null);
+  }, [kid.allowanceFrequency, kid.allowanceCents, kid.allowanceDayOfWeek, kid.allowanceDayOfMonth]);
+
+  const handleClose = useCallback(() => {
+    reset();
     onClose();
-  }, [currentWeeklyAllowanceCents, onClose]);
+  }, [onClose, reset]);
+
+  // Refresh local state when the kid's persisted values change between opens.
+  useMemo(() => {
+    if (visible) reset();
+  }, [visible, reset]);
 
   const mutation = useMutation({
-    mutationFn: (weeklyAllowanceCents: number) =>
-      api.updateKid(kidId, { weeklyAllowanceCents }),
+    mutationFn: (input: {
+      allowanceFrequency: AllowanceFrequency;
+      allowanceCents: number;
+      allowanceDayOfWeek: number | null;
+      allowanceDayOfMonth: number | null;
+    }) => api.updateKid(kidId, input),
     onSuccess: () => {
       onSaved();
       setError(null);
@@ -598,6 +634,21 @@ function AllowanceModal({
     },
   });
 
+  const handleFrequencyChange = useCallback((next: AllowanceFrequency) => {
+    setFrequency(next);
+    if (next === 'none') {
+      setDayOfWeek(null);
+      setDayOfMonth(null);
+    } else if (next === 'weekly' || next === 'biweekly') {
+      setDayOfMonth(null);
+      // Default to Monday if not set.
+      setDayOfWeek((prev) => (prev === null ? 1 : prev));
+    } else if (next === 'monthly') {
+      setDayOfWeek(null);
+      setDayOfMonth((prev) => (prev === null ? 1 : prev));
+    }
+  }, []);
+
   const handleSubmit = useCallback(() => {
     setError(null);
     const ore = krToOre(amount);
@@ -605,17 +656,22 @@ function AllowanceModal({
       setError(t('parent.kidDetail.allowanceModal.errorInvalid'));
       return;
     }
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    mutation.mutate(ore);
-  }, [amount, mutation]);
-
-  // Refresh local value when the kid's persisted value changes between opens.
-  useMemo(() => {
-    if (visible) {
-      setAmount(String(Math.round(currentWeeklyAllowanceCents / 100)));
-      setError(null);
+    if ((frequency === 'weekly' || frequency === 'biweekly') && dayOfWeek === null) {
+      setError(t('parent.kidDetail.allowanceModal.errorMissingDayOfWeek'));
+      return;
     }
-  }, [visible, currentWeeklyAllowanceCents]);
+    if (frequency === 'monthly' && dayOfMonth === null) {
+      setError(t('parent.kidDetail.allowanceModal.errorMissingDayOfMonth'));
+      return;
+    }
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    mutation.mutate({
+      allowanceFrequency: frequency,
+      allowanceCents: ore,
+      allowanceDayOfWeek: frequency === 'weekly' || frequency === 'biweekly' ? dayOfWeek : null,
+      allowanceDayOfMonth: frequency === 'monthly' ? dayOfMonth : null,
+    });
+  }, [amount, frequency, dayOfWeek, dayOfMonth, mutation]);
 
   return (
     <Modal visible={visible} onClose={handleClose}>
@@ -625,6 +681,116 @@ function AllowanceModal({
             {t('parent.kidDetail.allowanceModal.title')}
           </KroniText>
 
+          {/* Frequency */}
+          <View style={styles.modalField}>
+            <Label>{t('parent.kidDetail.allowanceModal.frequencyLabel')}</Label>
+            <View style={styles.reasonRow}>
+              {FREQUENCY_OPTIONS.map((opt) => {
+                const selected = frequency === opt;
+                return (
+                  <TouchableOpacity
+                    key={opt}
+                    onPress={() => handleFrequencyChange(opt)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    style={[
+                      styles.reasonChip,
+                      {
+                        borderColor: selected ? theme.colors.gold[500] : theme.surface.border,
+                        backgroundColor: selected ? theme.colors.gold[50] : theme.surface.card,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.reasonChipText,
+                        { color: selected ? theme.colors.gold[700] : tx.primary },
+                      ]}
+                    >
+                      {t(`parent.kidDetail.allowanceModal.frequency.${opt}`)}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+
+          {/* Day of week (weekly/biweekly) */}
+          {(frequency === 'weekly' || frequency === 'biweekly') ? (
+            <View style={styles.modalField}>
+              <Label>{t('parent.kidDetail.allowanceModal.dayOfWeekLabel')}</Label>
+              <View style={styles.reasonRow}>
+                {DOW_ORDER.map(({ value, key }) => {
+                  const selected = dayOfWeek === value;
+                  return (
+                    <TouchableOpacity
+                      key={key}
+                      onPress={() => setDayOfWeek(value)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      style={[
+                        styles.reasonChip,
+                        {
+                          borderColor: selected ? theme.colors.gold[500] : theme.surface.border,
+                          backgroundColor: selected ? theme.colors.gold[50] : theme.surface.card,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.reasonChipText,
+                          { color: selected ? theme.colors.gold[700] : tx.primary },
+                        ]}
+                      >
+                        {t(`parent.kidDetail.allowanceModal.dayOfWeek.${key}`)}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          {/* Day of month (monthly) */}
+          {frequency === 'monthly' ? (
+            <View style={styles.modalField}>
+              <Label>{t('parent.kidDetail.allowanceModal.dayOfMonthLabel')}</Label>
+              <View style={styles.domGrid}>
+                {DOM_OPTIONS.map((d) => {
+                  const selected = dayOfMonth === d;
+                  return (
+                    <TouchableOpacity
+                      key={d}
+                      onPress={() => setDayOfMonth(d)}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      style={[
+                        styles.domChip,
+                        {
+                          borderColor: selected ? theme.colors.gold[500] : theme.surface.border,
+                          backgroundColor: selected ? theme.colors.gold[50] : theme.surface.card,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.reasonChipText,
+                          { color: selected ? theme.colors.gold[700] : tx.primary },
+                        ]}
+                      >
+                        {d}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <KroniText variant="caption" tone="secondary" style={styles.helpText}>
+                {t('parent.kidDetail.allowanceModal.dayOfMonthHelp')}
+              </KroniText>
+            </View>
+          ) : null}
+
+          {/* Amount */}
           <View style={styles.modalField}>
             <Label>{t('parent.kidDetail.allowanceModal.amountLabel')}</Label>
             <Input
@@ -632,7 +798,6 @@ function AllowanceModal({
               onChangeText={setAmount}
               keyboardType="number-pad"
               placeholder="0"
-              autoFocus
             />
             <KroniText variant="caption" tone="secondary" style={styles.helpText}>
               {t('parent.kidDetail.allowanceModal.amountHelp')}
@@ -668,6 +833,29 @@ function AllowanceModal({
       </KeyboardAvoidingView>
     </Modal>
   );
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatNextPaymentLine(kid: Kid): string {
+  if (kid.allowanceFrequency === 'none') {
+    return t('parent.kidDetail.nextPaymentNone');
+  }
+  const iso = computeNextPaymentDate({
+    frequency: kid.allowanceFrequency,
+    dayOfWeek: kid.allowanceDayOfWeek,
+    dayOfMonth: kid.allowanceDayOfMonth,
+    lastPaidAt: kid.allowanceLastPaidAt ? new Date(kid.allowanceLastPaidAt) : null,
+  });
+  if (!iso) return t('parent.kidDetail.nextPaymentNone');
+  // Build a Date at noon local to avoid tz edge effects when formatting.
+  const [y, m, d] = iso.split('-').map((s) => Number(s));
+  const date = new Date(y!, (m ?? 1) - 1, d ?? 1, 12, 0, 0);
+  const formatted = new Intl.DateTimeFormat('nb-NO', {
+    day: 'numeric',
+    month: 'long',
+  }).format(date);
+  return t('parent.kidDetail.nextPayment', { date: formatted });
 }
 
 const styles = StyleSheet.create({
@@ -755,6 +943,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   reasonChipText: { fontSize: 14, fontFamily: fonts.uiBold },
+  domGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  domChip: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   errorText: { marginTop: 4 },
   modalActions: {
     flexDirection: 'row',

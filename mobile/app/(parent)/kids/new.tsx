@@ -51,12 +51,34 @@ export default function KidNew() {
     resolver: zodResolver(CreateKidSchema) as Resolver<FormValues>,
     defaultValues: {
       name: '',
-      weeklyAllowanceCents: 0,
+      allowanceFrequency: 'none',
+      allowanceCents: 0,
     },
   });
 
   const mutation = useMutation({
-    mutationFn: (data: FormValues) => api.createKid({ ...data, weeklyAllowanceCents: data.weeklyAllowanceCents ?? 0 }),
+    mutationFn: (data: FormValues) => {
+      // Default new-kid creation flow: a non-zero amount → weekly on Monday.
+      // The dedicated allowance modal on the detail screen lets the parent
+      // pick frequency/day once the kid exists.
+      const cents = data.allowanceCents ?? 0;
+      if (cents > 0) {
+        return api.createKid({
+          ...data,
+          allowanceFrequency: 'weekly',
+          allowanceCents: cents,
+          allowanceDayOfWeek: 1,
+          allowanceDayOfMonth: null,
+        });
+      }
+      return api.createKid({
+        ...data,
+        allowanceFrequency: 'none',
+        allowanceCents: 0,
+        allowanceDayOfWeek: null,
+        allowanceDayOfMonth: null,
+      });
+    },
     onSuccess: (kid) => {
       void queryClient.invalidateQueries({ queryKey: ['parent', 'kids'] });
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -147,12 +169,13 @@ export default function KidNew() {
             />
           </View>
 
-          {/* Weekly allowance */}
+          {/* Lommepenger (kr/uke). Frequency picker lives on the kid detail
+              screen so the create flow stays minimal. */}
           <View style={styles.field}>
             <Label>{t('parent.kidNew.allowanceLabel')}</Label>
             <Controller
               control={control}
-              name="weeklyAllowanceCents"
+              name="allowanceCents"
               render={({ field: { onChange, value } }) => (
                 <Input
                   value={value !== undefined ? String(Math.round(value / 100)) : '0'}
