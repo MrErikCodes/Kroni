@@ -19,9 +19,10 @@ export default function KidTabsLayout() {
     });
   }, [router]);
 
+  // Same editorial tab styling as the parent shell.
   const activeTint = theme.colors.gold[500];
   const inactiveTint = theme.text.secondary;
-  const tabBarBg = theme.surface.card;
+  const tabBarBg = theme.isDark ? theme.colors.ink[900] : theme.colors.sand[50];
   const borderColor = theme.surface.border;
 
   return (
@@ -34,10 +35,13 @@ export default function KidTabsLayout() {
           backgroundColor: tabBarBg,
           borderTopColor: borderColor,
           borderTopWidth: 1,
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
+          fontFamily: theme.fonts.uiMedium,
           fontSize: 12,
-          fontWeight: '500',
+          letterSpacing: 0.2,
         },
       }}
     >
@@ -46,7 +50,7 @@ export default function KidTabsLayout() {
         options={{
           title: t('kid.today'),
           tabBarIcon: ({ color, size }) => (
-            <Sun size={size} color={color} strokeWidth={2} />
+            <Sun size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('kid.today'),
         }}
@@ -56,7 +60,7 @@ export default function KidTabsLayout() {
         options={{
           title: t('kid.balance'),
           tabBarIcon: ({ color, size }) => (
-            <Wallet size={size} color={color} strokeWidth={2} />
+            <Wallet size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('kid.balance'),
         }}
@@ -66,7 +70,7 @@ export default function KidTabsLayout() {
         options={{
           title: t('kid.rewards'),
           tabBarIcon: ({ color, size }) => (
-            <Gift size={size} color={color} strokeWidth={2} />
+            <Gift size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('kid.rewards'),
         }}
@@ -76,7 +80,7 @@ export default function KidTabsLayout() {
         options={{
           title: t('kid.profile'),
           tabBarIcon: ({ color, size }) => (
-            <User size={size} color={color} strokeWidth={2} />
+            <User size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('kid.profile'),
         }}

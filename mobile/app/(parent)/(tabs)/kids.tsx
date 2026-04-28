@@ -2,7 +2,6 @@
 import { useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
@@ -11,21 +10,28 @@ import {
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
-import { Plus, Users } from 'lucide-react-native';
+import { Plus, Users, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
+import { KroniText } from '../../../components/ui/Text';
 import type { Kid } from '@kroni/shared';
+
+const formatNok = (ore: number) =>
+  new Intl.NumberFormat('nb-NO', {
+    style: 'currency',
+    currency: 'NOK',
+    maximumFractionDigits: 0,
+  }).format(ore / 100);
 
 function KidRow({ kid }: { kid: Kid }) {
   const theme = useTheme();
   const router = useRouter();
-  const tx = theme.text;
 
   return (
     <TouchableOpacity
@@ -35,20 +41,27 @@ function KidRow({ kid }: { kid: Kid }) {
       }}
       accessibilityRole="button"
       accessibilityLabel={kid.name}
-      activeOpacity={0.8}
+      activeOpacity={0.85}
     >
       <Card style={styles.kidCard}>
-        <Avatar avatarKey={kid.avatarKey ?? 'bear'} size={52} />
+        <Avatar avatarKey={kid.avatarKey ?? 'bear'} size={48} />
         <View style={styles.kidInfo}>
-          <Text style={[styles.kidName, { color: tx.primary }]}>{kid.name}</Text>
+          <KroniText variant="h2" tone="primary" style={styles.kidName}>
+            {kid.name}
+          </KroniText>
           {kid.weeklyAllowanceCents > 0 ? (
-            <Text style={[styles.kidSub, { color: tx.secondary }]}>
+            <KroniText variant="small" tone="secondary">
               {/* [REVIEW] */}
-              {new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(kid.weeklyAllowanceCents / 100)} / uke
-            </Text>
-          ) : null}
+              {formatNok(kid.weeklyAllowanceCents)} · per uke
+            </KroniText>
+          ) : (
+            <KroniText variant="small" tone="secondary">
+              {/* [REVIEW] */}
+              Ingen ukepenger satt
+            </KroniText>
+          )}
         </View>
-        <Text style={[styles.chevron, { color: tx.secondary }]}>›</Text>
+        <ChevronRight size={20} color={theme.text.secondary} strokeWidth={1.75} />
       </Card>
     </TouchableOpacity>
   );
@@ -65,7 +78,6 @@ export default function KidsTab() {
   });
 
   const s = theme.surface;
-  const tx = theme.text;
 
   const handleAdd = useCallback(() => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -74,16 +86,39 @@ export default function KidsTab() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <Text style={[styles.title, { color: tx.primary }]}>{t('parent.kidsList.title')}</Text>
+      {/* Editorial header — serif headline with italic emphasis on "din". */}
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <KroniText variant="eyebrow" tone="gold">
+            {/* [REVIEW] */}
+            Forelder
+          </KroniText>
+          <View style={styles.headlineRow}>
+            <KroniText variant="display" tone="primary" style={styles.headlineText}>
+              {/* [REVIEW] */}
+              Familien{' '}
+            </KroniText>
+            <KroniText
+              variant="displayItalic"
+              tone="gold"
+              style={[styles.headlineText, { fontFamily: fonts.displayItalic }]}
+            >
+              {/* [REVIEW] */}
+              din
+            </KroniText>
+            <KroniText variant="display" tone="primary" style={styles.headlineText}>
+              .
+            </KroniText>
+          </View>
+        </View>
         <TouchableOpacity
           onPress={handleAdd}
           accessibilityRole="button"
           accessibilityLabel={t('parent.kidsList.addKid')}
           style={[styles.addBtn, { backgroundColor: theme.colors.gold[500] }]}
+          activeOpacity={0.85}
         >
-          <Plus size={20} color="#FFFFFF" strokeWidth={2.5} />
+          <Plus size={20} color={theme.colors.sand[900]} strokeWidth={2} />
         </TouchableOpacity>
       </View>
 
@@ -93,13 +128,13 @@ export default function KidsTab() {
         </View>
       ) : isError ? (
         <View style={styles.center}>
-          <Text style={[styles.errorText, { color: theme.colors.semantic.danger }]}>
+          <KroniText variant="body" tone="danger">
             {t('common.error')}
-          </Text>
+          </KroniText>
           <TouchableOpacity onPress={() => void refetch()}>
-            <Text style={[styles.retry, { color: theme.colors.gold[500] }]}>
+            <KroniText variant="body" tone="gold">
               {t('common.retry')}
-            </Text>
+            </KroniText>
           </TouchableOpacity>
         </View>
       ) : kids && kids.length === 0 ? (
@@ -133,21 +168,35 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    paddingTop: 16,
+    paddingBottom: 20,
+    gap: 12,
   },
-  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  headerText: {
+    flex: 1,
+    gap: 8,
+  },
+  headlineRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    flexWrap: 'wrap',
+  },
+  headlineText: {
+    fontSize: 32,
+    lineHeight: 36,
+    letterSpacing: -0.7,
+  },
   addBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  list: { padding: 16 },
+  list: { padding: 16, paddingTop: 4 },
   kidCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -155,11 +204,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     gap: 14,
   },
-  kidInfo: { flex: 1 },
-  kidName: { fontSize: 17, fontWeight: '600' },
-  kidSub: { fontSize: 13, marginTop: 2 },
-  chevron: { fontSize: 22, fontWeight: '300' },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  errorText: { fontSize: 16, fontWeight: '500' },
-  retry: { fontSize: 15, fontWeight: '600' },
+  kidInfo: { flex: 1, gap: 2 },
+  kidName: {
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  center: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 12,
+  },
 });

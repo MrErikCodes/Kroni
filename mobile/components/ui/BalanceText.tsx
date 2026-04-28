@@ -1,10 +1,10 @@
 import { Text, TextProps, useColorScheme } from 'react-native';
-import { colors } from '../../lib/theme';
+import { colors, fonts } from '../../lib/theme';
 
 interface BalanceTextProps extends TextProps {
   /** Amount in øre (integer) */
   amountOre: number;
-  /** Show big headline variant */
+  /** Show big headline variant — uses Newsreader display serif. */
   large?: boolean;
   /** Locale for formatting — defaults to nb-NO */
   locale?: string;
@@ -12,7 +12,11 @@ interface BalanceTextProps extends TextProps {
 }
 
 /** Formats integer øre to localized NOK currency string.
- *  Money math stays integer; display formatting only happens here. */
+ *  Money math stays integer; display formatting only happens here.
+ *
+ *  The large variant renders in Newsreader so the balance reads as the
+ *  editorial centerpiece of the kid's home screen — the same role the
+ *  serif headline plays on the website. */
 export function BalanceText({
   amountOre,
   large = false,
@@ -23,7 +27,13 @@ export function BalanceText({
 }: BalanceTextProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
-  const textColor = isDark ? '#F5F5F0' : colors.sand[900];
+  const textColor = large
+    ? isDark
+      ? '#F5F5F0'
+      : colors.sand[900]
+    : isDark
+      ? '#F5F5F0'
+      : colors.sand[900];
 
   const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -34,12 +44,21 @@ export function BalanceText({
   return (
     <Text
       style={[
-        {
-          fontSize: large ? 48 : 22,
-          fontWeight: '700',
-          color: large ? colors.gold[500] : textColor,
-          letterSpacing: large ? -1 : 0,
-        },
+        large
+          ? {
+              fontFamily: fonts.display,
+              fontSize: 56,
+              lineHeight: 60,
+              letterSpacing: -1.4,
+              color: textColor,
+            }
+          : {
+              fontFamily: fonts.uiBold,
+              fontSize: 22,
+              lineHeight: 28,
+              letterSpacing: -0.3,
+              color: textColor,
+            },
         style,
       ]}
       className={className}

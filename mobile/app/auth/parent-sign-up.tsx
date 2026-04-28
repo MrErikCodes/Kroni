@@ -13,10 +13,11 @@ import {
 import { useRouter } from 'expo-router';
 import { useSignUp } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
-import { useTheme } from '../../lib/theme';
+import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
+import { KroniText } from '../../components/ui/Text';
 
 export default function ParentSignUp() {
   const theme = useTheme();
@@ -83,13 +84,30 @@ export default function ParentSignUp() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Text style={[styles.logo, { color: theme.colors.gold[500] }]}>Kroni</Text>
-            <Text style={[styles.title, { color: tx.primary }]}>
-              {t('auth.parent.signUp')}
-            </Text>
-            <Text style={[styles.subtitle, { color: tx.secondary }]}>
+            <KroniText variant="eyebrow" tone="gold">
+              {/* [REVIEW] */}
+              Ny konto
+            </KroniText>
+            <View style={styles.headlineRow}>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headlineText}>
+                {/* [REVIEW] */}
+                Begynn{' '}
+              </KroniText>
+              <KroniText
+                variant="displayItalic"
+                tone="gold"
+                style={[styles.headlineText, { fontFamily: fonts.displayItalic }]}
+              >
+                {/* [REVIEW] */}
+                gratis
+              </KroniText>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headlineText}>
+                .
+              </KroniText>
+            </View>
+            <KroniText variant="body" tone="secondary" style={styles.subtitle}>
               {t('auth.parent.createAccount')}
-            </Text>
+            </KroniText>
           </View>
 
           {error ? (
@@ -196,21 +214,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 40,
+    alignItems: 'flex-start',
+    marginBottom: 32,
+    gap: 10,
   },
-  logo: {
-    fontSize: 36,
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginBottom: 8,
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
+  headlineText: {
+    fontSize: 38,
+    lineHeight: 42,
+    letterSpacing: -1.0,
   },
-  subtitle: { fontSize: 16 },
+  subtitle: { fontSize: 16, lineHeight: 24, marginTop: 4 },
   form: { gap: 16, marginBottom: 32 },
   field: { gap: 6 },
   label: { fontSize: 14, fontWeight: '500' },

@@ -2,18 +2,16 @@
 import { useCallback } from 'react';
 import {
   View,
-  Text,
+  StyleSheet,
   TouchableOpacity,
   SafeAreaView,
-  StyleSheet,
   useColorScheme,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
-import { Users, Baby } from 'lucide-react-native';
 import { setRolePreference } from '../lib/auth';
-import { colors } from '../lib/theme';
-import { t } from '../lib/i18n';
+import { colors, fonts } from '../lib/theme';
+import { KroniText } from '../components/ui/Text';
 
 export default function RoleChooser() {
   const router = useRouter();
@@ -21,10 +19,8 @@ export default function RoleChooser() {
   const isDark = scheme === 'dark';
 
   const bg = isDark ? colors.ink[900] : colors.sand[50];
-  const cardBg = isDark ? colors.ink[800] : '#FFFFFF';
+  const cardBg = isDark ? colors.ink[800] : colors.sand[50];
   const border = isDark ? '#2A3040' : colors.sand[200];
-  const textPrimary = isDark ? '#F5F5F0' : colors.sand[900];
-  const textSecondary = isDark ? '#9AA0AA' : colors.sand[500];
 
   const handleParent = useCallback(async () => {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -41,62 +37,98 @@ export default function RoleChooser() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: bg }]}>
       <View style={styles.content}>
-        {/* Header */}
+        {/* Eyebrow + serif headline with italic emphasis on "hvem". */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.gold[500] }]}>Kroni</Text>
-          <Text style={[styles.subtitle, { color: textPrimary }]}>
-            {t('roleChooser.title')}
-          </Text>
-          <Text style={[styles.body, { color: textSecondary }]}>
-            {t('roleChooser.subtitle')}
-          </Text>
+          <KroniText variant="eyebrow" tone="gold" style={styles.eyebrow}>
+            {/* [REVIEW] */}
+            Velkommen til Kroni
+          </KroniText>
+          <View style={styles.headlineRow}>
+            <KroniText variant="displayLarge" tone="primary" style={styles.headlineLine}>
+              {/* [REVIEW] */}
+              Hvem er du —{' '}
+            </KroniText>
+            <KroniText
+              variant="displayItalic"
+              tone="gold"
+              style={[styles.headlineLine, styles.italic]}
+            >
+              {/* [REVIEW] */}
+              i dag
+            </KroniText>
+            <KroniText variant="displayLarge" tone="primary" style={styles.headlineLine}>
+              ?
+            </KroniText>
+          </View>
+          <KroniText variant="bodyLarge" tone="secondary" style={styles.intro}>
+            {/* [REVIEW] */}
+            Velg hvilken side av Kroni du logger inn på.
+          </KroniText>
         </View>
 
-        {/* Cards */}
+        {/* Two role cards — hairline borders, sand-50 surface, no shadow. */}
         <View style={styles.cards}>
-          {/* Parent card */}
           <TouchableOpacity
             onPress={handleParent}
             accessibilityRole="button"
-            accessibilityLabel={t('roleChooser.parentCard.title')}
+            accessibilityLabel="Forelder"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
-            <View style={[styles.iconWrap, { backgroundColor: colors.gold[50] }]}>
-              <Users size={32} color={colors.gold[500]} strokeWidth={2} />
-            </View>
-            <Text style={[styles.cardTitle, { color: textPrimary }]}>
-              {t('roleChooser.parentCard.title')}
-            </Text>
-            <Text style={[styles.cardDesc, { color: textSecondary }]}>
-              {t('roleChooser.parentCard.description')}
-            </Text>
+            <KroniText variant="eyebrow" tone="tertiary">
+              {/* [REVIEW] */}
+              Forelder
+            </KroniText>
+            <KroniText variant="display" tone="primary" style={styles.cardTitle}>
+              {/* [REVIEW] */}
+              Sett opp familien.
+            </KroniText>
+            <KroniText variant="small" tone="secondary" style={styles.cardBody}>
+              {/* [REVIEW] */}
+              Lag oppgaver, godkjenn ferdig arbeid og sett ukepenger. Fra kjøkkenbordet, ikke fra appen.
+            </KroniText>
           </TouchableOpacity>
 
-          {/* Kid card */}
           <TouchableOpacity
             onPress={handleKid}
             accessibilityRole="button"
-            accessibilityLabel={t('roleChooser.kidCard.title')}
+            accessibilityLabel="Barn"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={[
-              styles.card,
-              styles.kidCard,
-              { backgroundColor: cardBg, borderColor: colors.gold[300] },
-            ]}
+            style={[styles.card, styles.kidCard, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
-            <View style={[styles.iconWrap, { backgroundColor: colors.accent.coral + '22' }]}>
-              <Baby size={32} color={colors.accent.coral} strokeWidth={2} />
-            </View>
-            <Text style={[styles.cardTitle, { color: textPrimary }]}>
-              {t('roleChooser.kidCard.title')}
-            </Text>
-            <Text style={[styles.cardDesc, { color: textSecondary }]}>
-              {t('roleChooser.kidCard.description')}
-            </Text>
+            <KroniText variant="eyebrow" tone="tertiary">
+              {/* [REVIEW] */}
+              Barn
+            </KroniText>
+            <KroniText variant="display" tone="primary" style={styles.cardTitle}>
+              {/* [REVIEW] */}
+              Logg inn med kode.
+            </KroniText>
+            <KroniText variant="small" tone="secondary" style={styles.cardBody}>
+              {/* [REVIEW] */}
+              Be foreldrene dine om en seks-sifret kode. Du får din egen oppgaveliste og saldo.
+            </KroniText>
           </TouchableOpacity>
+        </View>
+
+        {/* Trust strip — middot separators, sand-500. */}
+        <View style={styles.trustStrip}>
+          <KroniText variant="caption" tone="secondary" style={styles.trustText}>
+            {/* [REVIEW] */}
+            Bygd i Norge
+          </KroniText>
+          <View style={[styles.dot, { backgroundColor: isDark ? '#2A3040' : colors.sand[300] }]} />
+          <KroniText variant="caption" tone="secondary" style={styles.trustText}>
+            {/* [REVIEW] */}
+            Aldri ekte penger
+          </KroniText>
+          <View style={[styles.dot, { backgroundColor: isDark ? '#2A3040' : colors.sand[300] }]} />
+          <KroniText variant="caption" tone="secondary" style={styles.trustText}>
+            {/* [REVIEW] */}
+            For barn 6–14 år
+          </KroniText>
         </View>
       </View>
     </SafeAreaView>
@@ -104,66 +136,74 @@ export default function RoleChooser() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    justifyContent: 'center',
+    paddingTop: 40,
+    paddingBottom: 32,
+    justifyContent: 'space-between',
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 22,
-    fontWeight: '600',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  body: {
-    fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  cards: {
+    alignItems: 'flex-start',
     gap: 16,
   },
+  eyebrow: {
+    marginBottom: 4,
+  },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+  },
+  headlineLine: {
+    fontSize: 44,
+    lineHeight: 48,
+    letterSpacing: -1.1,
+  },
+  italic: {
+    fontFamily: fonts.displayItalic,
+  },
+  intro: {
+    maxWidth: 320,
+    fontSize: 17,
+    lineHeight: 26,
+  },
+  cards: {
+    gap: 14,
+  },
   card: {
-    borderRadius: 16,
-    borderWidth: 1.5,
+    borderRadius: 20,
+    borderWidth: 1,
     padding: 24,
-    alignItems: 'center',
-    minHeight: 44, // parent touch target
+    minHeight: 44,
+    gap: 10,
   },
   kidCard: {
-    minHeight: 56, // kid touch target
-    borderWidth: 2,
-  },
-  iconWrap: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
+    minHeight: 56,
   },
   cardTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    marginBottom: 8,
-    textAlign: 'center',
+    fontSize: 26,
+    lineHeight: 30,
+    letterSpacing: -0.6,
   },
-  cardDesc: {
-    fontSize: 14,
-    textAlign: 'center',
+  cardBody: {
     lineHeight: 20,
+  },
+  trustStrip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    gap: 12,
+    paddingTop: 12,
+  },
+  trustText: {
+    letterSpacing: 0.3,
+  },
+  dot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
   },
 });

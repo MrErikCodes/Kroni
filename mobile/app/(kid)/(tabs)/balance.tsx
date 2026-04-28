@@ -9,13 +9,14 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import { Wallet } from 'lucide-react-native';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
 import { BalanceText } from '../../../components/ui/BalanceText';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
+import { KroniText } from '../../../components/ui/Text';
 import type { BalanceEntry } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
@@ -102,41 +103,52 @@ export default function BalanceScreen() {
 
   const ListHeader = (
     <View style={styles.headerSection}>
-      {/* Big balance */}
-      <Text style={[styles.balanceLabel, { color: tx.secondary }]}>
-        {t('kid.balanceScreen.currentBalance')}
-      </Text>
-      <BalanceText
-        amountOre={summary?.balanceCents ?? 0}
-        large
-        accessibilityLabel={`Saldo: ${summary?.balanceCents ?? 0} øre`}
-      />
+      {/* Editorial centerpiece — serif balance with eyebrow caption. */}
+      <View style={styles.balanceBlock}>
+        <KroniText variant="eyebrow" tone="tertiary">
+          {t('kid.balanceScreen.currentBalance')}
+        </KroniText>
+        <BalanceText
+          amountOre={summary?.balanceCents ?? 0}
+          large
+          accessibilityLabel={`Saldo: ${summary?.balanceCents ?? 0} øre`}
+        />
+      </View>
 
-      {/* Week stats */}
+      {/* Week stats — paired hairline cards with editorial labels. */}
       <View style={styles.weekRow}>
         <Card style={styles.weekCard}>
-          <Text style={[styles.weekStatLabel, { color: tx.secondary }]}>
+          <KroniText variant="caption" tone="tertiary">
             {t('kid.balanceScreen.weekEarned')}
-          </Text>
-          <Text style={[styles.weekStatValue, { color: theme.colors.semantic.success }]}>
+          </KroniText>
+          <Text
+            style={[
+              styles.weekStatValue,
+              { color: theme.colors.semantic.success },
+            ]}
+          >
             +{formatNok(summary?.weekEarnedCents ?? 0)}
           </Text>
         </Card>
         <Card style={styles.weekCard}>
-          <Text style={[styles.weekStatLabel, { color: tx.secondary }]}>
+          <KroniText variant="caption" tone="tertiary">
             {t('kid.balanceScreen.weekSpent')}
-          </Text>
-          <Text style={[styles.weekStatValue, { color: theme.colors.semantic.danger }]}>
+          </KroniText>
+          <Text
+            style={[
+              styles.weekStatValue,
+              { color: theme.colors.semantic.danger },
+            ]}
+          >
             -{formatNok(summary?.weekSpentCents ?? 0)}
           </Text>
         </Card>
       </View>
 
-      {/* History header */}
       {(history ?? []).length > 0 ? (
-        <Text style={[styles.historyHeader, { color: tx.secondary }]}>
+        <KroniText variant="eyebrow" tone="tertiary" style={styles.historyHeader}>
           {t('kid.balanceScreen.history')}
-        </Text>
+        </KroniText>
       ) : null}
     </View>
   );
@@ -187,21 +199,18 @@ const styles = StyleSheet.create({
   emptyContainer: { flex: 1 },
   headerSection: {
     padding: 24,
-    alignItems: 'center',
-    gap: 12,
+    gap: 24,
   },
-  balanceLabel: { fontSize: 14, fontWeight: '500' },
+  balanceBlock: { alignItems: 'flex-start', gap: 8 },
   weekRow: { flexDirection: 'row', gap: 12, width: '100%' },
-  weekCard: { flex: 1, padding: 14, alignItems: 'center', gap: 4 },
-  weekStatLabel: { fontSize: 12, fontWeight: '500' },
-  weekStatValue: { fontSize: 18, fontWeight: '700' },
+  weekCard: { flex: 1, padding: 16, gap: 6 },
+  weekStatValue: {
+    fontFamily: fonts.uiBold,
+    fontSize: 20,
+    letterSpacing: -0.3,
+  },
   historyHeader: {
-    alignSelf: 'flex-start',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginTop: 8,
+    marginTop: 4,
   },
   historyRow: {
     flexDirection: 'row',

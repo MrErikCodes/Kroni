@@ -13,13 +13,14 @@ import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import { LogOut, User } from 'lucide-react-native';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { clearKidToken } from '../../../lib/auth';
 import { t } from '../../../lib/i18n';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
+import { KroniText } from '../../../components/ui/Text';
 import type { BalanceEntry } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
@@ -153,18 +154,30 @@ export default function KidProfileScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <Text style={[styles.title, { color: tx.primary }]}>
-          {t('kid.profileScreen.title')}
-        </Text>
+      <View style={styles.header}>
+        <KroniText variant="eyebrow" tone="gold">
+          {/* [REVIEW] */}
+          Profil
+        </KroniText>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Avatar + name */}
+        {/* Editorial profile block — italic name as the visual signature. */}
         <View style={styles.profileSection}>
           <Avatar avatarKey={me?.avatarKey ?? 'bear'} size={88} />
-          <Text style={[styles.name, { color: tx.primary }]}>{me?.name ?? '…'}</Text>
-          <Text style={[styles.balance, { color: theme.colors.gold[500] }]}>
+          <KroniText
+            variant="displayItalic"
+            tone="primary"
+            style={[styles.name, { fontFamily: fonts.displayItalic }]}
+          >
+            {me?.name ?? '…'}
+          </KroniText>
+          <Text
+            style={[
+              styles.balance,
+              { color: theme.colors.gold[700], fontFamily: fonts.uiBold },
+            ]}
+          >
             {formatNok(balance?.balanceCents ?? 0)}
           </Text>
         </View>
@@ -207,15 +220,18 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    paddingTop: 16,
+    paddingBottom: 8,
   },
-  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { padding: 24, gap: 20 },
-  profileSection: { alignItems: 'center', gap: 8, paddingVertical: 8 },
-  name: { fontSize: 28, fontWeight: '700' },
-  balance: { fontSize: 22, fontWeight: '700' },
+  profileSection: { alignItems: 'center', gap: 10, paddingVertical: 8 },
+  name: {
+    fontSize: 36,
+    lineHeight: 40,
+    letterSpacing: -0.8,
+  },
+  balance: { fontSize: 20, letterSpacing: -0.3 },
   chartCard: { padding: 16, gap: 4 },
   chartTitle: { fontSize: 12, fontWeight: '600', letterSpacing: 0.5, textTransform: 'uppercase' },
   chartTotal: { fontSize: 22, fontWeight: '700' },

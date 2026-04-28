@@ -1,8 +1,7 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
@@ -12,18 +11,14 @@ import {
 import { useRouter } from 'expo-router';
 import { useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, Check, Crown } from 'lucide-react-native';
-import { useTheme } from '../../lib/theme';
+import { ArrowLeft, Check } from 'lucide-react-native';
+import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { presentPaywall, restorePurchases } from '../../lib/billing';
 import { Button } from '../../components/ui/Button';
 import { Spinner } from '../../components/ui/Spinner';
-import { useState } from 'react';
-
-const FEATURES_FREE = [
-  t('paywall.free.kids'),
-  t('paywall.free.tasks'),
-];
+import { Card } from '../../components/ui/Card';
+import { KroniText } from '../../components/ui/Text';
 
 const FEATURES_PRO = [
   t('paywall.features.kids'),
@@ -38,16 +33,9 @@ export default function PaywallScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const s = theme.surface;
-  const tx = theme.text;
 
   const [presenting, setPresenting] = useState(false);
   const [restoring, setRestoring] = useState(false);
-
-  // Present the RevenueCat paywall immediately on mount
-  useEffect(() => {
-    void handlePresent();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handlePresent = useCallback(async () => {
     setPresenting(true);
@@ -62,6 +50,12 @@ export default function PaywallScreen() {
       setPresenting(false);
     }
   }, [queryClient, router]);
+
+  // Present the RevenueCat paywall sheet on mount; the editorial wrapper
+  // below is what shows when the sheet dismisses without a purchase.
+  useEffect(() => {
+    void handlePresent();
+  }, [handlePresent]);
 
   const handleRestore = useCallback(async () => {
     setRestoring(true);
@@ -86,69 +80,70 @@ export default function PaywallScreen() {
           accessibilityRole="button"
           accessibilityLabel={t('common.back')}
         >
-          <ArrowLeft size={24} color={tx.primary} strokeWidth={2} />
+          <ArrowLeft size={22} color={theme.text.primary} strokeWidth={1.75} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: tx.primary }]}>
-          {t('paywall.title')}
-        </Text>
+        <KroniText variant="caption" tone="tertiary">
+          {/* [REVIEW] */}
+          Familieplan
+        </KroniText>
         <View style={styles.headerBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Crown icon + title */}
+        {/* Editorial hero — serif headline with italic emphasis on "vokser". */}
         <View style={styles.hero}>
-          <View style={[styles.crownWrap, { backgroundColor: theme.colors.gold[50] }]}>
-            <Crown size={40} color={theme.colors.gold[500]} strokeWidth={2} />
+          <KroniText variant="eyebrow" tone="gold">
+            {/* [REVIEW] */}
+            Familieplan
+          </KroniText>
+          <View style={styles.headlineRow}>
+            <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+              {/* [REVIEW] */}
+              Når familien{' '}
+            </KroniText>
+            <KroniText
+              variant="displayItalic"
+              tone="gold"
+              style={[styles.headline, { fontFamily: fonts.displayItalic }]}
+            >
+              {/* [REVIEW] */}
+              vokser
+            </KroniText>
+            <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+              .
+            </KroniText>
           </View>
-          <Text style={[styles.heroTitle, { color: tx.primary }]}>
-            {t('paywall.title')}
-          </Text>
-          <Text style={[styles.heroSub, { color: tx.secondary }]}>
-            {t('paywall.subtitle')}
-          </Text>
+          <KroniText variant="bodyLarge" tone="secondary" style={styles.intro}>
+            {/* [REVIEW] */}
+            Ubegrenset antall barn og oppgaver, varsler og full historikk. Pause når familien er på ferie, slutt når du vil.
+          </KroniText>
         </View>
 
-        {/* Feature comparison */}
-        <View style={[styles.compCard, { backgroundColor: s.card, borderColor: s.border }]}>
-          {/* Free column header */}
-          <View style={styles.compHeader}>
-            <View style={styles.compCol}>
-              <Text style={[styles.compTier, { color: tx.secondary }]}>Gratis</Text>
-            </View>
-            <View style={[styles.compCol, styles.compProCol, { backgroundColor: theme.colors.gold[500] }]}>
-              <Text style={styles.compTierPro}>Pro</Text>
-            </View>
-          </View>
-
-          {/* Free features */}
-          {FEATURES_FREE.map((f) => (
-            <View key={f} style={styles.compRow}>
-              <View style={styles.compCol}>
-                <Text style={[styles.compFeature, { color: tx.secondary }]}>{f}</Text>
-              </View>
-              <View style={[styles.compCol, { backgroundColor: theme.colors.gold[50] }]}>
-                <Text style={[styles.compFeature, { color: theme.colors.gold[700] }]}>{f}</Text>
-              </View>
-            </View>
-          ))}
-
-          {/* Pro-only features */}
-          {FEATURES_PRO.slice(2).map((f) => (
-            <View key={f} style={styles.compRow}>
-              <View style={styles.compCol}>
-                <Text style={[styles.compFeature, { color: tx.secondary }]}>—</Text>
-              </View>
-              <View style={[styles.compCol, { backgroundColor: theme.colors.gold[50] }]}>
-                <View style={styles.checkRow}>
-                  <Check size={14} color={theme.colors.gold[700]} strokeWidth={2.5} />
-                  <Text style={[styles.compFeature, { color: theme.colors.gold[700] }]}>{f}</Text>
+        {/* Highlighted card — the single allowed elevated surface on this screen. */}
+        <Card tone="elevated" radius="2xl" style={styles.featureCard}>
+          <KroniText variant="eyebrow" tone="tertiary">
+            {/* [REVIEW] */}
+            Det du får
+          </KroniText>
+          <View style={styles.featureList}>
+            {FEATURES_PRO.map((f) => (
+              <View key={f} style={styles.featureRow}>
+                <View
+                  style={[
+                    styles.checkDot,
+                    { backgroundColor: theme.colors.gold[500] },
+                  ]}
+                >
+                  <Check size={11} color={theme.colors.sand[900]} strokeWidth={2.5} />
                 </View>
+                <KroniText variant="body" tone="primary" style={styles.featureText}>
+                  {f}
+                </KroniText>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
+        </Card>
 
-        {/* CTA */}
         <Button
           label={presenting ? t('common.loading') : t('paywall.subscribe')}
           onPress={handlePresent}
@@ -166,16 +161,43 @@ export default function PaywallScreen() {
           {restoring ? (
             <Spinner size={18} />
           ) : (
-            <Text style={[styles.restoreLabel, { color: tx.secondary }]}>
+            <KroniText variant="small" tone="secondary" style={styles.restoreLabel}>
               {t('paywall.restore')}
-            </Text>
+            </KroniText>
           )}
         </TouchableOpacity>
 
-        {/* Legal */}
-        <Text style={[styles.legal, { color: tx.secondary }]}>
+        {/* Trust strip footer — middot separators, sand-500 caption. */}
+        <View style={styles.trustRow}>
+          <KroniText variant="caption" tone="secondary">
+            {/* [REVIEW] */}
+            Avbestill når du vil
+          </KroniText>
+          <View
+            style={[
+              styles.dot,
+              { backgroundColor: theme.isDark ? '#2A3040' : theme.colors.sand[300] },
+            ]}
+          />
+          <KroniText variant="caption" tone="secondary">
+            {/* [REVIEW] */}
+            Ingen reklame
+          </KroniText>
+          <View
+            style={[
+              styles.dot,
+              { backgroundColor: theme.isDark ? '#2A3040' : theme.colors.sand[300] },
+            ]}
+          />
+          <KroniText variant="caption" tone="secondary">
+            {/* [REVIEW] */}
+            Aldri ekte penger
+          </KroniText>
+        </View>
+
+        <KroniText variant="caption" tone="secondary" style={styles.legal}>
           {t('paywall.legalNote')}
-        </Text>
+        </KroniText>
 
         <View style={styles.legalLinks}>
           <TouchableOpacity
@@ -183,19 +205,21 @@ export default function PaywallScreen() {
             accessibilityRole="link"
             accessibilityLabel={t('paywall.terms')}
           >
-            <Text style={[styles.legalLink, { color: theme.colors.gold[500] }]}>
+            <KroniText variant="caption" tone="gold">
               {t('paywall.terms')}
-            </Text>
+            </KroniText>
           </TouchableOpacity>
-          <Text style={[styles.legalSep, { color: tx.secondary }]}> · </Text>
+          <KroniText variant="caption" tone="secondary">
+            {' · '}
+          </KroniText>
           <TouchableOpacity
             onPress={() => void Linking.openURL('https://kroni.no/personvern')}
             accessibilityRole="link"
             accessibilityLabel={t('paywall.privacy')}
           >
-            <Text style={[styles.legalLink, { color: theme.colors.gold[500] }]}>
+            <KroniText variant="caption" tone="gold">
               {t('paywall.privacy')}
-            </Text>
+            </KroniText>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -208,40 +232,75 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { flex: 1, textAlign: 'center', fontSize: 17, fontWeight: '600' },
-  content: { padding: 24, gap: 20, paddingBottom: 40 },
-  hero: { alignItems: 'center', gap: 12 },
-  crownWrap: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+  content: { padding: 24, gap: 24, paddingBottom: 40 },
+  hero: { gap: 12 },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+  },
+  headline: {
+    fontSize: 38,
+    lineHeight: 42,
+    letterSpacing: -1.0,
+  },
+  intro: {
+    fontSize: 17,
+    lineHeight: 26,
+  },
+  featureCard: {
+    padding: 24,
+    gap: 18,
+  },
+  featureList: { gap: 14 },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkDot: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 3,
   },
-  heroTitle: { fontSize: 28, fontWeight: '700', textAlign: 'center' },
-  heroSub: { fontSize: 16, textAlign: 'center', lineHeight: 22 },
-  compCard: {
-    borderRadius: 16,
-    borderWidth: 1,
-    overflow: 'hidden',
+  featureText: { flex: 1, lineHeight: 22 },
+  restoreBtn: {
+    alignItems: 'center',
+    paddingVertical: 8,
+    minHeight: 44,
+    justifyContent: 'center',
   },
-  compHeader: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)' },
-  compRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.04)' },
-  compCol: { flex: 1, padding: 12, justifyContent: 'center' },
-  compProCol: { borderLeftWidth: 0 },
-  compTier: { fontSize: 13, fontWeight: '700', textAlign: 'center' },
-  compTierPro: { fontSize: 13, fontWeight: '700', textAlign: 'center', color: '#FFFFFF' },
-  compFeature: { fontSize: 13, textAlign: 'center' },
-  checkRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
-  restoreBtn: { alignItems: 'center', paddingVertical: 8, minHeight: 44, justifyContent: 'center' },
-  restoreLabel: { fontSize: 14 },
-  legal: { fontSize: 12, textAlign: 'center', lineHeight: 18 },
-  legalLinks: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  legalLink: { fontSize: 12 },
-  legalSep: { fontSize: 12 },
+  restoreLabel: {
+    textDecorationLine: 'underline',
+  },
+  trustRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  dot: {
+    width: 3,
+    height: 3,
+    borderRadius: 1.5,
+  },
+  legal: {
+    textAlign: 'center',
+    lineHeight: 18,
+  },
+  legalLinks: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

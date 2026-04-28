@@ -13,13 +13,14 @@ import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import { Plus, Gift } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Badge } from '../../../components/ui/Badge';
+import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
@@ -79,15 +80,38 @@ export default function RewardsTab() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <Text style={[styles.title, { color: tx.primary }]}>{t('parent.rewardsList.title')}</Text>
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <KroniText variant="eyebrow" tone="gold">
+            {/* [REVIEW] */}
+            Belønninger
+          </KroniText>
+          <View style={styles.headlineRow}>
+            <KroniText variant="display" tone="primary" style={styles.headline}>
+              {/* [REVIEW] */}
+              Det de{' '}
+            </KroniText>
+            <KroniText
+              variant="displayItalic"
+              tone="gold"
+              style={[styles.headline, { fontFamily: fonts.displayItalic }]}
+            >
+              {/* [REVIEW] */}
+              vil ha
+            </KroniText>
+            <KroniText variant="display" tone="primary" style={styles.headline}>
+              .
+            </KroniText>
+          </View>
+        </View>
         <TouchableOpacity
           onPress={handleAdd}
           accessibilityRole="button"
           accessibilityLabel={t('parent.rewardsList.addReward')}
           style={[styles.addBtn, { backgroundColor: theme.colors.gold[500] }]}
+          activeOpacity={0.85}
         >
-          <Plus size={20} color="#FFFFFF" strokeWidth={2.5} />
+          <Plus size={20} color={theme.colors.sand[900]} strokeWidth={2} />
         </TouchableOpacity>
       </View>
 
@@ -135,17 +159,28 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    paddingTop: 16,
+    paddingBottom: 20,
+    gap: 12,
   },
-  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  headerText: { flex: 1, gap: 8 },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+  },
+  headline: {
+    fontSize: 32,
+    lineHeight: 36,
+    letterSpacing: -0.7,
+  },
   addBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
   },

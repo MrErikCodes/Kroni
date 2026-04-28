@@ -14,11 +14,12 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useQuery } from '@tanstack/react-query';
 import { LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
 import { Card } from '../../../components/ui/Card';
 import { Badge } from '../../../components/ui/Badge';
+import { KroniText } from '../../../components/ui/Text';
 import Constants from 'expo-constants';
 
 const version: string =
@@ -112,10 +113,20 @@ export default function SettingsTab() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <Text style={[styles.title, { color: tx.primary }]}>
-          {t('parent.settings.title')}
-        </Text>
+      <View style={styles.header}>
+        <KroniText variant="eyebrow" tone="gold">
+          {/* [REVIEW] */}
+          Konto
+        </KroniText>
+        <View style={styles.headlineRow}>
+          <KroniText variant="display" tone="primary" style={styles.headline}>
+            {/* [REVIEW] */}
+            Innstillinger
+          </KroniText>
+          <KroniText variant="display" tone="primary" style={styles.headline}>
+            .
+          </KroniText>
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
@@ -207,10 +218,20 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    paddingTop: 16,
+    paddingBottom: 16,
+    gap: 8,
   },
-  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
+  headlineRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  headline: {
+    fontFamily: fonts.display,
+    fontSize: 32,
+    lineHeight: 36,
+    letterSpacing: -0.7,
+  },
   content: { padding: 20, gap: 8 },
   sectionLabel: {
     fontSize: 12,

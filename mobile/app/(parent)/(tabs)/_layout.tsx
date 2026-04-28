@@ -17,9 +17,12 @@ export default function ParentTabsLayout() {
     }
   }, [isLoaded, isSignedIn, router]);
 
+  // Editorial tab bar — sand-50 surface, sand-200 hairline top border,
+  // gold-500 active (label + icon), sand-500 inactive, Inter Medium 12pt.
+  // No drop shadow — restraint, like the website's footer.
   const activeTint = theme.colors.gold[500];
   const inactiveTint = theme.text.secondary;
-  const tabBarBg = theme.surface.card;
+  const tabBarBg = theme.isDark ? theme.colors.ink[900] : theme.colors.sand[50];
   const borderColor = theme.surface.border;
 
   return (
@@ -32,10 +35,14 @@ export default function ParentTabsLayout() {
           backgroundColor: tabBarBg,
           borderTopColor: borderColor,
           borderTopWidth: 1,
+          // Reset Android elevation so the bar reads as a hairline divider.
+          elevation: 0,
+          shadowOpacity: 0,
         },
         tabBarLabelStyle: {
+          fontFamily: theme.fonts.uiMedium,
           fontSize: 12,
-          fontWeight: '500',
+          letterSpacing: 0.2,
         },
       }}
     >
@@ -44,7 +51,7 @@ export default function ParentTabsLayout() {
         options={{
           title: t('parent.kids'),
           tabBarIcon: ({ color, size }) => (
-            <Users size={size} color={color} strokeWidth={2} />
+            <Users size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('parent.kids'),
         }}
@@ -54,7 +61,7 @@ export default function ParentTabsLayout() {
         options={{
           title: t('parent.tasks'),
           tabBarIcon: ({ color, size }) => (
-            <CheckSquare size={size} color={color} strokeWidth={2} />
+            <CheckSquare size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('parent.tasks'),
         }}
@@ -64,7 +71,7 @@ export default function ParentTabsLayout() {
         options={{
           title: t('parent.rewards'),
           tabBarIcon: ({ color, size }) => (
-            <Gift size={size} color={color} strokeWidth={2} />
+            <Gift size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('parent.rewards'),
         }}
@@ -74,7 +81,7 @@ export default function ParentTabsLayout() {
         options={{
           title: t('parent.settings'),
           tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} strokeWidth={2} />
+            <Settings size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('parent.settings'),
         }}

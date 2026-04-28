@@ -2,24 +2,21 @@
 import { useState, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSignIn } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
-import { Mail } from 'lucide-react-native';
-import { useTheme } from '../../lib/theme';
+import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import { Spinner } from '../../components/ui/Spinner';
+import { KroniText } from '../../components/ui/Text';
 
 export default function ParentSignIn() {
   const theme = useTheme();
@@ -46,8 +43,7 @@ export default function ParentSignIn() {
         router.replace('/(parent)/(tabs)/kids');
       }
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : t('common.error');
+      const message = err instanceof Error ? err.message : t('common.error');
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     } finally {
@@ -56,7 +52,6 @@ export default function ParentSignIn() {
   }, [isLoaded, signIn, setActive, email, password, router]);
 
   const s = theme.surface;
-  const tx = theme.text;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
@@ -68,31 +63,53 @@ export default function ParentSignIn() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
+          {/* Editorial header — eyebrow + serif headline with italic emphasis. */}
           <View style={styles.header}>
-            <Text style={[styles.logo, { color: theme.colors.gold[500] }]}>Kroni</Text>
-            <Text style={[styles.title, { color: tx.primary }]}>
-              {t('auth.parent.signIn')}
-            </Text>
-            <Text style={[styles.subtitle, { color: tx.secondary }]}>
+            <KroniText variant="eyebrow" tone="gold">
+              {/* [REVIEW] */}
+              Logg inn
+            </KroniText>
+            <View style={styles.headlineRow}>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+                {/* [REVIEW] */}
+                Velkommen{' '}
+              </KroniText>
+              <KroniText
+                variant="displayItalic"
+                tone="gold"
+                style={[styles.headline, { fontFamily: fonts.displayItalic }]}
+              >
+                {/* [REVIEW] */}
+                hjem
+              </KroniText>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+                .
+              </KroniText>
+            </View>
+            <KroniText variant="body" tone="secondary" style={styles.subtitle}>
               {t('auth.parent.welcomeBack')}
-            </Text>
+            </KroniText>
           </View>
 
           {/* Form */}
           <View style={styles.form}>
             {error ? (
-              <View style={[styles.errorBox, { backgroundColor: theme.colors.semantic.danger + '18' }]}>
-                <Text style={[styles.errorText, { color: theme.colors.semantic.danger }]}>
+              <View
+                style={[
+                  styles.errorBox,
+                  { backgroundColor: theme.colors.semantic.danger + '14' },
+                ]}
+              >
+                <KroniText variant="small" tone="danger">
                   {error}
-                </Text>
+                </KroniText>
               </View>
             ) : null}
 
             <View style={styles.field}>
-              <Text style={[styles.label, { color: tx.secondary }]}>
+              <KroniText variant="caption" tone="tertiary" style={styles.label}>
                 {t('auth.parent.email')}
-              </Text>
+              </KroniText>
               <Input
                 value={email}
                 onChangeText={setEmail}
@@ -105,9 +122,9 @@ export default function ParentSignIn() {
             </View>
 
             <View style={styles.field}>
-              <Text style={[styles.label, { color: tx.secondary }]}>
+              <KroniText variant="caption" tone="tertiary" style={styles.label}>
                 {t('auth.parent.password')}
-              </Text>
+              </KroniText>
               <Input
                 value={password}
                 onChangeText={setPassword}
@@ -129,17 +146,18 @@ export default function ParentSignIn() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={[styles.footerText, { color: tx.secondary }]}>
+            <KroniText variant="small" tone="secondary">
               {t('auth.parent.noAccount')}
-            </Text>
+            </KroniText>
             <TouchableOpacity
               onPress={() => router.push('/auth/parent-sign-up')}
               accessibilityRole="link"
               accessibilityLabel={t('auth.parent.signUp')}
             >
-              <Text style={[styles.link, { color: theme.colors.gold[500] }]}>
-                {' '}{t('auth.parent.signUp')}
-              </Text>
+              <KroniText variant="small" tone="gold" style={styles.link}>
+                {' '}
+                {t('auth.parent.signUp')}
+              </KroniText>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -157,54 +175,41 @@ const styles = StyleSheet.create({
     paddingTop: 48,
     paddingBottom: 32,
     justifyContent: 'center',
+    gap: 32,
   },
   header: {
-    alignItems: 'center',
-    marginBottom: 40,
+    gap: 12,
   },
-  logo: {
-    fontSize: 36,
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginBottom: 8,
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 4,
+  headline: {
+    fontSize: 38,
+    lineHeight: 42,
+    letterSpacing: -1.0,
   },
-  subtitle: {
-    fontSize: 16,
-  },
+  subtitle: { marginTop: 4, lineHeight: 24 },
   form: {
-    gap: 16,
-    marginBottom: 32,
+    gap: 18,
   },
   field: {
-    gap: 6,
+    gap: 8,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '500',
+    letterSpacing: 1.6,
   },
   errorBox: {
     borderRadius: 12,
     padding: 12,
-  },
-  errorText: {
-    fontSize: 14,
-    fontWeight: '500',
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  footerText: {
-    fontSize: 14,
-  },
   link: {
-    fontSize: 14,
-    fontWeight: '600',
+    textDecorationLine: 'underline',
   },
 });

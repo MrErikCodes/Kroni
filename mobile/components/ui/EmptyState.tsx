@@ -1,10 +1,15 @@
-import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import { LucideIcon } from 'lucide-react-native';
 import { Button } from './Button';
-import { colors } from '../../lib/theme';
+import { KroniText } from './Text';
+import { colors, fonts } from '../../lib/theme';
 
 interface EmptyStateProps {
-  icon: LucideIcon;
+  /** Optional — for screens that already lean on a specific lucide glyph.
+   *  When omitted, an editorial Newsreader em-dash stands in for the icon
+   *  and the empty state reads as a quiet beat in the page rather than a
+   *  cheerful illustration. */
+  icon?: LucideIcon;
   title: string;
   body?: string;
   ctaLabel?: string;
@@ -22,17 +27,37 @@ export function EmptyState({
 }: EmptyStateProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
-  const textPrimary = isDark ? '#F5F5F0' : colors.sand[900];
-  const textSecondary = isDark ? '#9AA0AA' : colors.sand[500];
 
   return (
     <View style={styles.container} className={className}>
-      <View style={[styles.iconWrap, { backgroundColor: colors.gold[50] }]}>
-        <Icon size={32} color={colors.gold[500]} strokeWidth={2} />
-      </View>
-      <Text style={[styles.title, { color: textPrimary }]}>{title}</Text>
+      {Icon ? (
+        <View style={[styles.iconWrap, { borderColor: isDark ? '#2A3040' : colors.sand[200] }]}>
+          <Icon
+            size={28}
+            color={isDark ? '#9AA0AA' : colors.sand[500]}
+            strokeWidth={1.75}
+          />
+        </View>
+      ) : (
+        // Editorial em-dash glyph in Newsreader — quiet, magazine-feeling
+        // signal that the surface is empty by design, not by error.
+        <KroniText
+          variant="displayLarge"
+          tone="secondary"
+          style={styles.glyph}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        >
+          —
+        </KroniText>
+      )}
+      <KroniText variant="display" tone="primary" style={styles.title}>
+        {title}
+      </KroniText>
       {body ? (
-        <Text style={[styles.body, { color: textSecondary }]}>{body}</Text>
+        <KroniText variant="body" tone="secondary" style={styles.body}>
+          {body}
+        </KroniText>
       ) : null}
       {ctaLabel && onCta ? (
         <View style={styles.cta}>
@@ -46,29 +71,38 @@ export function EmptyState({
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    paddingVertical: 48,
+    paddingVertical: 56,
     paddingHorizontal: 32,
+    gap: 8,
   },
   iconWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
     marginBottom: 8,
   },
-  body: {
-    fontSize: 14,
+  glyph: {
+    fontFamily: fonts.display,
+    fontSize: 56,
+    lineHeight: 56,
+    marginBottom: 4,
+  },
+  title: {
+    fontSize: 26,
+    lineHeight: 30,
     textAlign: 'center',
-    lineHeight: 20,
+    marginBottom: 4,
+  },
+  body: {
+    fontSize: 15,
+    lineHeight: 22,
+    textAlign: 'center',
+    maxWidth: 320,
   },
   cta: {
-    marginTop: 24,
+    marginTop: 20,
   },
 });

@@ -1,8 +1,7 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
   SafeAreaView,
   Dimensions,
@@ -18,12 +17,12 @@ import Animated, {
   withTiming,
   withDelay,
   Easing,
-  runOnJS,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTheme } from '../../lib/theme';
+import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
+import { KroniText } from '../../components/ui/Text';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -34,7 +33,6 @@ const formatNok = (ore: number) =>
     maximumFractionDigits: 0,
   }).format(ore / 100);
 
-// Simple Reanimated-driven confetti particle
 interface ParticleProps {
   x: number;
   delay: number;
@@ -57,12 +55,13 @@ function ConfettiParticle({ x, delay, color, size, shape }: ParticleProps) {
         easing: Easing.in(Easing.quad),
       }),
     );
+    // Toned-down lateral drift (~15% off the original) — keeps the rhythm.
     translateX.value = withDelay(
       delay,
       withSequence(
-        withTiming((Math.random() - 0.5) * 120, { duration: 600 }),
-        withTiming((Math.random() - 0.5) * 80, { duration: 600 }),
         withTiming((Math.random() - 0.5) * 100, { duration: 600 }),
+        withTiming((Math.random() - 0.5) * 70, { duration: 600 }),
+        withTiming((Math.random() - 0.5) * 85, { duration: 600 }),
       ),
     );
     rotate.value = withDelay(
@@ -73,10 +72,7 @@ function ConfettiParticle({ x, delay, color, size, shape }: ParticleProps) {
         false,
       ),
     );
-    opacity.value = withDelay(
-      delay + 1800,
-      withTiming(0, { duration: 500 }),
-    );
+    opacity.value = withDelay(delay + 1800, withTiming(0, { duration: 500 }));
   }, [delay, opacity, rotate, translateX, translateY]);
 
   const style = useAnimatedStyle(() => ({
@@ -106,19 +102,21 @@ function ConfettiParticle({ x, delay, color, size, shape }: ParticleProps) {
   );
 }
 
-const CONFETTI_COLORS = ['#F5B015', '#FB7185', '#A78BFA', '#38BDF8', '#10B981', '#FFD263'];
+// Restrained palette — gold + sand instead of the rainbow set, to match the
+// website's palette discipline.
+const CONFETTI_COLORS = ['#F5B015', '#FFD263', '#B8800A', '#FFEFC2', '#FBFAF6'];
 
 function generateParticles(count: number): ParticleProps[] {
   return Array.from({ length: count }, (_, i) => ({
     x: Math.random() * SCREEN_WIDTH,
     delay: Math.random() * 600,
     color: CONFETTI_COLORS[i % CONFETTI_COLORS.length] ?? '#F5B015',
-    size: 8 + Math.random() * 10,
+    size: 7 + Math.random() * 9,
     shape: Math.random() > 0.5 ? 'circle' : 'square',
   }));
 }
 
-const PARTICLES = generateParticles(30);
+const PARTICLES = generateParticles(26);
 
 export default function CelebrateScreen() {
   const theme = useTheme();
@@ -127,7 +125,7 @@ export default function CelebrateScreen() {
   const { amountCents } = useLocalSearchParams<{ amountCents: string }>();
   const amount = parseInt(amountCents ?? '0', 10);
 
-  // Coin bounce animation
+  // Coin bounce animation — toned down ~15% on displacement.
   const coinScale = useSharedValue(0);
   const coinBounce = useSharedValue(1);
 
@@ -138,12 +136,12 @@ export default function CelebrateScreen() {
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
-    coinScale.value = withSpring(1, { damping: 6, stiffness: 120 });
+    coinScale.value = withSpring(1, { damping: 7, stiffness: 120 });
     coinBounce.value = withDelay(
       400,
       withRepeat(
         withSequence(
-          withSpring(1.12, { damping: 6, stiffness: 200 }),
+          withSpring(1.1, { damping: 6, stiffness: 200 }),
           withSpring(1.0, { damping: 8, stiffness: 200 }),
         ),
         3,
@@ -154,7 +152,6 @@ export default function CelebrateScreen() {
     titleY.value = withDelay(300, withSpring(0, { damping: 12 }));
     titleOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
 
-    // Invalidate balance so it refreshes in background
     void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
   }, [coinBounce, coinScale, queryClient, titleOpacity, titleY]);
 
@@ -188,26 +185,41 @@ export default function CelebrateScreen() {
       </View>
 
       <View style={styles.content}>
-        {/* Big coin emoji */}
         <Animated.Text style={[styles.coin, coinStyle]}>🪙</Animated.Text>
 
-        {/* Title */}
-        <Animated.View style={titleStyle}>
-          <Text style={styles.title}>{t('kid.celebrate.title')}</Text>
-          <Text style={styles.youGot}>{t('kid.celebrate.youGot')}</Text>
-          <Text style={[styles.amount, { color: theme.colors.gold[300] }]}>
+        <Animated.View style={[titleStyle, styles.titleBlock]}>
+          {/* "Bra jobba!" — full italic, the visual signature of the moment. */}
+          <KroniText
+            variant="displayItalic"
+            tone="inverse"
+            style={styles.title}
+          >
+            {t('kid.celebrate.title')}
+          </KroniText>
+          <KroniText variant="bodyLarge" tone="inverse" style={styles.youGot}>
+            {t('kid.celebrate.youGot')}
+          </KroniText>
+          <KroniText
+            variant="display"
+            style={[styles.amount, { color: theme.colors.gold[300] }]}
+          >
             +{formatNok(amount)}
-          </Text>
+          </KroniText>
         </Animated.View>
 
-        {/* Dismiss CTA */}
         <TouchableOpacity
           onPress={handleDismiss}
           style={[styles.dismissBtn, { backgroundColor: theme.colors.gold[500] }]}
           accessibilityRole="button"
           accessibilityLabel={t('kid.celebrate.dismiss')}
+          activeOpacity={0.85}
         >
-          <Text style={styles.dismissLabel}>{t('kid.celebrate.dismiss')}</Text>
+          <KroniText
+            variant="h2"
+            style={[styles.dismissLabel, { color: theme.colors.sand[900] }]}
+          >
+            {t('kid.celebrate.dismiss')}
+          </KroniText>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -221,26 +233,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 40,
-    gap: 16,
+    gap: 18,
   },
-  coin: { fontSize: 100 },
+  coin: { fontSize: 96 },
+  titleBlock: { alignItems: 'center', gap: 6 },
   title: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: 56,
+    lineHeight: 60,
+    letterSpacing: -1.4,
     textAlign: 'center',
-    marginBottom: 8,
+    fontFamily: fonts.displayItalic,
   },
   youGot: {
-    fontSize: 20,
-    color: 'rgba(255,255,255,0.7)',
+    opacity: 0.7,
     textAlign: 'center',
+    marginTop: 8,
   },
   amount: {
-    fontSize: 52,
-    fontWeight: '700',
+    fontSize: 48,
+    lineHeight: 54,
+    letterSpacing: -1.0,
     textAlign: 'center',
-    letterSpacing: -1,
+    marginTop: 4,
   },
   dismissBtn: {
     marginTop: 32,
@@ -252,8 +266,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   dismissLabel: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    letterSpacing: -0.2,
   },
 });

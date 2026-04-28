@@ -1,7 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { colors } from '../../lib/theme';
+import { View, Text, StyleSheet, useColorScheme } from 'react-native';
+import { colors, fonts } from '../../lib/theme';
 
-type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'default';
+type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'gold' | 'default';
 
 interface BadgeProps {
   label: string;
@@ -9,22 +9,57 @@ interface BadgeProps {
   className?: string;
 }
 
-const variantColors: Record<BadgeVariant, { bg: string; text: string }> = {
-  success: { bg: colors.semantic.success + '22', text: colors.semantic.success },
-  warning: { bg: colors.semantic.warning + '22', text: colors.semantic.warning },
-  danger:  { bg: colors.semantic.danger  + '22', text: colors.semantic.danger },
-  info:    { bg: colors.semantic.info    + '22', text: colors.semantic.info },
-  default: { bg: colors.sand[100],               text: colors.sand[500] },
-};
-
 export function Badge({ label, variant = 'default', className }: BadgeProps) {
-  const vc = variantColors[variant];
+  const scheme = useColorScheme() ?? 'light';
+  const isDark = scheme === 'dark';
+
+  let bg: string;
+  let text: string;
+  let border: string | undefined;
+
+  switch (variant) {
+    case 'success':
+      bg = colors.semantic.success + '18';
+      text = colors.semantic.success;
+      break;
+    case 'warning':
+      bg = colors.semantic.warning + '1A';
+      text = colors.semantic.warning;
+      break;
+    case 'danger':
+      bg = colors.semantic.danger + '18';
+      text = colors.semantic.danger;
+      break;
+    case 'info':
+      bg = colors.semantic.info + '18';
+      text = colors.semantic.info;
+      break;
+    case 'gold':
+      // Solid gold pill — used for "Spar 32%" / "Best value" style accents.
+      bg = colors.gold[500];
+      text = colors.sand[900];
+      break;
+    case 'default':
+    default:
+      bg = isDark ? '#11161D' : colors.sand[100];
+      text = isDark ? '#9AA0AA' : colors.sand[700];
+      border = isDark ? '#2A3040' : colors.sand[200];
+      break;
+  }
+
   return (
     <View
-      style={[styles.pill, { backgroundColor: vc.bg }]}
+      style={[
+        styles.pill,
+        {
+          backgroundColor: bg,
+          borderColor: border ?? 'transparent',
+          borderWidth: border ? 1 : 0,
+        },
+      ]}
       className={className}
     >
-      <Text style={[styles.label, { color: vc.text }]}>{label}</Text>
+      <Text style={[styles.label, { color: text }]}>{label}</Text>
     </View>
   );
 }
@@ -33,11 +68,12 @@ const styles = StyleSheet.create({
   pill: {
     borderRadius: 999,
     paddingHorizontal: 10,
-    paddingVertical: 3,
+    paddingVertical: 4,
     alignSelf: 'flex-start',
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 11,
+    fontFamily: fonts.uiBold,
+    letterSpacing: 0.4,
   },
 });

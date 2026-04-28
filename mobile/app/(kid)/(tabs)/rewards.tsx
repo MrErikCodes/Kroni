@@ -14,13 +14,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import { Gift } from 'lucide-react-native';
-import { useTheme } from '../../../lib/theme';
+import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
+import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
@@ -133,14 +134,37 @@ export default function KidRewardsScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      {/* Header */}
-      <View style={[styles.header, { borderBottomColor: s.border }]}>
-        <Text style={[styles.title, { color: tx.primary }]}>
-          {t('kid.rewardsScreen.title')}
-        </Text>
-        <Text style={[styles.balanceSub, { color: theme.colors.gold[500] }]}>
+      {/* Editorial header — serif headline + balance pill aligned baseline. */}
+      <View style={styles.header}>
+        <View style={styles.headerText}>
+          <KroniText variant="eyebrow" tone="gold">
+            {/* [REVIEW] */}
+            Belønninger
+          </KroniText>
+          <View style={styles.headlineRow}>
+            <KroniText variant="display" tone="primary" style={styles.headline}>
+              {/* [REVIEW] */}
+              Det du{' '}
+            </KroniText>
+            <KroniText
+              variant="displayItalic"
+              tone="gold"
+              style={[styles.headline, { fontFamily: fonts.displayItalic }]}
+            >
+              {/* [REVIEW] */}
+              vil ha
+            </KroniText>
+            <KroniText variant="display" tone="primary" style={styles.headline}>
+              .
+            </KroniText>
+          </View>
+        </View>
+        <KroniText
+          variant="mono"
+          style={[styles.balanceSub, { color: theme.colors.gold[700] }]}
+        >
           {formatNok(balanceCents)}
-        </Text>
+        </KroniText>
       </View>
 
       {isLoading ? (
@@ -217,14 +241,28 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
+    paddingTop: 16,
+    paddingBottom: 16,
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
+    gap: 12,
   },
-  title: { fontSize: 28, fontWeight: '700', letterSpacing: -0.5 },
-  balanceSub: { fontSize: 20, fontWeight: '700' },
+  headerText: { flex: 1, gap: 8 },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
+  },
+  headline: {
+    fontSize: 32,
+    lineHeight: 36,
+    letterSpacing: -0.7,
+  },
+  balanceSub: {
+    fontSize: 16,
+    paddingBottom: 6,
+  },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   grid: { padding: 12 },
   card: {

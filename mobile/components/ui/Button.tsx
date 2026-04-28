@@ -1,6 +1,6 @@
-import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, useColorScheme } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { colors } from '../../lib/theme';
+import { colors, fonts } from '../../lib/theme';
 import { Spinner } from './Spinner';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -17,13 +17,6 @@ interface ButtonProps {
   className?: string;
 }
 
-const variantStyles: Record<Variant, { bg: string; text: string; border?: string }> = {
-  primary:   { bg: colors.gold[500],    text: '#FFFFFF' },
-  secondary: { bg: colors.sand[100],    text: colors.sand[900], border: colors.sand[200] },
-  ghost:     { bg: 'transparent',       text: colors.sand[900] },
-  danger:    { bg: colors.semantic.danger, text: '#FFFFFF' },
-};
-
 export function Button({
   label,
   onPress,
@@ -34,9 +27,48 @@ export function Button({
   accessibilityLabel,
   className,
 }: ButtonProps) {
-  const vs = variantStyles[variant];
-  // Touch targets: sm=44pt (parent), lg=56pt (kid)
+  const scheme = useColorScheme() ?? 'light';
+  const isDark = scheme === 'dark';
+
+  // Touch targets: sm=44pt (parent), lg=56pt (kid). Both within Apple's HIG.
   const minHeight = size === 'lg' ? 56 : 44;
+
+  // Variant resolution. The website uses one rule above all others: the
+  // primary CTA appears at most once per screen, fully filled in gold, with
+  // the brand-dark sand-900 typography. Secondary is the outline pair.
+  let bg: string;
+  let textColor: string;
+  let borderWidth = 0;
+  let borderColor: string = 'transparent';
+  let borderRadius = 999; // pill — primary CTA, kid-sized
+
+  switch (variant) {
+    case 'primary':
+      bg = colors.gold[500];
+      textColor = colors.sand[900];
+      borderRadius = 999;
+      break;
+    case 'secondary':
+      bg = isDark ? colors.ink[800] : colors.sand[50];
+      textColor = isDark ? '#F5F5F0' : colors.sand[900];
+      borderWidth = 1;
+      borderColor = isDark ? '#F5F5F0' : colors.sand[900];
+      borderRadius = 16; // editorial rounded-2xl on outline
+      break;
+    case 'ghost':
+      bg = 'transparent';
+      textColor = isDark ? '#F5F5F0' : colors.sand[900];
+      borderRadius = 8;
+      break;
+    case 'danger':
+      bg = colors.semantic.danger;
+      textColor = colors.sand[50];
+      borderRadius = 999;
+      break;
+    default:
+      bg = colors.gold[500];
+      textColor = colors.sand[900];
+  }
 
   async function handlePress() {
     if (disabled || loading) return;
@@ -54,21 +86,31 @@ export function Button({
       style={[
         styles.base,
         {
-          backgroundColor: vs.bg,
+          backgroundColor: bg,
           minHeight,
-          borderColor: vs.border ?? 'transparent',
-          borderWidth: vs.border ? 1 : 0,
-          opacity: disabled ? 0.5 : 1,
-          borderRadius: 999,
+          borderColor,
+          borderWidth,
+          borderRadius,
+          opacity: disabled ? 0.45 : 1,
         },
       ]}
       className={className}
-      activeOpacity={0.8}
+      activeOpacity={variant === 'ghost' ? 0.6 : 0.85}
     >
       {loading ? (
-        <Spinner size={20} color={vs.text} />
+        <Spinner size={20} color={textColor} />
       ) : (
-        <Text style={[styles.label, { color: vs.text, fontSize: size === 'lg' ? 18 : 16 }]}>
+        <Text
+          style={[
+            styles.label,
+            {
+              color: textColor,
+              fontSize: size === 'lg' ? 17 : 15,
+              fontFamily: fonts.uiBold,
+              textDecorationLine: variant === 'ghost' ? 'underline' : 'none',
+            },
+          ]}
+        >
           {label}
         </Text>
       )}
@@ -85,6 +127,6 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   label: {
-    fontWeight: '600',
+    letterSpacing: -0.1,
   },
 });

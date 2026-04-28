@@ -15,10 +15,11 @@ import {
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
-import { useTheme } from '../../lib/theme';
+import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { KroniText } from '../../components/ui/Text';
 import { publicApi, ApiError } from '../../lib/api';
 import { setKidToken } from '../../lib/auth';
 
@@ -121,15 +122,32 @@ export default function KidPair() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Header */}
+          {/* Editorial header — eyebrow + serif headline with italic emphasis. */}
           <View style={styles.header}>
-            <Text style={[styles.logo, { color: theme.colors.gold[500] }]}>Kroni</Text>
-            <Text style={[styles.title, { color: tx.primary }]}>
-              {t('auth.kid.pair')}
-            </Text>
-            <Text style={[styles.subtitle, { color: tx.secondary }]}>
+            <KroniText variant="eyebrow" tone="gold">
+              {/* [REVIEW] */}
+              Barn
+            </KroniText>
+            <View style={styles.headlineRow}>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+                {/* [REVIEW] */}
+                Skriv inn{' '}
+              </KroniText>
+              <KroniText
+                variant="displayItalic"
+                tone="gold"
+                style={[styles.headline, { fontFamily: fonts.displayItalic }]}
+              >
+                {/* [REVIEW] */}
+                koden
+              </KroniText>
+              <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
+                .
+              </KroniText>
+            </View>
+            <KroniText variant="body" tone="secondary" style={styles.subtitle}>
               {t('auth.kid.enterCode')}
-            </Text>
+            </KroniText>
           </View>
 
           {error ? (
@@ -164,8 +182,8 @@ export default function KidPair() {
                     backgroundColor: s.card,
                     borderColor: digit ? activeBorder : borderColor,
                     color: tx.primary,
+                    fontFamily: fonts.display,
                     fontSize: 28,
-                    fontWeight: '700',
                   },
                 ]}
                 accessibilityLabel={`Siffer ${i + 1}`}
@@ -242,15 +260,18 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
     gap: 24,
   },
-  header: { alignItems: 'center' },
-  logo: {
-    fontSize: 36,
-    fontWeight: '700',
-    letterSpacing: -1,
-    marginBottom: 8,
+  header: { alignItems: 'flex-start', gap: 10 },
+  headlineRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'baseline',
   },
-  title: { fontSize: 24, fontWeight: '700', marginBottom: 4, textAlign: 'center' },
-  subtitle: { fontSize: 15, textAlign: 'center', lineHeight: 22 },
+  headline: {
+    fontSize: 38,
+    lineHeight: 42,
+    letterSpacing: -1.0,
+  },
+  subtitle: { fontSize: 15, lineHeight: 22, marginTop: 4 },
   errorBox: { borderRadius: 12, padding: 12 },
   errorText: { fontSize: 14, fontWeight: '500' },
   codeRow: {

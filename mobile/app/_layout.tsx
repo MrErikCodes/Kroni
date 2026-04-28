@@ -1,5 +1,5 @@
 import '../global.css';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
 import { ClerkProvider } from '@clerk/clerk-expo';
@@ -8,8 +8,20 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
-import { Platform } from 'react-native';
-import Purchases from 'react-native-purchases';
+import {
+  Newsreader_400Regular,
+  Newsreader_400Regular_Italic,
+  Newsreader_500Medium,
+  Newsreader_600SemiBold,
+  Newsreader_600SemiBold_Italic,
+  Newsreader_700Bold,
+} from '@expo-google-fonts/newsreader';
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from '@expo-google-fonts/inter';
 import { registerNavigate } from '../lib/api';
 import { configureRevenueCat } from '../lib/billing';
 
@@ -54,18 +66,25 @@ function NavigationRegistrar() {
 }
 
 export default function RootLayout() {
-  // Load Inter font for Android; iOS uses SF Pro (system)
-  const [fontsLoaded] = useFonts(
-    Platform.OS === 'android'
-      ? {
-          Inter: require('../assets/fonts/SpaceMono-Regular.ttf'), // [REVIEW] Replace with Inter font file
-        }
-      : {},
-  );
+  // Load Newsreader (display serif) + Inter (UI sans). Italic variants are
+  // used for the single-noun emphasis in display headlines, mirroring the
+  // website's editorial language.
+  const [fontsLoaded] = useFonts({
+    Newsreader_400Regular,
+    Newsreader_400Regular_Italic,
+    Newsreader_500Medium,
+    Newsreader_600SemiBold,
+    Newsreader_600SemiBold_Italic,
+    Newsreader_700Bold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+  });
 
   useEffect(() => {
     if (fontsLoaded) {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
     }
   }, [fontsLoaded]);
 
