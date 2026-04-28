@@ -107,21 +107,18 @@ export default function KidPair() {
           {/* Editorial header — eyebrow + serif headline with italic emphasis. */}
           <View style={styles.header}>
             <KroniText variant="eyebrow" tone="gold">
-              {/* [REVIEW] */}
-              Barn
+              {t('auth.kidPair.eyebrow')}
             </KroniText>
             <View style={styles.headlineRow}>
               <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
-                {/* [REVIEW] */}
-                Skriv inn{' '}
+                {t('auth.kidPair.headlineA')}{' '}
               </KroniText>
               <KroniText
                 variant="displayItalic"
                 tone="gold"
                 style={[styles.headline, { fontFamily: fonts.displayItalic }]}
               >
-                {/* [REVIEW] */}
-                koden
+                {t('auth.kidPair.headlineB')}
               </KroniText>
               <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
                 .
@@ -168,7 +165,7 @@ export default function KidPair() {
                     fontSize: 28,
                   },
                 ]}
-                accessibilityLabel={`Siffer ${i + 1}`}
+                accessibilityLabel={t('auth.kidPair.digitAccessibility', { n: String(i + 1) })}
               />
             ))}
           </View>

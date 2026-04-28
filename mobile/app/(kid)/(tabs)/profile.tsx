@@ -137,11 +137,11 @@ export default function KidProfileScreen() {
   const handleCopyAppInfo = useCallback(async () => {
     const info = getInstallInfo();
     const lines = [
-      `Rolle: barn`,
+      t('kid.profileScreen.appInfo.roleLine.kid'),
       `Kroni ${info.appVersion ?? '?'}` +
         (info.appBuild != null ? ` (${info.appBuild})` : ''),
       `Bundle: ${Application.applicationId ?? 'unknown'}`,
-      `Plattform: ${info.platform} ${info.osVersion}`,
+      t('kid.profileScreen.appInfo.platformLine', { platform: info.platform, osVersion: info.osVersion }),
       `Installasjons-ID: ${info.installId ?? 'unknown'}`,
       `Barn-ID: ${me?.id ?? 'unknown'}`,
       `Navn: ${me?.name ?? 'unknown'}`,
@@ -178,8 +178,7 @@ export default function KidProfileScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={styles.header}>
         <KroniText variant="eyebrow" tone="gold">
-          {/* [REVIEW] */}
-          Profil
+          {t('kid.profileScreen.eyebrow')}
         </KroniText>
       </View>
 
@@ -226,11 +225,11 @@ export default function KidProfileScreen() {
           onPress={handleCopyAppInfo}
           style={[styles.diagBtn, { borderColor: theme.surface.border }]}
           accessibilityRole="button"
-          accessibilityLabel={/* [REVIEW] */ 'Kopier app info'}
+          accessibilityLabel={t('kid.profileScreen.appInfo.copyButton')}
         >
           <ClipboardCopy size={18} color={tx.secondary} strokeWidth={2} />
           <Text style={[styles.diagBtnLabel, { color: tx.secondary }]}>
-            {/* [REVIEW] */} Kopier app info
+            {t('kid.profileScreen.appInfo.copyButton')}
           </Text>
         </TouchableOpacity>
 
@@ -250,7 +249,7 @@ export default function KidProfileScreen() {
 
       <InAppModal visible={diagOpen} onClose={() => setDiagOpen(false)}>
         <Text style={[styles.diagModalTitle, { color: tx.primary }]}>
-          {/* [REVIEW] */} Kopiert til utklippstavlen
+          {t('kid.profileScreen.appInfo.copiedTitle')}
         </Text>
         <ScrollView style={styles.diagScroll}>
           <Text style={[styles.diagBody, { color: tx.secondary }]}>
@@ -259,7 +258,7 @@ export default function KidProfileScreen() {
         </ScrollView>
         <View style={styles.diagActions}>
           <Button
-            label={/* [REVIEW] */ 'Kopier igjen'}
+            label={t('kid.profileScreen.appInfo.copyAgain')}
             variant="secondary"
             size="sm"
             onPress={() => {

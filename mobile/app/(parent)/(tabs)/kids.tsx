@@ -51,13 +51,11 @@ function KidRow({ kid }: { kid: Kid }) {
           </KroniText>
           {kid.allowanceFrequency !== 'none' && kid.allowanceCents > 0 ? (
             <KroniText variant="small" tone="secondary">
-              {/* [REVIEW] */}
               {formatNok(kid.allowanceCents)} · {t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}
             </KroniText>
           ) : (
             <KroniText variant="small" tone="secondary">
-              {/* [REVIEW] */}
-              Ingen lommepenger satt
+              {t('parent.kidsList.noAllowance')}
             </KroniText>
           )}
         </View>
@@ -90,21 +88,18 @@ export default function KidsTab() {
       <View style={styles.header}>
         <View style={styles.headerText}>
           <KroniText variant="eyebrow" tone="gold">
-            {/* [REVIEW] */}
-            Forelder
+            {t('parent.kidsList.eyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="display" tone="primary" style={styles.headlineText}>
-              {/* [REVIEW] */}
-              Familien{' '}
+              {t('parent.kidsList.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headlineText, { fontFamily: fonts.displayItalic }]}
             >
-              {/* [REVIEW] */}
-              din
+              {t('parent.kidsList.headlineB')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.headlineText}>
               .

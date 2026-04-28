@@ -162,21 +162,18 @@ export default function ParentSignUp() {
         >
           <View style={styles.header}>
             <KroniText variant="eyebrow" tone="gold">
-              {/* [REVIEW] */}
-              Ny konto
+              {t('auth.parentSignUp.eyebrow')}
             </KroniText>
             <View style={styles.headlineRow}>
               <KroniText variant="displayLarge" tone="primary" style={styles.headlineText}>
-                {/* [REVIEW] */}
-                Begynn{' '}
+                {t('auth.parentSignUp.headlineA')}{' '}
               </KroniText>
               <KroniText
                 variant="displayItalic"
                 tone="gold"
                 style={[styles.headlineText, { fontFamily: fonts.displayItalic }]}
               >
-                {/* [REVIEW] */}
-                gratis
+                {t('auth.parentSignUp.headlineB')}
               </KroniText>
               <KroniText variant="displayLarge" tone="primary" style={styles.headlineText}>
                 .
@@ -294,17 +291,16 @@ export default function ParentSignUp() {
           ) : (
             <View style={styles.form}>
               <Text style={[styles.verifyText, { color: tx.secondary }]}>
-                {/* [REVIEW] */}
-                Vi har sendt en bekreftelseskode til {email}. Skriv inn koden under.
+                {t('auth.parentSignUp.verifyText', { email })}
               </Text>
               <View style={styles.field}>
-                <Text style={[styles.label, { color: tx.secondary }]}>Bekreftelseskode</Text>
+                <Text style={[styles.label, { color: tx.secondary }]}>{t('auth.parentSignUp.verifyCodeLabel')}</Text>
                 <Input
                   value={verificationCode}
                   onChangeText={setVerificationCode}
                   placeholder="123456"
                   keyboardType="number-pad"
-                  accessibilityLabel="Bekreftelseskode"
+                  accessibilityLabel={t('auth.parentSignUp.verifyCodeAccessibility')}
                 />
               </View>
               <Button

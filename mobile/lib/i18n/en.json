@@ -44,21 +44,57 @@
       "avatarLabel": "Pick an avatar",
       "errorInvalidCode": "Invalid or expired code. Try again.",
       "errorNetwork": "Couldn't connect. Check your internet."
+    },
+    "parentSignIn": {
+      "eyebrow": "Sign in",
+      "headlineA": "Welcome",
+      "headlineB": "home",
+      "twoFactor": {
+        "totp": "Enter the 6-digit code from your authenticator app.",
+        "phone_code": "We sent a code to your phone. Enter it below.",
+        "email_code": "We sent a code to your email. Enter it below.",
+        "backup_code": "Enter one of your backup codes.",
+        "codeLabel": "Code",
+        "codeAccessibility": "6-digit code",
+        "confirmButton": "Confirm",
+        "switchAccount": "Switch account",
+        "errorNotLoaded": "Just a moment — the app is still loading.",
+        "errorUnavailable": "Sign-in is not available. Try again.",
+        "errorStatus": "Status: %{status}. Try again or contact support.",
+        "errorStatus2fa": "Status: %{status}. Try the code again.",
+        "errorNoMethod": "No supported two-factor method (%{names})."
+      }
+    },
+    "parentSignUp": {
+      "eyebrow": "New account",
+      "headlineA": "Start",
+      "headlineB": "for free",
+      "verifyText": "We sent a verification code to %{email}. Enter it below.",
+      "verifyCodeLabel": "Verification code",
+      "verifyCodeAccessibility": "Verification code"
+    },
+    "kidPair": {
+      "eyebrow": "Kid",
+      "headlineA": "Enter",
+      "headlineB": "the code",
+      "digitAccessibility": "Digit %{n}"
     }
   },
   "parent": {
     "kids": "Kids",
     "tasks": "Tasks",
     "rewards": "Rewards",
-    "approvals": "Approvals",
-    "settings": "Settings",
     "paywall": "Upgrade to Family",
     "kidsList": {
       "title": "Kids",
       "empty": "No kids added yet",
       "emptyBody": "Add your first kid to get started",
       "addKid": "Add kid",
-      "kidCount": "%{count} kids"
+      "kidCount": "%{count} kids",
+      "eyebrow": "Parent",
+      "headlineA": "Your",
+      "headlineB": "family",
+      "noAllowance": "No allowance set"
     },
     "kidNew": {
       "title": "New kid",
@@ -159,7 +195,15 @@
       "emptyBody": "Create your first task",
       "addTask": "New task",
       "allKids": "All kids",
-      "groupedByKid": "Grouped by kid"
+      "groupedByKid": "Grouped by kid",
+      "eyebrow": "Tasks",
+      "headlineA": "What needs",
+      "headlineB": "doing",
+      "recurrenceDaily": "Daily",
+      "recurrenceWeekly": "Weekly",
+      "recurrenceOnce": "Once",
+      "inactive": "Inactive",
+      "approval": "Approval"
     },
     "taskNew": {
       "title": "New task",
@@ -167,13 +211,17 @@
       "titlePlaceholder": "e.g. Tidy the room",
       "descLabel": "Description (optional)",
       "descPlaceholder": "Describe the task…",
-      "rewardLabel": "Reward (øre)",
+      "rewardLabel": "Reward (kr)",
+      "rewardAccessibility": "Reward",
       "rewardPlaceholder": "e.g. 2000 = 20 kr",
       "recurrenceLabel": "Repeats",
       "kidLabel": "Assign to kid",
       "kidNone": "All kids",
       "requiresApproval": "Requires approval",
       "create": "Create task",
+      "daysLabel": "Which days?",
+      "anyDayLabel": "Any day",
+      "anyDayAccessibility": "Any day — all days",
       "recurrence": {
         "daily": "Daily",
         "weekly": "Weekly",
@@ -192,13 +240,18 @@
       "title": "Rewards",
       "empty": "No rewards created yet",
       "emptyBody": "Create a reward kids can work toward",
-      "addReward": "New reward"
+      "addReward": "New reward",
+      "eyebrow": "Rewards",
+      "headlineA": "What they",
+      "headlineB": "want",
+      "inactive": "Inactive"
     },
     "rewardNew": {
       "title": "New reward",
       "titleLabel": "Reward title",
       "titlePlaceholder": "e.g. Movie night",
-      "costLabel": "Cost (øre)",
+      "costLabel": "Cost (kr)",
+      "costAccessibility": "Cost",
       "costPlaceholder": "e.g. 5000 = 50 kr",
       "kidLabel": "Assign to kid",
       "kidNone": "All kids",
@@ -208,7 +261,8 @@
       "title": "Edit reward",
       "save": "Save changes",
       "delete": "Delete reward",
-      "deleteConfirm": "Are you sure you want to delete this reward?"
+      "deleteConfirm": "Are you sure you want to delete this reward?",
+      "activeLabel": "Active"
     },
     "approvals": {
       "title": "Approvals",
@@ -222,7 +276,9 @@
       "confirmApprove": "Approve completion of \"%{title}\"?",
       "confirmReject": "Reject completion of \"%{title}\"?",
       "approvedToast": "Approved! %{name} got %{amount}",
-      "rejectedToast": "Rejected"
+      "rejectedToast": "Rejected",
+      "kindReward": "Reward",
+      "kindTask": "Task"
     },
     "pairingCode": {
       "title": "Pairing code",
@@ -257,7 +313,20 @@
       "privacy": "Privacy",
       "terms": "Terms",
       "support": "Support",
-      "version": "Version %{version}"
+      "version": "Version %{version}",
+      "other": "Other",
+      "eyebrow": "Account",
+      "headlineSettings": "Settings",
+      "appInfo": {
+        "copyButton": "Copy app info",
+        "copiedTitle": "Copied to clipboard",
+        "copyAgain": "Copy again",
+        "roleLine": {
+          "parent": "Role: parent",
+          "kid": "Role: kid"
+        },
+        "platformLine": "Platform: %{platform} %{osVersion}"
+      }
     },
     "account": {
       "title": "Account",
@@ -338,7 +407,6 @@
     "balance": "Balance",
     "rewards": "Rewards",
     "profile": "Profile",
-    "celebrate": "Great job!",
     "todayScreen": {
       "greeting": "Hi, %{name}!",
       "greetingMorning": "Good morning, %{name}!",
@@ -353,7 +421,31 @@
       "waitingApproval": "Waiting for approval",
       "approved": "Approved",
       "rejected": "Rejected",
-      "progressLabel": "%{done} of %{total} done"
+      "progressLabel": "%{done} of %{total} done",
+      "heroToday": "Today,",
+      "balanceLabel": "Balance",
+      "balanceAccessibility": "Balance: %{amount} ore",
+      "detailSheet": {
+        "whenLabel": "When",
+        "approvalLabel": "Approval",
+        "approvalRequired": "Parent must approve",
+        "approvalDirect": "Added to balance directly",
+        "recurrenceDaily": "Every day",
+        "recurrenceOnce": "Just once",
+        "recurrenceWeekly": "Weekly",
+        "recurrenceAllDays": "Any day",
+        "recurrenceOneDay": "Every %{day}",
+        "connector": "and",
+        "dayNames": {
+          "0": "sunday",
+          "1": "monday",
+          "2": "tuesday",
+          "3": "wednesday",
+          "4": "thursday",
+          "5": "friday",
+          "6": "saturday"
+        }
+      }
     },
     "balanceScreen": {
       "title": "Balance",
@@ -384,7 +476,11 @@
       "confirmRedeem": "Redeem \"%{title}\" for %{amount}?",
       "waiting": "Waiting for approval",
       "affordable": "You can afford this!",
-      "redeemed": "Sent for approval!"
+      "redeemed": "Sent for approval!",
+      "errorInsufficient": "You don't have enough balance for this yet.",
+      "eyebrow": "Rewards",
+      "headlineA": "What you",
+      "headlineB": "want"
     },
     "profileScreen": {
       "title": "Profile",
@@ -392,7 +488,17 @@
       "signOut": "Disconnect",
       "signOutConfirm": "Are you sure you want to disconnect this device?",
       "avatarChange": "Change avatar",
-      "noEarnings": "No earnings yet"
+      "noEarnings": "No earnings yet",
+      "eyebrow": "Profile",
+      "appInfo": {
+        "copyButton": "Copy app info",
+        "copiedTitle": "Copied to clipboard",
+        "copyAgain": "Copy again",
+        "roleLine": {
+          "kid": "Role: kid"
+        },
+        "platformLine": "Platform: %{platform} %{osVersion}"
+      }
     },
     "celebrate": {
       "title": "Great job!",
@@ -426,7 +532,16 @@
     "pro": {
       "kids": "Unlimited kids",
       "tasks": "Unlimited tasks"
-    }
+    },
+    "headerEyebrow": "Family plan",
+    "headerCaption": "Family plan",
+    "headlineA": "When your family",
+    "headlineB": "grows",
+    "intro": "Unlimited kids and tasks, notifications and full history. Pause when you're on holiday, cancel whenever.",
+    "featuresEyebrow": "What you get",
+    "trustCancel": "Cancel any time",
+    "trustNoAds": "No ads",
+    "trustNoCash": "Never real money"
   },
   "roleChooser": {
     "title": "Who are you?",
@@ -438,6 +553,21 @@
     "kidCard": {
       "title": "Kid",
       "description": "See today's tasks, earn money, and redeem rewards"
-    }
+    },
+    "eyebrow": "Welcome to Kroni",
+    "headlineA": "Who are you —",
+    "headlineB": "today",
+    "intro": "Choose which side of Kroni you're signing in to.",
+    "parentEyebrow": "Parent",
+    "parentHeadline": "Set up the family.",
+    "parentBody": "Create tasks, approve completed work and set allowances. From the kitchen table, not the app.",
+    "kidEyebrow": "Kid",
+    "kidHeadline": "Sign in with a code.",
+    "kidBody": "Ask your parents for a six-digit code. You get your own task list and balance.",
+    "trustBuilt": "Made in Norway",
+    "trustNoCash": "Never real money",
+    "trustAge": "For kids 6–14",
+    "parentAccessibility": "Parent",
+    "kidAccessibility": "Kid"
   }
 }

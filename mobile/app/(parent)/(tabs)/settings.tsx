@@ -173,11 +173,11 @@ export default function SettingsTab() {
   const handleCopyAppInfo = useCallback(async () => {
     const info = getInstallInfo();
     const lines = [
-      `Rolle: forelder`,
+      t('parent.settings.appInfo.roleLine.parent'),
       `Kroni ${info.appVersion ?? '?'}` +
         (info.appBuild != null ? ` (${info.appBuild})` : ''),
       `Bundle: ${Application.applicationId ?? 'unknown'}`,
-      `Plattform: ${info.platform} ${info.osVersion}`,
+      t('parent.settings.appInfo.platformLine', { platform: info.platform, osVersion: info.osVersion }),
       `Installasjons-ID: ${info.installId ?? 'unknown'}`,
       `Forelder-ID: ${me?.id ?? 'unknown'}`,
       `E-post: ${me?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'unknown'}`,
@@ -198,13 +198,11 @@ export default function SettingsTab() {
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={styles.header}>
         <KroniText variant="eyebrow" tone="gold">
-          {/* [REVIEW] */}
-          Konto
+          {t('parent.settings.eyebrow')}
         </KroniText>
         <View style={styles.headlineRow}>
           <KroniText variant="display" tone="primary" style={styles.headline}>
-            {/* [REVIEW] */}
-            Innstillinger
+            {t('parent.settings.headlineSettings')}
           </KroniText>
           <KroniText variant="display" tone="primary" style={styles.headline}>
             .
@@ -312,8 +310,7 @@ export default function SettingsTab() {
 
         {/* Legal */}
         <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
-          {/* [REVIEW] */}
-          Annet
+          {t('parent.settings.other')}
         </Text>
         <Card style={styles.section}>
           <SettingsRow
@@ -341,7 +338,7 @@ export default function SettingsTab() {
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
             icon={<ClipboardCopy size={18} color={tx.secondary} strokeWidth={2} />}
-            label={/* [REVIEW] */ 'Kopier app info'}
+            label={t('parent.settings.appInfo.copyButton')}
             onPress={handleCopyAppInfo}
           />
         </Card>
@@ -372,7 +369,7 @@ export default function SettingsTab() {
           into a support DM. */}
       <InAppModal visible={diagOpen} onClose={() => setDiagOpen(false)}>
         <Text style={[styles.diagTitle, { color: tx.primary }]}>
-          {/* [REVIEW] */} Kopiert til utklippstavlen
+          {t('parent.settings.appInfo.copiedTitle')}
         </Text>
         <ScrollView style={styles.diagScroll}>
           <Text style={[styles.diagBody, { color: tx.secondary }]}>
@@ -381,7 +378,7 @@ export default function SettingsTab() {
         </ScrollView>
         <View style={styles.diagActions}>
           <Button
-            label={/* [REVIEW] */ 'Kopier igjen'}
+            label={t('parent.settings.appInfo.copyAgain')}
             variant="secondary"
             size="sm"
             onPress={() => {

@@ -119,7 +119,7 @@ function ApprovalCard({ row, onApprove, onReject, isApproving, isRejecting }: Ap
           <View style={styles.cardHeader}>
             <View style={styles.cardHeaderLeft}>
               <Text style={[styles.kindLabel, { color: isReward ? theme.colors.semantic.warning : theme.colors.gold[500] }]}>
-                {isReward ? /* [REVIEW] */ 'Belønning' : /* [REVIEW] */ 'Oppgave'}
+                {isReward ? t('parent.approvals.kindReward') : t('parent.approvals.kindTask')}
               </Text>
               <Text style={[styles.kidName, { color: tx.secondary }]}>{kidName}</Text>
             </View>

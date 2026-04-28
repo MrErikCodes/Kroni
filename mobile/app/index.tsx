@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { getKidToken, setRolePreference } from '../lib/auth';
 import { colors, fonts } from '../lib/theme';
+import { t } from '../lib/i18n';
 import { KroniText } from '../components/ui/Text';
 
 export default function RoleChooser() {
@@ -69,29 +70,25 @@ export default function RoleChooser() {
         {/* Eyebrow + serif headline with italic emphasis on "hvem". */}
         <View style={styles.header}>
           <KroniText variant="eyebrow" tone="gold" style={styles.eyebrow}>
-            {/* [REVIEW] */}
-            Velkommen til Kroni
+            {t('roleChooser.eyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="displayLarge" tone="primary" style={styles.headlineLine}>
-              {/* [REVIEW] */}
-              Hvem er du —{' '}
+              {t('roleChooser.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headlineLine, styles.italic]}
             >
-              {/* [REVIEW] */}
-              i dag
+              {t('roleChooser.headlineB')}
             </KroniText>
             <KroniText variant="displayLarge" tone="primary" style={styles.headlineLine}>
               ?
             </KroniText>
           </View>
           <KroniText variant="bodyLarge" tone="secondary" style={styles.intro}>
-            {/* [REVIEW] */}
-            Velg hvilken side av Kroni du logger inn på.
+            {t('roleChooser.intro')}
           </KroniText>
         </View>
 
@@ -100,44 +97,38 @@ export default function RoleChooser() {
           <TouchableOpacity
             onPress={handleParent}
             accessibilityRole="button"
-            accessibilityLabel="Forelder"
+            accessibilityLabel={t('roleChooser.parentAccessibility')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
             <KroniText variant="eyebrow" tone="tertiary">
-              {/* [REVIEW] */}
-              Forelder
+              {t('roleChooser.parentEyebrow')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.cardTitle}>
-              {/* [REVIEW] */}
-              Sett opp familien.
+              {t('roleChooser.parentHeadline')}
             </KroniText>
             <KroniText variant="small" tone="secondary" style={styles.cardBody}>
-              {/* [REVIEW] */}
-              Lag oppgaver, godkjenn ferdig arbeid og sett ukepenger. Fra kjøkkenbordet, ikke fra appen.
+              {t('roleChooser.parentBody')}
             </KroniText>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={handleKid}
             accessibilityRole="button"
-            accessibilityLabel="Barn"
+            accessibilityLabel={t('roleChooser.kidAccessibility')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             style={[styles.card, styles.kidCard, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
             <KroniText variant="eyebrow" tone="tertiary">
-              {/* [REVIEW] */}
-              Barn
+              {t('roleChooser.kidEyebrow')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.cardTitle}>
-              {/* [REVIEW] */}
-              Logg inn med kode.
+              {t('roleChooser.kidHeadline')}
             </KroniText>
             <KroniText variant="small" tone="secondary" style={styles.cardBody}>
-              {/* [REVIEW] */}
-              Be foreldrene dine om en seks-sifret kode. Du får din egen oppgaveliste og saldo.
+              {t('roleChooser.kidBody')}
             </KroniText>
           </TouchableOpacity>
         </View>
@@ -145,18 +136,15 @@ export default function RoleChooser() {
         {/* Trust strip — middot separators, sand-500. */}
         <View style={styles.trustStrip}>
           <KroniText variant="caption" tone="secondary" style={styles.trustText}>
-            {/* [REVIEW] */}
-            Bygd i Norge
+            {t('roleChooser.trustBuilt')}
           </KroniText>
           <View style={[styles.dot, { backgroundColor: isDark ? '#2A3040' : colors.sand[300] }]} />
           <KroniText variant="caption" tone="secondary" style={styles.trustText}>
-            {/* [REVIEW] */}
-            Aldri ekte penger
+            {t('roleChooser.trustNoCash')}
           </KroniText>
           <View style={[styles.dot, { backgroundColor: isDark ? '#2A3040' : colors.sand[300] }]} />
           <KroniText variant="caption" tone="secondary" style={styles.trustText}>
-            {/* [REVIEW] */}
-            For barn 6–14 år
+            {t('roleChooser.trustAge')}
           </KroniText>
         </View>
       </View>

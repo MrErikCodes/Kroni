@@ -167,7 +167,7 @@ export default function TaskNew() {
 
           {/* Reward (kr) */}
           <View style={styles.field}>
-            <Label>{/* [REVIEW] */}Belønning (kr)</Label>
+            <Label>{t('parent.taskNew.rewardLabel')}</Label>
             <Controller
               control={control}
               name="rewardCents"
@@ -177,7 +177,7 @@ export default function TaskNew() {
                   onChangeText={(v) => onChange(v ? Math.round(parseFloat(v) * 100) : 0)}
                   placeholder="10"
                   keyboardType="decimal-pad"
-                  accessibilityLabel="Belønning"
+                  accessibilityLabel={t('parent.taskNew.rewardAccessibility')}
                 />
               )}
             />
@@ -234,7 +234,7 @@ export default function TaskNew() {
           {/* Day-of-week picker — only for weekly recurrence */}
           {recurrence === 'weekly' ? (
             <View style={styles.field}>
-              <Label>{/* [REVIEW] */}Hvilke dager?</Label>
+              <Label>{t('parent.taskNew.daysLabel')}</Label>
               <Controller
                 control={control}
                 name="daysOfWeek"
@@ -258,7 +258,7 @@ export default function TaskNew() {
                           },
                         ]}
                         accessibilityRole="button"
-                        accessibilityLabel={/* [REVIEW] */ 'Valgfri — alle dager'}
+                        accessibilityLabel={t('parent.taskNew.anyDayAccessibility')}
                       >
                         <Text
                           style={[
@@ -266,8 +266,7 @@ export default function TaskNew() {
                             { color: allSelected ? '#FFFFFF' : tx.primary },
                           ]}
                         >
-                          {/* [REVIEW] */}
-                          Valgfri
+                          {t('parent.taskNew.anyDayLabel')}
                         </Text>
                       </TouchableOpacity>
                       {DOW_ORDER.map(({ value: dow, key }) => {

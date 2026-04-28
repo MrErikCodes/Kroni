@@ -53,7 +53,7 @@ function RewardRow({ reward }: { reward: Reward }) {
             {formatNok(reward.costCents)}
           </Text>
         </View>
-        {!reward.active && <Badge label="Inaktiv" variant="warning" />}
+        {!reward.active && <Badge label={t('parent.rewardsList.inactive')} variant="warning" />}
         <Text style={[styles.chevron, { color: tx.secondary }]}>›</Text>
       </Card>
     </TouchableOpacity>
@@ -83,21 +83,18 @@ export default function RewardsTab() {
       <View style={styles.header}>
         <View style={styles.headerText}>
           <KroniText variant="eyebrow" tone="gold">
-            {/* [REVIEW] */}
-            Belønninger
+            {t('parent.rewardsList.eyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="display" tone="primary" style={styles.headline}>
-              {/* [REVIEW] */}
-              Det de{' '}
+              {t('parent.rewardsList.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headline, { fontFamily: fonts.displayItalic }]}
             >
-              {/* [REVIEW] */}
-              vil ha
+              {t('parent.rewardsList.headlineB')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.headline}>
               .

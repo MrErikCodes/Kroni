@@ -121,7 +121,7 @@ export default function KidRewardsScreen() {
       // Surface the failure inline so the kid (and we) can see *why*
       // nothing happened — the previous silent-fail was the bug.
       if (err instanceof ApiError && err.status === 409) {
-        setRedeemError(/* [REVIEW] */ 'Du har ikke nok saldo for dette ennå.');
+        setRedeemError(t('kid.rewardsScreen.errorInsufficient'));
       } else if (err instanceof ApiError && err.problem.detail) {
         setRedeemError(err.problem.detail);
       } else {
@@ -157,21 +157,18 @@ export default function KidRewardsScreen() {
       <View style={styles.header}>
         <View style={styles.headerText}>
           <KroniText variant="eyebrow" tone="gold">
-            {/* [REVIEW] */}
-            Belønninger
+            {t('kid.rewardsScreen.eyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="display" tone="primary" style={styles.headline}>
-              {/* [REVIEW] */}
-              Det du{' '}
+              {t('kid.rewardsScreen.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headline, { fontFamily: fonts.displayItalic }]}
             >
-              {/* [REVIEW] */}
-              vil ha
+              {t('kid.rewardsScreen.headlineB')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.headline}>
               .

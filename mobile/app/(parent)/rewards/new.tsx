@@ -115,7 +115,7 @@ export default function RewardNew() {
 
           {/* Cost in kr */}
           <View style={styles.field}>
-            <Label>{/* [REVIEW] */}Kostnad (kr)</Label>
+            <Label>{t('parent.rewardNew.costLabel')}</Label>
             <Controller
               control={control}
               name="costCents"
@@ -125,7 +125,7 @@ export default function RewardNew() {
                   onChangeText={(v) => onChange(v ? Math.round(parseFloat(v) * 100) : 0)}
                   placeholder="50"
                   keyboardType="decimal-pad"
-                  accessibilityLabel="Kostnad"
+                  accessibilityLabel={t('parent.rewardNew.costAccessibility')}
                 />
               )}
             />

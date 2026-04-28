@@ -26,11 +26,11 @@ import type { Task } from '@kroni/shared';
 const formatNok = (ore: number) =>
   new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(ore / 100);
 
-const RECURRENCE_LABEL: Record<string, string> = {
-  daily: 'Daglig',
-  weekly: 'Ukentlig',
-  once: 'Én gang',
-};
+const RECURRENCE_LABEL = () => ({
+  daily: t('parent.tasksList.recurrenceDaily'),
+  weekly: t('parent.tasksList.recurrenceWeekly'),
+  once: t('parent.tasksList.recurrenceOnce'),
+});
 
 function TaskRow({ task }: { task: Task }) {
   const theme = useTheme();
@@ -58,12 +58,12 @@ function TaskRow({ task }: { task: Task }) {
         </View>
         <View style={styles.taskMeta}>
           <Badge
-            label={RECURRENCE_LABEL[task.recurrence] ?? task.recurrence}
+            label={RECURRENCE_LABEL()[task.recurrence] ?? task.recurrence}
             variant="default"
           />
-          {!task.active && <Badge label="Inaktiv" variant="warning" />}
+          {!task.active && <Badge label={t('parent.tasksList.inactive')} variant="warning" />}
           {task.requiresApproval && (
-            <Badge label="Godkjenning" variant="info" />
+            <Badge label={t('parent.tasksList.approval')} variant="info" />
           )}
         </View>
       </Card>
@@ -94,21 +94,18 @@ export default function TasksTab() {
       <View style={styles.header}>
         <View style={styles.headerText}>
           <KroniText variant="eyebrow" tone="gold">
-            {/* [REVIEW] */}
-            Oppgaver
+            {t('parent.tasksList.eyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="display" tone="primary" style={styles.headline}>
-              {/* [REVIEW] */}
-              Hva skal{' '}
+              {t('parent.tasksList.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headline, { fontFamily: fonts.displayItalic }]}
             >
-              {/* [REVIEW] */}
-              gjøres
+              {t('parent.tasksList.headlineB')}
             </KroniText>
             <KroniText variant="display" tone="primary" style={styles.headline}>
               ?

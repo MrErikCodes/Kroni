@@ -31,37 +31,30 @@ import { EmptyState } from '../../../components/ui/EmptyState';
 import { KroniText } from '../../../components/ui/Text';
 import { Sheet } from '../../../components/ui/Sheet';
 import type { TodayTask } from '@kroni/shared';
+import 'react-native-get-random-values';
 
-// Full Norwegian day names — match the convention used in the parent allowance
-// modal (0 = Sunday … 6 = Saturday) but display Man → Søn ordering.
-const DAY_NAMES_NB: Record<number, string> = {
-  0: 'Søndag',
-  1: 'Mandag',
-  2: 'Tirsdag',
-  3: 'Onsdag',
-  4: 'Torsdag',
-  5: 'Fredag',
-  6: 'Lørdag',
-};
 const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
 
 function formatRecurrence(task: TodayTask): string {
-  if (task.recurrence === 'daily') return 'Hver dag';
-  if (task.recurrence === 'once') return 'Kun én gang';
+  if (task.recurrence === 'daily') return t('kid.todayScreen.detailSheet.recurrenceDaily');
+  if (task.recurrence === 'once') return t('kid.todayScreen.detailSheet.recurrenceOnce');
   // weekly
   const days = (task.daysOfWeek ?? []).slice().sort(
     (a, b) => DAY_ORDER.indexOf(a) - DAY_ORDER.indexOf(b),
   );
-  if (days.length === 0) return 'Ukentlig';
+  if (days.length === 0) return t('kid.todayScreen.detailSheet.recurrenceWeekly');
   // Mirrors the "Valgfri" shortcut in the parent task form: when all days
   // are selected, the kid sees the same wording.
-  if (days.length === 7) return 'Valgfritt';
-  if (days.length === 1) return `Hver ${DAY_NAMES_NB[days[0]!]?.toLowerCase()}`;
-  const named = days.map((d) => DAY_NAMES_NB[d]).filter(Boolean) as string[];
-  if (named.length <= 2) return named.join(' og ');
-  return `${named.slice(0, -1).join(', ')} og ${named[named.length - 1]}`;
+  if (days.length === 7) return t('kid.todayScreen.detailSheet.recurrenceAllDays');
+  const connector = t('kid.todayScreen.detailSheet.connector');
+  if (days.length === 1) {
+    const dayName = t(`kid.todayScreen.detailSheet.dayNames.${days[0]}`).toLowerCase();
+    return t('kid.todayScreen.detailSheet.recurrenceOneDay', { day: dayName });
+  }
+  const named = days.map((d) => t(`kid.todayScreen.detailSheet.dayNames.${d}`));
+  if (named.length <= 2) return named.join(` ${connector} `);
+  return `${named.slice(0, -1).join(', ')} ${connector} ${named[named.length - 1]}`;
 }
-import 'react-native-get-random-values';
 
 // Foreground notification handler — suppressed here; root layout handles routing
 Notifications.setNotificationHandler({
@@ -358,7 +351,7 @@ function TaskDetailSheet({ task, onClose }: TaskDetailSheetProps) {
           <View style={styles.sheetMeta}>
             <View style={styles.metaRow}>
               <Text style={[styles.metaLabel, { color: tx.tertiary }]}>
-                Når
+                {t('kid.todayScreen.detailSheet.whenLabel')}
               </Text>
               <Text style={[styles.metaValue, { color: tx.primary }]}>
                 {formatRecurrence(task)}
@@ -366,12 +359,12 @@ function TaskDetailSheet({ task, onClose }: TaskDetailSheetProps) {
             </View>
             <View style={styles.metaRow}>
               <Text style={[styles.metaLabel, { color: tx.tertiary }]}>
-                Godkjenning
+                {t('kid.todayScreen.detailSheet.approvalLabel')}
               </Text>
               <Text style={[styles.metaValue, { color: tx.primary }]}>
                 {task.requiresApproval
-                  ? 'Forelder må godkjenne'
-                  : 'Tilskrives saldo direkte'}
+                  ? t('kid.todayScreen.detailSheet.approvalRequired')
+                  : t('kid.todayScreen.detailSheet.approvalDirect')}
               </Text>
             </View>
           </View>
@@ -386,7 +379,6 @@ export default function TodayScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const s = theme.surface;
-  const tx = theme.text;
 
   // null when the sheet is closed; set to the task whose details to show.
   const [detailTask, setDetailTask] = useState<TodayTask | null>(null);
@@ -494,8 +486,7 @@ export default function TodayScreen() {
         <View style={styles.heroSection}>
           <View style={styles.heroLine}>
             <KroniText variant="displayLarge" tone="primary" style={styles.heroText}>
-              {/* [REVIEW] */}
-              I dag,{' '}
+              {t('kid.todayScreen.heroToday')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
@@ -510,13 +501,12 @@ export default function TodayScreen() {
           </View>
           <View style={styles.balanceRow}>
             <KroniText variant="caption" tone="tertiary">
-              {/* [REVIEW] */}
-              Saldo
+              {t('kid.todayScreen.balanceLabel')}
             </KroniText>
             <BalanceText
               amountOre={balance?.balanceCents ?? 0}
               large
-              accessibilityLabel={`Saldo: ${balance?.balanceCents ?? 0} øre`}
+              accessibilityLabel={t('kid.todayScreen.balanceAccessibility', { amount: String(balance?.balanceCents ?? 0) })}
             />
           </View>
         </View>

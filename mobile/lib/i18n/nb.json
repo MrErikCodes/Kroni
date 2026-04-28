@@ -44,14 +44,46 @@
       "avatarLabel": "Velg avatar",
       "errorInvalidCode": "Ugyldig eller utløpt kode. Prøv igjen.",
       "errorNetwork": "Kunne ikke koble til. Sjekk internettforbindelsen."
+    },
+    "parentSignIn": {
+      "eyebrow": "Logg inn",
+      "headlineA": "Velkommen",
+      "headlineB": "hjem",
+      "twoFactor": {
+        "totp": "Skriv inn 6-sifret kode fra autentiseringsappen din.",
+        "phone_code": "Vi sendte en kode til telefonen din. Skriv den inn under.",
+        "email_code": "Vi sendte en kode til e-posten din. Skriv den inn under.",
+        "backup_code": "Skriv inn en av reservekodene dine.",
+        "codeLabel": "Kode",
+        "codeAccessibility": "6-sifret kode",
+        "confirmButton": "Bekreft",
+        "switchAccount": "Bytt konto",
+        "errorNotLoaded": "Klar om litt — appen laster fortsatt.",
+        "errorUnavailable": "Innlogging er ikke tilgjengelig. Prøv igjen.",
+        "errorStatus": "Status: %{status}. Prøv på nytt eller kontakt støtte.",
+        "errorStatus2fa": "Status: %{status}. Prøv koden på nytt.",
+        "errorNoMethod": "Ingen støttet to-faktor-metode (%{names})."
+      }
+    },
+    "parentSignUp": {
+      "eyebrow": "Ny konto",
+      "headlineA": "Begynn",
+      "headlineB": "gratis",
+      "verifyText": "Vi har sendt en bekreftelseskode til %{email}. Skriv inn koden under.",
+      "verifyCodeLabel": "Bekreftelseskode",
+      "verifyCodeAccessibility": "Bekreftelseskode"
+    },
+    "kidPair": {
+      "eyebrow": "Barn",
+      "headlineA": "Skriv inn",
+      "headlineB": "koden",
+      "digitAccessibility": "Siffer %{n}"
     }
   },
   "parent": {
     "kids": "Barn",
     "tasks": "Oppgaver",
     "rewards": "Belønninger",
-    "approvals": "Godkjenninger",
-    "settings": "Innstillinger",
     "paywall": "Oppgrader til Familie",
     "kidsList": {
       "title": "Barn",
@@ -166,7 +198,12 @@
       "groupedByKid": "Gruppert per barn",
       "eyebrow": "Oppgaver",
       "headlineA": "Hva skal",
-      "headlineB": "gjøres"
+      "headlineB": "gjøres",
+      "recurrenceDaily": "Daglig",
+      "recurrenceWeekly": "Ukentlig",
+      "recurrenceOnce": "Én gang",
+      "inactive": "Inaktiv",
+      "approval": "Godkjenning"
     },
     "taskNew": {
       "title": "Ny oppgave",
@@ -175,6 +212,7 @@
       "descLabel": "Beskrivelse (valgfritt)",
       "descPlaceholder": "Beskriv oppgaven...",
       "rewardLabel": "Belønning (kr)",
+      "rewardAccessibility": "Belønning",
       "rewardPlaceholder": "F.eks. 2000 = 20 kr",
       "recurrenceLabel": "Gjentagelse",
       "kidLabel": "Tildel til barn",
@@ -205,13 +243,15 @@
       "addReward": "Ny belønning",
       "eyebrow": "Belønninger",
       "headlineA": "Det de",
-      "headlineB": "vil ha"
+      "headlineB": "vil ha",
+      "inactive": "Inaktiv"
     },
     "rewardNew": {
       "title": "Ny belønning",
       "titleLabel": "Belønningstittel",
       "titlePlaceholder": "F.eks. Kinobilletter",
       "costLabel": "Kostnad (kr)",
+      "costAccessibility": "Kostnad",
       "costPlaceholder": "F.eks. 5000 = 50 kr",
       "kidLabel": "Tildel til barn",
       "kidNone": "Alle barn",
@@ -367,7 +407,6 @@
     "balance": "Saldo",
     "rewards": "Belønninger",
     "profile": "Profil",
-    "celebrate": "Bra jobba!",
     "todayScreen": {
       "greeting": "Hei, %{name}!",
       "greetingMorning": "God morgen, %{name}!",
@@ -385,6 +424,7 @@
       "progressLabel": "%{done} av %{total} fullført",
       "heroToday": "I dag,",
       "balanceLabel": "Saldo",
+      "balanceAccessibility": "Saldo: %{amount} øre",
       "detailSheet": {
         "whenLabel": "Når",
         "approvalLabel": "Godkjenning",
@@ -453,7 +493,11 @@
       "appInfo": {
         "copyButton": "Kopier app info",
         "copiedTitle": "Kopiert til utklippstavlen",
-        "copyAgain": "Kopier igjen"
+        "copyAgain": "Kopier igjen",
+        "roleLine": {
+          "kid": "Rolle: barn"
+        },
+        "platformLine": "Plattform: %{platform} %{osVersion}"
       }
     },
     "celebrate": {
@@ -525,41 +569,5 @@
     "trustAge": "For barn 6–14 år",
     "parentAccessibility": "Forelder",
     "kidAccessibility": "Barn"
-  },
-  "auth": {
-    "parentSignIn": {
-      "eyebrow": "Logg inn",
-      "headlineA": "Velkommen",
-      "headlineB": "hjem",
-      "twoFactor": {
-        "totp": "Skriv inn 6-sifret kode fra autentiseringsappen din.",
-        "phone_code": "Vi sendte en kode til telefonen din. Skriv den inn under.",
-        "email_code": "Vi sendte en kode til e-posten din. Skriv den inn under.",
-        "backup_code": "Skriv inn en av reservekodene dine.",
-        "codeLabel": "Kode",
-        "codeAccessibility": "6-sifret kode",
-        "confirmButton": "Bekreft",
-        "switchAccount": "Bytt konto",
-        "errorNotLoaded": "Klar om litt — appen laster fortsatt.",
-        "errorUnavailable": "Innlogging er ikke tilgjengelig. Prøv igjen.",
-        "errorStatus": "Status: %{status}. Prøv på nytt eller kontakt støtte.",
-        "errorStatus2fa": "Status: %{status}. Prøv koden på nytt.",
-        "errorNoMethod": "Ingen støttet to-faktor-metode (%{names})."
-      }
-    },
-    "parentSignUp": {
-      "eyebrow": "Ny konto",
-      "headlineA": "Begynn",
-      "headlineB": "gratis",
-      "verifyText": "Vi har sendt en bekreftelseskode til %{email}. Skriv inn koden under.",
-      "verifyCodeLabel": "Bekreftelseskode",
-      "verifyCodeAccessibility": "Bekreftelseskode"
-    },
-    "kidPair": {
-      "eyebrow": "Barn",
-      "headlineA": "Skriv inn",
-      "headlineB": "koden",
-      "digitAccessibility": "Siffer %{n}"
-    }
   }
 }

@@ -135,7 +135,7 @@ export default function RewardDetail() {
             </View>
 
             <View style={styles.field}>
-              <Label>{/* [REVIEW] */}Kostnad (kr)</Label>
+              <Label>{t('parent.rewardNew.costLabel')}</Label>
               <Controller
                 control={control}
                 name="costCents"
@@ -144,7 +144,7 @@ export default function RewardDetail() {
                     value={value !== undefined ? String(value / 100) : ''}
                     onChangeText={(v) => onChange(v ? Math.round(parseFloat(v) * 100) : 0)}
                     keyboardType="decimal-pad"
-                    accessibilityLabel="Kostnad"
+                    accessibilityLabel={t('parent.rewardNew.costAccessibility')}
                   />
                 )}
               />
@@ -159,14 +159,14 @@ export default function RewardDetail() {
                     onPress={() => onChange(!value)}
                     style={[styles.toggle, { borderColor: s.border, backgroundColor: s.card }]}
                     accessibilityRole="checkbox"
-                    accessibilityLabel={/* [REVIEW] */'Aktiv'}
+                    accessibilityLabel={t('parent.rewardDetail.activeLabel')}
                     accessibilityState={{ checked: value }}
                   >
                     <View style={[styles.checkbox, { borderColor: value ? theme.colors.gold[500] : s.border }]}>
                       {value ? <View style={[styles.checkFill, { backgroundColor: theme.colors.gold[500] }]} /> : null}
                     </View>
                     <Text style={[styles.toggleLabel, { color: tx.primary }]}>
-                      {/* [REVIEW] */}Aktiv
+                      {t('parent.rewardDetail.activeLabel')}
                     </Text>
                   </TouchableOpacity>
                 )}

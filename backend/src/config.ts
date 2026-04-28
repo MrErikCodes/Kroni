@@ -18,6 +18,11 @@ const Env = z.object({
   EXPO_ACCESS_TOKEN: z.string().optional(),
   REVENUECAT_WEBHOOK_AUTH: z.string().optional(),
 
+  // Crash + error reporting. Optional so dev / tests run without it.
+  SENTRY_DSN: z.string().url().optional(),
+  SENTRY_RELEASE: z.string().optional(),
+  SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0),
+
   APP_TIMEZONE: z.string().default('Europe/Oslo'),
   APP_PUBLIC_URL: z.string().url().default('https://api.kroni.no'),
   APP_WEBSITE_URL: z.string().url().default('https://kroni.no'),

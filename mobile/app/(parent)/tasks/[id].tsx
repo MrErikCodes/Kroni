@@ -163,7 +163,7 @@ export default function TaskDetail() {
             </View>
 
             <View style={styles.field}>
-              <Label>{/* [REVIEW] */}Belønning (kr)</Label>
+              <Label>{t('parent.taskNew.rewardLabel')}</Label>
               <Controller
                 control={control}
                 name="rewardCents"
@@ -172,7 +172,7 @@ export default function TaskDetail() {
                     value={value !== undefined ? String(value / 100) : ''}
                     onChangeText={(v) => onChange(v ? Math.round(parseFloat(v) * 100) : 0)}
                     keyboardType="decimal-pad"
-                    accessibilityLabel="Belønning"
+                    accessibilityLabel={t('parent.taskNew.rewardAccessibility')}
                   />
                 )}
               />

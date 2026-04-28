@@ -83,8 +83,7 @@ export default function PaywallScreen() {
           <ArrowLeft size={22} color={theme.text.primary} strokeWidth={1.75} />
         </TouchableOpacity>
         <KroniText variant="caption" tone="tertiary">
-          {/* [REVIEW] */}
-          Familieplan
+          {t('paywall.headerCaption')}
         </KroniText>
         <View style={styles.headerBtn} />
       </View>
@@ -93,37 +92,32 @@ export default function PaywallScreen() {
         {/* Editorial hero — serif headline with italic emphasis on "vokser". */}
         <View style={styles.hero}>
           <KroniText variant="eyebrow" tone="gold">
-            {/* [REVIEW] */}
-            Familieplan
+            {t('paywall.headerEyebrow')}
           </KroniText>
           <View style={styles.headlineRow}>
             <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
-              {/* [REVIEW] */}
-              Når familien{' '}
+              {t('paywall.headlineA')}{' '}
             </KroniText>
             <KroniText
               variant="displayItalic"
               tone="gold"
               style={[styles.headline, { fontFamily: fonts.displayItalic }]}
             >
-              {/* [REVIEW] */}
-              vokser
+              {t('paywall.headlineB')}
             </KroniText>
             <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
               .
             </KroniText>
           </View>
           <KroniText variant="bodyLarge" tone="secondary" style={styles.intro}>
-            {/* [REVIEW] */}
-            Ubegrenset antall barn og oppgaver, varsler og full historikk. Pause når familien er på ferie, slutt når du vil.
+            {t('paywall.intro')}
           </KroniText>
         </View>
 
         {/* Highlighted card — the single allowed elevated surface on this screen. */}
         <Card tone="elevated" radius="2xl" style={styles.featureCard}>
           <KroniText variant="eyebrow" tone="tertiary">
-            {/* [REVIEW] */}
-            Det du får
+            {t('paywall.featuresEyebrow')}
           </KroniText>
           <View style={styles.featureList}>
             {FEATURES_PRO.map((f) => (
@@ -170,8 +164,7 @@ export default function PaywallScreen() {
         {/* Trust strip footer — middot separators, sand-500 caption. */}
         <View style={styles.trustRow}>
           <KroniText variant="caption" tone="secondary">
-            {/* [REVIEW] */}
-            Avbestill når du vil
+            {t('paywall.trustCancel')}
           </KroniText>
           <View
             style={[
@@ -180,8 +173,7 @@ export default function PaywallScreen() {
             ]}
           />
           <KroniText variant="caption" tone="secondary">
-            {/* [REVIEW] */}
-            Ingen reklame
+            {t('paywall.trustNoAds')}
           </KroniText>
           <View
             style={[
@@ -190,8 +182,7 @@ export default function PaywallScreen() {
             ]}
           />
           <KroniText variant="caption" tone="secondary">
-            {/* [REVIEW] */}
-            Aldri ekte penger
+            {t('paywall.trustNoCash')}
           </KroniText>
         </View>
 

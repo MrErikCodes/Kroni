@@ -48,11 +48,11 @@ export default function ParentSignIn() {
   const handleSignIn = useCallback(async () => {
     console.log('[sign-in] press', { isLoaded, hasSignIn: !!signIn, email });
     if (!isLoaded) {
-      setError('Klar om litt — appen laster fortsatt.');
+      setError(t('auth.parentSignIn.twoFactor.errorNotLoaded'));
       return;
     }
     if (!signIn) {
-      setError('Innlogging er ikke tilgjengelig. Prøv igjen.');
+      setError(t('auth.parentSignIn.twoFactor.errorUnavailable'));
       return;
     }
     setError(null);
@@ -106,11 +106,11 @@ export default function ParentSignIn() {
           setStep('twoFactor');
         } else {
           const names = supported.map((f) => f.strategy).join(', ') || 'ingen';
-          setError(`Ingen støttet to-faktor-metode (${names}).`);
+          setError(t('auth.parentSignIn.twoFactor.errorNoMethod', { names }));
         }
         return;
       }
-      setError(`Status: ${result.status}. Prøv på nytt eller kontakt støtte.`);
+      setError(t('auth.parentSignIn.twoFactor.errorStatus', { status: result.status }));
     } catch (err: unknown) {
       console.log('[sign-in] error', err);
       const message = formatClerkError(err);
@@ -138,7 +138,7 @@ export default function ParentSignIn() {
         router.replace('/(parent)/(tabs)/kids');
         return;
       }
-      setError(`Status: ${result.status}. Prøv koden på nytt.`);
+      setError(t('auth.parentSignIn.twoFactor.errorStatus2fa', { status: result.status }));
     } catch (err: unknown) {
       console.log('[sign-in:2fa] error', err);
       setError(formatClerkError(err));
@@ -163,21 +163,18 @@ export default function ParentSignIn() {
           {/* Editorial header — eyebrow + serif headline with italic emphasis. */}
           <View style={styles.header}>
             <KroniText variant="eyebrow" tone="gold">
-              {/* [REVIEW] */}
-              Logg inn
+              {t('auth.parentSignIn.eyebrow')}
             </KroniText>
             <View style={styles.headlineRow}>
               <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
-                {/* [REVIEW] */}
-                Velkommen{' '}
+                {t('auth.parentSignIn.headlineA')}{' '}
               </KroniText>
               <KroniText
                 variant="displayItalic"
                 tone="gold"
                 style={[styles.headline, { fontFamily: fonts.displayItalic }]}
               >
-                {/* [REVIEW] */}
-                hjem
+                {t('auth.parentSignIn.headlineB')}
               </KroniText>
               <KroniText variant="displayLarge" tone="primary" style={styles.headline}>
                 .
@@ -246,16 +243,16 @@ export default function ParentSignIn() {
               <>
                 <KroniText variant="body" tone="secondary">
                   {twoFactorStrategy === 'totp'
-                    ? 'Skriv inn 6-sifret kode fra autentiseringsappen din.'
+                    ? t('auth.parentSignIn.twoFactor.totp')
                     : twoFactorStrategy === 'phone_code'
-                      ? 'Vi sendte en kode til telefonen din. Skriv den inn under.'
+                      ? t('auth.parentSignIn.twoFactor.phone_code')
                       : twoFactorStrategy === 'email_code'
-                        ? 'Vi sendte en kode til e-posten din. Skriv den inn under.'
-                        : 'Skriv inn en av reservekodene dine.'}
+                        ? t('auth.parentSignIn.twoFactor.email_code')
+                        : t('auth.parentSignIn.twoFactor.backup_code')}
                 </KroniText>
                 <View style={styles.field}>
                   <KroniText variant="caption" tone="tertiary" style={styles.label}>
-                    Kode
+                    {t('auth.parentSignIn.twoFactor.codeLabel')}
                   </KroniText>
                   <Input
                     value={twoFactorCode}
@@ -264,11 +261,11 @@ export default function ParentSignIn() {
                     keyboardType="number-pad"
                     autoComplete="one-time-code"
                     maxLength={8}
-                    accessibilityLabel="6-sifret kode"
+                    accessibilityLabel={t('auth.parentSignIn.twoFactor.codeAccessibility')}
                   />
                 </View>
                 <Button
-                  label={loading ? t('common.loading') : 'Bekreft'}
+                  label={loading ? t('common.loading') : t('auth.parentSignIn.twoFactor.confirmButton')}
                   onPress={handleTwoFactor}
                   loading={loading}
                   disabled={twoFactorCode.length < 6}
@@ -283,7 +280,7 @@ export default function ParentSignIn() {
                   accessibilityRole="button"
                 >
                   <KroniText variant="small" tone="secondary">
-                    Bytt konto
+                    {t('auth.parentSignIn.twoFactor.switchAccount')}
                   </KroniText>
                 </TouchableOpacity>
               </>
