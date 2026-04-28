@@ -79,11 +79,11 @@ export default function ParentTabsLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: t('parent.settings'),
+          title: t('parent.settings.title'),
           tabBarIcon: ({ color, size }) => (
             <Settings size={size} color={color} strokeWidth={1.75} />
           ),
-          tabBarAccessibilityLabel: t('parent.settings'),
+          tabBarAccessibilityLabel: t('parent.settings.title'),
         }}
       />
     </Tabs>
