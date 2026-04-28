@@ -26,6 +26,11 @@ export default function ParentSignIn() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [twoFactorStrategy, setTwoFactorStrategy] = useState<
+    'totp' | 'phone_code'
+  >('totp');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,9 +58,25 @@ export default function ParentSignIn() {
         router.replace('/(parent)/(tabs)/kids');
         return;
       }
-      // Anything else means more steps are required (needs_factor_one,
-      // needs_factor_two, needs_identifier, needs_new_password). Surface a
-      // readable message rather than silently doing nothing.
+      if (result.status === 'needs_second_factor') {
+        const supported = result.supportedSecondFactors ?? [];
+        const totp = supported.find((f) => f.strategy === 'totp');
+        const phone = supported.find((f) => f.strategy === 'phone_code');
+        if (totp) {
+          setTwoFactorStrategy('totp');
+          setStep('twoFactor');
+        } else if (phone) {
+          setTwoFactorStrategy('phone_code');
+          await signIn.prepareSecondFactor({
+            strategy: 'phone_code',
+            phoneNumberId: phone.phoneNumberId,
+          });
+          setStep('twoFactor');
+        } else {
+          setError('To-faktor-metoden støttes ikke i appen ennå.');
+        }
+        return;
+      }
       setError(`Status: ${result.status}. Prøv på nytt eller kontakt støtte.`);
     } catch (err: unknown) {
       console.log('[sign-in] error', err);
@@ -66,6 +87,32 @@ export default function ParentSignIn() {
       setLoading(false);
     }
   }, [isLoaded, signIn, setActive, email, password, router]);
+
+  const handleTwoFactor = useCallback(async () => {
+    if (!isLoaded || !signIn) return;
+    setError(null);
+    setLoading(true);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      const result = await signIn.attemptSecondFactor({
+        strategy: twoFactorStrategy,
+        code: twoFactorCode.trim(),
+      });
+      console.log('[sign-in:2fa] result.status', result.status);
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
+        router.replace('/(parent)/(tabs)/kids');
+        return;
+      }
+      setError(`Status: ${result.status}. Prøv koden på nytt.`);
+    } catch (err: unknown) {
+      console.log('[sign-in:2fa] error', err);
+      setError(formatClerkError(err));
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [isLoaded, signIn, setActive, twoFactorStrategy, twoFactorCode, router]);
 
   const s = theme.surface;
 
@@ -122,42 +169,87 @@ export default function ParentSignIn() {
               </View>
             ) : null}
 
-            <View style={styles.field}>
-              <KroniText variant="caption" tone="tertiary" style={styles.label}>
-                {t('auth.parent.email')}
-              </KroniText>
-              <Input
-                value={email}
-                onChangeText={setEmail}
-                placeholder="hei@eksempel.no"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                accessibilityLabel={t('auth.parent.email')}
-              />
-            </View>
+            {step === 'credentials' ? (
+              <>
+                <View style={styles.field}>
+                  <KroniText variant="caption" tone="tertiary" style={styles.label}>
+                    {t('auth.parent.email')}
+                  </KroniText>
+                  <Input
+                    value={email}
+                    onChangeText={setEmail}
+                    placeholder="hei@eksempel.no"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    accessibilityLabel={t('auth.parent.email')}
+                  />
+                </View>
 
-            <View style={styles.field}>
-              <KroniText variant="caption" tone="tertiary" style={styles.label}>
-                {t('auth.parent.password')}
-              </KroniText>
-              <Input
-                value={password}
-                onChangeText={setPassword}
-                placeholder="••••••••"
-                secureTextEntry
-                autoComplete="password"
-                accessibilityLabel={t('auth.parent.password')}
-              />
-            </View>
+                <View style={styles.field}>
+                  <KroniText variant="caption" tone="tertiary" style={styles.label}>
+                    {t('auth.parent.password')}
+                  </KroniText>
+                  <Input
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="••••••••"
+                    secureTextEntry
+                    autoComplete="password"
+                    accessibilityLabel={t('auth.parent.password')}
+                  />
+                </View>
 
-            <Button
-              label={loading ? t('common.loading') : t('auth.parent.signIn')}
-              onPress={handleSignIn}
-              loading={loading}
-              disabled={!email || !password}
-              size="sm"
-            />
+                <Button
+                  label={loading ? t('common.loading') : t('auth.parent.signIn')}
+                  onPress={handleSignIn}
+                  loading={loading}
+                  disabled={!email || !password}
+                  size="sm"
+                />
+              </>
+            ) : (
+              <>
+                <KroniText variant="body" tone="secondary">
+                  {twoFactorStrategy === 'totp'
+                    ? 'Skriv inn 6-sifret kode fra autentiseringsappen din.'
+                    : 'Vi sendte en kode til telefonen din. Skriv den inn under.'}
+                </KroniText>
+                <View style={styles.field}>
+                  <KroniText variant="caption" tone="tertiary" style={styles.label}>
+                    Kode
+                  </KroniText>
+                  <Input
+                    value={twoFactorCode}
+                    onChangeText={setTwoFactorCode}
+                    placeholder="123456"
+                    keyboardType="number-pad"
+                    autoComplete="one-time-code"
+                    maxLength={8}
+                    accessibilityLabel="6-sifret kode"
+                  />
+                </View>
+                <Button
+                  label={loading ? t('common.loading') : 'Bekreft'}
+                  onPress={handleTwoFactor}
+                  loading={loading}
+                  disabled={twoFactorCode.length < 6}
+                  size="sm"
+                />
+                <TouchableOpacity
+                  onPress={() => {
+                    setStep('credentials');
+                    setTwoFactorCode('');
+                    setError(null);
+                  }}
+                  accessibilityRole="button"
+                >
+                  <KroniText variant="small" tone="secondary">
+                    Bytt konto
+                  </KroniText>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
 
           {/* Footer */}
