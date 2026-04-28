@@ -224,6 +224,49 @@
       "terms": "Vilkår",
       "support": "Støtte",
       "version": "Versjon %{version}"
+    },
+    "household": {
+      "sectionTitle": "Familie",
+      "members": {
+        "title": "Medlemmer",
+        "emptyState": "Ingen forelder lagt til ennå",
+        "premiumOwnerLabel": "Premium-eier",
+        "currentUserLabel": "(deg)",
+        "invitedLabel": "Invitert"
+      },
+      "inviteButton": "Inviter forelder",
+      "inviteModal": {
+        "title": "Inviter forelder",
+        "emailLabel": "E-post (valgfritt)",
+        "emailPlaceholder": "valgfritt@eksempel.no",
+        "generate": "Generer kode",
+        "generating": "Genererer...",
+        "errorRateLimit": "For mange forsøk. Prøv igjen om en stund.",
+        "errorEmailInvalid": "Skriv inn en gyldig e-postadresse.",
+        "errorGeneric": "Kunne ikke lage kode. Prøv igjen.",
+        "codeDisplayHeading": "Del koden med forelderen",
+        "copyButton": "Kopier",
+        "copiedToast": "Kopiert!",
+        "mailtoSubject": "Bli med i Kroni-familien",
+        "mailtoBody": "Hei!\n\nBruk denne koden for å bli med i familien vår på Kroni: %{code}\n\nKoden utløper %{expires}.",
+        "mailtoLink": "Send på e-post",
+        "expiresIn": "Utløper om %{time}",
+        "share": "Del",
+        "close": "Lukk"
+      },
+      "invitesList": {
+        "title": "Aktive invitasjoner",
+        "empty": "Ingen aktive invitasjoner",
+        "revokeConfirm": "Trekke tilbake invitasjon med kode %{code}?",
+        "revokeAction": "Trekk tilbake"
+      },
+      "joinFlow": {
+        "linkLabel": "Har du en familiekode? Bli med i en familie.",
+        "codeInputLabel": "Familiekode",
+        "codePlaceholder": "6-sifret kode",
+        "errorInvalid": "Ugyldig eller utløpt kode.",
+        "errorAlreadyJoined": "Du er allerede med i en familie."
+      }
     }
   },
   "kid": {

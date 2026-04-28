@@ -21,6 +21,17 @@ import {
   GeneratePairingCodeResponseSchema,
   PairRequestSchema,
   PairResponseSchema,
+  HouseholdSummarySchema,
+  HouseholdInviteSchema,
+  CreateHouseholdInviteResponseSchema,
+  JoinHouseholdResponseSchema,
+} from '@kroni/shared';
+import type {
+  HouseholdSummary,
+  HouseholdInvite,
+  CreateHouseholdInviteInput,
+  CreateHouseholdInviteResponse,
+  JoinHouseholdResponse,
 } from '@kroni/shared';
 import { getKidToken, setKidToken, clearKidToken } from './auth';
 
@@ -355,6 +366,47 @@ export function clientFor(getToken: GetToken) {
         method: 'POST',
         body: JSON.stringify({ receiptData }),
       });
+    },
+
+    // ── Household ───────────────────────────────────────────────────────────
+    async getHousehold(): Promise<HouseholdSummary> {
+      const json = await request('/api/parent/household/me');
+      return HouseholdSummarySchema.parse(json);
+    },
+
+    async createHouseholdInvite(
+      input: CreateHouseholdInviteInput,
+    ): Promise<CreateHouseholdInviteResponse> {
+      const body =
+        input.invitedEmail !== undefined
+          ? JSON.stringify({ invitedEmail: input.invitedEmail })
+          : JSON.stringify({});
+      const json = await request('/api/parent/household/invites', {
+        method: 'POST',
+        body,
+      });
+      return CreateHouseholdInviteResponseSchema.parse(json);
+    },
+
+    async listHouseholdInvites(): Promise<HouseholdInvite[]> {
+      const json = await request('/api/parent/household/invites');
+      return z.array(HouseholdInviteSchema).parse(json);
+    },
+
+    async revokeHouseholdInvite(code: string): Promise<void> {
+      await request(`/api/parent/household/invites/${encodeURIComponent(code)}`, {
+        method: 'DELETE',
+      });
+    },
+
+    async joinHousehold(code: string): Promise<JoinHouseholdResponse> {
+      // Note: requires Clerk Bearer (parent session); reuses the same `request`
+      // helper because it threads the parent token via `getToken`.
+      const json = await request('/api/public/household/join', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      });
+      return JoinHouseholdResponseSchema.parse(json);
     },
   };
 }

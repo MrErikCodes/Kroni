@@ -41,6 +41,32 @@ export async function identifyUser(userId: string): Promise<void> {
   }
 }
 
+/**
+ * Bind a Clerk user id to RevenueCat. Any anonymous purchases made before
+ * Clerk login transfer to this app_user_id, so backend webhooks can resolve
+ * the entitlement against the parent record keyed on Clerk user id.
+ */
+export async function loginRevenueCat(userId: string): Promise<void> {
+  try {
+    await Purchases.logIn(userId);
+  } catch {
+    // Non-fatal — proceed without identification
+  }
+}
+
+/**
+ * Reset RevenueCat to a fresh anonymous id. Called when the parent signs out
+ * so a different parent on the same device doesn't inherit entitlements from
+ * the previous session.
+ */
+export async function logoutRevenueCat(): Promise<void> {
+  try {
+    await Purchases.logOut();
+  } catch {
+    // Non-fatal — RC will throw if already anonymous, which is fine.
+  }
+}
+
 export async function restorePurchases(): Promise<boolean> {
   try {
     const info = await Purchases.restorePurchases();

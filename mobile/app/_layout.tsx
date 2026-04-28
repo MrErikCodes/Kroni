@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
-import { ClerkProvider } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import { nbNO } from '@clerk/localizations';
 import { tokenCache } from '../lib/clerkTokenCache';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -24,7 +24,11 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import { registerNavigate } from '../lib/api';
-import { configureRevenueCat } from '../lib/billing';
+import {
+  configureRevenueCat,
+  loginRevenueCat,
+  logoutRevenueCat,
+} from '../lib/billing';
 
 // Keep splash screen visible until fonts are loaded
 SplashScreen.preventAutoHideAsync();
@@ -62,6 +66,32 @@ function NavigationRegistrar() {
       router.replace(path as Parameters<typeof router.replace>[0]);
     });
   }, [router]);
+
+  return null;
+}
+
+/**
+ * Mirrors the Clerk parent identity into RevenueCat. On Clerk sign-in we call
+ * `Purchases.logIn(userId)` so any anonymous purchases attached to the device
+ * transfer onto that Clerk user; on Clerk sign-out we call `Purchases.logOut`
+ * so a different parent signing in on the same device starts with a fresh
+ * anonymous id and doesn't inherit the previous parent's entitlements.
+ */
+function RevenueCatIdentityBridge() {
+  const { userId, isLoaded } = useAuth();
+  const lastUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const previous = lastUserIdRef.current;
+    if (userId && previous !== userId) {
+      lastUserIdRef.current = userId;
+      void loginRevenueCat(userId);
+    } else if (!userId && previous !== null) {
+      lastUserIdRef.current = null;
+      void logoutRevenueCat();
+    }
+  }, [userId, isLoaded]);
 
   return null;
 }
@@ -107,6 +137,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationRegistrar />
+          <RevenueCatIdentityBridge />
           <Stack screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>
       </QueryClientProvider>

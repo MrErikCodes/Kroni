@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useSignUp } from '@clerk/clerk-expo';
+import { useSignUp, useAuth } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
@@ -19,11 +20,15 @@ import { formatClerkError } from '../../lib/clerkErrors';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { KroniText } from '../../components/ui/Text';
+import { ApiError, parentApi } from '../../lib/api';
+
+const CODE_LENGTH = 6;
 
 export default function ParentSignUp() {
   const theme = useTheme();
   const router = useRouter();
   const { signUp, setActive, isLoaded } = useSignUp();
+  const { getToken } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -31,6 +36,49 @@ export default function ParentSignUp() {
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Optional family-join code: when a parent has been invited by a co-parent,
+  // they can paste the 6-digit code here. After Clerk verification we call
+  // joinHousehold(code) before routing to the parent shell.
+  const [showJoinCode, setShowJoinCode] = useState(false);
+  const [joinDigits, setJoinDigits] = useState<string[]>(
+    Array(CODE_LENGTH).fill(''),
+  );
+  const joinInputRefs = useRef<(TextInput | null)[]>([]);
+  const joinCode = joinDigits.join('');
+
+  const handleJoinDigit = useCallback(
+    (index: number, value: string) => {
+      const char = value.replace(/\D/g, '').slice(-1);
+      const next = [...joinDigits];
+      next[index] = char;
+      setJoinDigits(next);
+      if (char && index < CODE_LENGTH - 1) {
+        joinInputRefs.current[index + 1]?.focus();
+      }
+    },
+    [joinDigits],
+  );
+
+  const handleJoinKeyPress = useCallback(
+    (index: number, key: string) => {
+      if (key === 'Backspace' && !joinDigits[index] && index > 0) {
+        joinInputRefs.current[index - 1]?.focus();
+      }
+    },
+    [joinDigits],
+  );
+
+  const handleJoinPaste = useCallback((text: string) => {
+    const chars = text.replace(/\D/g, '').slice(0, CODE_LENGTH).split('');
+    const next = Array(CODE_LENGTH).fill('');
+    chars.forEach((c, i) => {
+      next[i] = c;
+    });
+    setJoinDigits(next);
+    const lastFilled = Math.min(chars.length, CODE_LENGTH - 1);
+    joinInputRefs.current[lastFilled]?.focus();
+  }, []);
 
   const handleSignUp = useCallback(async () => {
     if (!isLoaded || !signUp) return;
@@ -60,6 +108,34 @@ export default function ParentSignUp() {
       });
       if (result.status === 'complete') {
         await setActive({ session: result.createdSessionId });
+
+        // If the user supplied a family join code, attempt to join the
+        // household before routing. Failures show inline so the user can
+        // either fix the code or proceed without joining.
+        const trimmedJoinCode = joinCode.trim();
+        if (showJoinCode && trimmedJoinCode.length === CODE_LENGTH) {
+          try {
+            const client = parentApi.clientFor(() => getToken());
+            await client.joinHousehold(trimmedJoinCode);
+          } catch (joinErr: unknown) {
+            if (
+              joinErr instanceof ApiError &&
+              (joinErr.status === 401 || joinErr.status === 404 || joinErr.status === 410)
+            ) {
+              setError(t('parent.household.joinFlow.errorInvalid'));
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              return;
+            }
+            if (joinErr instanceof ApiError && joinErr.status === 409) {
+              setError(t('parent.household.joinFlow.errorAlreadyJoined'));
+              await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+              return;
+            }
+            setError(t('common.error'));
+            await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            return;
+          }
+        }
         router.replace('/(parent)/(tabs)/kids');
       }
     } catch (err: unknown) {
@@ -69,7 +145,7 @@ export default function ParentSignUp() {
     } finally {
       setLoading(false);
     }
-  }, [isLoaded, signUp, setActive, verificationCode, router]);
+  }, [isLoaded, signUp, setActive, verificationCode, router, joinCode, showJoinCode, getToken]);
 
   const s = theme.surface;
   const tx = theme.text;
@@ -149,6 +225,63 @@ export default function ParentSignUp() {
                   accessibilityLabel={t('auth.parent.password')}
                 />
               </View>
+
+              {showJoinCode ? (
+                <View style={styles.field}>
+                  <Text style={[styles.label, { color: tx.secondary }]}>
+                    {t('parent.household.joinFlow.codeInputLabel')}
+                  </Text>
+                  <View style={styles.codeRow}>
+                    {joinDigits.map((digit, i) => (
+                      <TextInput
+                        key={i}
+                        ref={(ref) => {
+                          joinInputRefs.current[i] = ref;
+                        }}
+                        value={digit}
+                        onChangeText={(v) => {
+                          if (v.length > 1) {
+                            handleJoinPaste(v);
+                          } else {
+                            handleJoinDigit(i, v);
+                          }
+                        }}
+                        onKeyPress={({ nativeEvent }) =>
+                          handleJoinKeyPress(i, nativeEvent.key)
+                        }
+                        keyboardType="number-pad"
+                        maxLength={6}
+                        selectTextOnFocus
+                        style={[
+                          styles.digitBox,
+                          {
+                            backgroundColor: s.card,
+                            borderColor: digit
+                              ? theme.colors.gold[500]
+                              : s.border,
+                            color: tx.primary,
+                            fontFamily: fonts.display,
+                          },
+                        ]}
+                        accessibilityLabel={`Familiekode siffer ${i + 1}`}
+                      />
+                    ))}
+                  </View>
+                </View>
+              ) : (
+                <TouchableOpacity
+                  onPress={() => setShowJoinCode(true)}
+                  accessibilityRole="link"
+                  accessibilityLabel={t('parent.household.joinFlow.linkLabel')}
+                  style={styles.joinLinkRow}
+                >
+                  <Text
+                    style={[styles.joinLink, { color: theme.colors.gold[700] }]}
+                  >
+                    {t('parent.household.joinFlow.linkLabel')}
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <Button
                 label={loading ? t('common.loading') : t('auth.parent.signUp')}
@@ -243,4 +376,23 @@ const styles = StyleSheet.create({
   },
   footerText: { fontSize: 14 },
   link: { fontSize: 14, fontWeight: '600' },
+  codeRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  digitBox: {
+    flex: 1,
+    height: 56,
+    borderRadius: 12,
+    borderWidth: 2,
+    textAlign: 'center',
+    fontSize: 24,
+  },
+  joinLinkRow: { paddingVertical: 4 },
+  joinLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
 });

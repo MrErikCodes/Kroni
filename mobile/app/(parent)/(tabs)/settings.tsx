@@ -18,8 +18,8 @@ import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
 import { Card } from '../../../components/ui/Card';
-import { Badge } from '../../../components/ui/Badge';
 import { KroniText } from '../../../components/ui/Text';
+import { HouseholdSection } from '../../../components/household/HouseholdSection';
 import Constants from 'expo-constants';
 
 const version: string =
@@ -86,6 +86,12 @@ export default function SettingsTab() {
     retry: false,
   });
 
+  const { data: me } = useQuery({
+    queryKey: ['parent', 'me'],
+    queryFn: () => api.getMe(),
+    retry: false,
+  });
+
   const tierLabel: Record<string, string> = {
     free: t('parent.settings.subscriptionTier.free'),
     family: t('parent.settings.subscriptionTier.family'),
@@ -130,6 +136,9 @@ export default function SettingsTab() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Household — members + invite a co-parent */}
+        <HouseholdSection api={api} currentParentId={me?.id ?? null} />
+
         {/* Account */}
         <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
           {t('parent.settings.account')}
