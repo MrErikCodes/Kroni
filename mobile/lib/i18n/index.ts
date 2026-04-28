@@ -14,15 +14,19 @@ const i18n = new I18n({
   en,
 });
 
-// Detect device locale — default to 'nb' for Scandinavian locales, 'en' otherwise
+// Kroni is a Norwegian-first product. Default to Bokmål and only fall back to
+// the device locale when it is one of the explicitly-supported Scandinavian
+// languages. English serves as a last-resort fallback for non-Scandinavian
+// devices, but until proper sv/da translations land, nb is the safer default.
 function detectLocale(): string {
   const locales = getLocales();
   const deviceLocale = locales[0]?.languageCode ?? 'nb';
 
-  if (deviceLocale === 'nb' || deviceLocale === 'no') return 'nb';
   if (deviceLocale === 'sv') return 'sv';
   if (deviceLocale === 'da') return 'da';
-  return 'en';
+  if (deviceLocale === 'en') return 'en';
+  // Default — Norwegian Bokmål, including 'nb', 'no', or anything unmapped.
+  return 'nb';
 }
 
 i18n.locale = detectLocale();
