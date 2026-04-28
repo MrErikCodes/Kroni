@@ -1,0 +1,48 @@
+# Kroni Caddy 2 reverse-proxy config — place at /etc/caddy/Caddyfile on the server.
+# Caddy auto-provisions Let's Encrypt certs for each hostname.
+
+api.kroni.no {
+    reverse_proxy localhost:3000
+    encode gzip zstd
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "no-referrer"
+        Permissions-Policy "geolocation=(), camera=(), microphone=()"
+    }
+
+    # Cap upload size (no file uploads in v1, but defend in depth).
+    request_body {
+        max_size 1MB
+    }
+
+    log {
+        output file /var/log/caddy/api.kroni.no.log {
+            roll_size 50mb
+            roll_keep 14
+        }
+    }
+}
+
+kroni.no, www.kroni.no {
+    @www host www.kroni.no
+    redir @www https://kroni.no{uri} permanent
+
+    reverse_proxy localhost:3001
+    encode gzip zstd
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    log {
+        output file /var/log/caddy/kroni.no.log {
+            roll_size 50mb
+            roll_keep 14
+        }
+    }
+}
