@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
-import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo';
 import { nbNO } from '@clerk/localizations';
 import { tokenCache } from '../lib/clerkTokenCache';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -25,6 +25,15 @@ import {
 } from '@expo-google-fonts/inter';
 import { registerNavigate } from '../lib/api';
 import { subscribeLocale } from '../lib/i18n';
+import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
+import { ensureInstallId } from '../lib/installInfo';
+import { getKidToken } from '../lib/auth';
+import { kidApi } from '../lib/api';
+
+// Initialize Sentry at module load — before any React tree mounts — so
+// errors during component setup are captured. No-op if SENTRY_DSN isn't
+// set (Expo Go without phase env, etc.).
+initSentry();
 // RevenueCat is parent-only; configured lazily inside the identity bridge
 // once a Clerk session appears.
 import {
@@ -83,6 +92,51 @@ function NavigationRegistrar() {
  * starts with a fresh anonymous id and doesn't inherit the previous
  * parent's entitlements.
  */
+/**
+ * Tags the Sentry scope with the current user identity so events join to
+ * the same `app_role` / `parent_id` / `kid_id` we stamp server-side. Also
+ * refreshes the install tag once the async install id resolves.
+ */
+function SentryIdentityBridge() {
+  const { userId: clerkUserId, isLoaded } = useAuth();
+  const { user } = useUser();
+
+  // Resolve the install id once at startup, then re-tag.
+  useEffect(() => {
+    void ensureInstallId().then(refreshSentryInstallTag);
+  }, []);
+
+  // Parent identity follows Clerk: tag on sign-in, clear on sign-out.
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (clerkUserId) {
+      tagSentryUser({
+        role: 'parent',
+        userId: clerkUserId,
+        email: user?.primaryEmailAddress?.emailAddress ?? null,
+      });
+    } else {
+      // No Clerk session — fall through to kid-token check below.
+      void (async () => {
+        const kidToken = await getKidToken();
+        if (kidToken) {
+          try {
+            const me = await kidApi.getMe();
+            tagSentryUser({ role: 'kid', userId: me.id });
+            return;
+          } catch {
+            // Token expired / network — skip silently; events will still
+            // carry install + version, just no user id.
+          }
+        }
+        tagSentryUser(null);
+      })();
+    }
+  }, [clerkUserId, isLoaded, user?.primaryEmailAddress?.emailAddress]);
+
+  return null;
+}
+
 function RevenueCatIdentityBridge() {
   const { userId, isLoaded } = useAuth();
   const lastUserIdRef = useRef<string | null>(null);
@@ -152,6 +206,7 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationRegistrar />
+          <SentryIdentityBridge />
           <RevenueCatIdentityBridge />
           <Stack key={localeKey} screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>

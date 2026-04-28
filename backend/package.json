@@ -8,6 +8,7 @@
     "dev": "phase run \"tsx watch src/server.ts\"",
     "dev:jobs": "phase run \"tsx watch src/jobs/runner.ts\"",
     "build": "phase run tsc",
+    "release:sentry": "phase run \"node scripts/sentry-release.mjs\"",
     "start": "phase run \"node --enable-source-maps dist/server.js\"",
     "start:jobs": "phase run \"node --enable-source-maps dist/jobs/runner.js\"",
     "db:generate": "drizzle-kit generate",
@@ -41,6 +42,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@sentry/cli": "^2.55.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.0",
     "dotenv": "^16.4.7",

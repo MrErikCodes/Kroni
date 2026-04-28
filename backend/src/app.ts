@@ -10,6 +10,7 @@ import {
 import { getConfig } from './config.js';
 import { logger } from './lib/logger.js';
 import { errorHandler } from './plugins/error-handler.js';
+import { attachSentryToFastify } from './lib/sentry.js';
 import { rateLimitPlugin } from './plugins/rate-limit.js';
 import { authClerkPlugin } from './plugins/auth-clerk.js';
 import { authKidPlugin } from './plugins/auth-kid.js';
@@ -22,8 +23,10 @@ import { parentTasksRoutes } from './routes/parent/tasks.js';
 import { parentRewardsRoutes } from './routes/parent/rewards.js';
 import { parentApprovalsRoutes } from './routes/parent/approvals.js';
 import { parentBalanceRoutes } from './routes/parent/balance.js';
+import { parentBillingRoutes } from './routes/parent/billing.js';
 import { parentHouseholdRoutes } from './routes/parent/household.js';
 import { clerkWebhookRoutes } from './routes/webhooks/clerk.js';
+import { revenuecatWebhookRoutes } from './routes/webhooks/revenuecat.js';
 import { kidMeRoutes } from './routes/kid/me.js';
 import { kidTodayRoutes } from './routes/kid/today.js';
 import { kidTasksRoutes } from './routes/kid/tasks.js';
@@ -69,6 +72,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(healthRoutes);
   await app.register(publicPairRoutes);
   await app.register(clerkWebhookRoutes);
+  await app.register(revenuecatWebhookRoutes);
 
   await app.register(parentPairingRoutes);
   await app.register(parentMeRoutes);
@@ -77,6 +81,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(parentRewardsRoutes);
   await app.register(parentApprovalsRoutes);
   await app.register(parentBalanceRoutes);
+  await app.register(parentBillingRoutes);
   await app.register(parentHouseholdRoutes);
 
   await app.register(kidMeRoutes);
@@ -85,6 +90,10 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(kidBalanceRoutes);
   await app.register(kidDeviceRoutes);
   await app.register(kidRewardsRoutes);
+
+  // Sentry's Fastify error handler hooks `onError` so we register it after
+  // routes are wired. Becomes a no-op when SENTRY_DSN is unset.
+  attachSentryToFastify(app);
 
   return app;
 }

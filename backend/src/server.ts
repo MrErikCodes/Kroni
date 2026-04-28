@@ -1,3 +1,7 @@
+import { initSentry } from './lib/sentry.js';
+// Initialize Sentry first so anything that throws at boot is captured.
+initSentry();
+
 import { buildApp } from './app.js';
 import { getConfig } from './config.js';
 import { logger } from './lib/logger.js';

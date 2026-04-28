@@ -43,6 +43,23 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     'expo-notifications',
     'expo-localization',
+    // Sentry config plugin: at EAS build time it (a) bundles the SDK
+    // native module with the app and (b) uploads the JS bundle's source
+    // maps to Sentry under a release named `${version}+${buildNumber}`,
+    // matching what `Sentry.init` reports at runtime. Requires the
+    // SENTRY_AUTH_TOKEN / SENTRY_ORG / SENTRY_PROJECT env vars on the
+    // build machine — see README/Sentry runbook.
+    [
+      '@sentry/react-native/expo',
+      {
+        // Self-hosted Sentry at sentry.mkapi.no. Org/project slugs are
+        // fixed to the project under that instance; env vars override
+        // for ad-hoc builds against a different sentry instance.
+        organization: process.env.SENTRY_ORG ?? 'kroni',
+        project: process.env.SENTRY_PROJECT ?? 'kroni-mobile',
+        url: process.env.SENTRY_URL ?? 'https://sentry.mkapi.no/',
+      },
+    ],
   ],
   experiments: {
     typedRoutes: true,
@@ -55,6 +72,11 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     },
     apiUrl: process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000',
     clerkPublishableKey: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY ?? '',
+    // Phase injects SENTRY_DSN; we accept either spelling so the env var
+    // can be reused as-is across backend and mobile. DSNs are public per
+    // Sentry's threat model — safe to ship in the bundle.
+    sentryDsn:
+      process.env.SENTRY_DSN ?? process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
   },
   owner: 'nilsenkonsult',
 });

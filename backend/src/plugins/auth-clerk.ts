@@ -9,6 +9,7 @@ import { parentInstalls } from '../db/schema/parent-installs.js';
 import { households, type HouseholdRow } from '../db/schema/households.js';
 import { ensureHouseholdForParent } from '../services/household.service.js';
 import { UnauthorizedError } from '../lib/errors.js';
+import { tagSentryScope } from '../lib/sentry.js';
 
 // Trim and clip client-supplied diagnostic headers so a malicious or
 // misbehaving client can't blow up our DB / log lines. Returns null for
@@ -131,6 +132,19 @@ export const authClerkPlugin = fp(async (app: FastifyInstance) => {
       ...(platform ? { platform } : {}),
       ...(appVersion ? { app_version: appVersion } : {}),
       ...(appBuild ? { app_build: appBuild } : {}),
+    });
+
+    // Mirror the same identifiers onto the Sentry isolation scope so any
+    // event captured during this request lands with the same join keys.
+    tagSentryScope(req, {
+      appRole: 'parent',
+      userId: parent.id,
+      email: parent.email,
+      householdId: household.id,
+      installId,
+      appVersion,
+      appBuild,
+      platform,
     });
 
     // Upsert the install row. Fire-and-forget so a slow write never

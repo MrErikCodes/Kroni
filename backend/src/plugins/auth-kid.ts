@@ -5,6 +5,7 @@ import { getDb } from '../db/index.js';
 import { kids, type KidRow } from '../db/schema/kids.js';
 import { kidInstalls } from '../db/schema/kid-installs.js';
 import { UnauthorizedError } from '../lib/errors.js';
+import { tagSentryScope } from '../lib/sentry.js';
 import { verifyKidJwt, shouldRefreshKidJwt, refreshKidJwt, type KidJwtPayload } from '../lib/jwt.js';
 
 function readDiagnosticHeader(value: string | string[] | undefined, max = 200): string | null {
@@ -64,6 +65,16 @@ export const authKidPlugin = fp(async (app: FastifyInstance) => {
       ...(platform ? { platform } : {}),
       ...(appVersion ? { app_version: appVersion } : {}),
       ...(appBuild ? { app_build: appBuild } : {}),
+    });
+
+    tagSentryScope(req, {
+      appRole: 'kid',
+      userId: kid.id,
+      householdId: kid.householdId,
+      installId,
+      appVersion,
+      appBuild,
+      platform,
     });
 
     if (installId) {
