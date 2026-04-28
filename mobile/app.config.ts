@@ -11,10 +11,10 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   newArchEnabled: true,
   ios: {
     supportsTablet: true,
-    bundleIdentifier: 'no.kroni.app',
+    bundleIdentifier: 'no.nilsenkonsult.kroni',
   },
   android: {
-    package: 'no.kroni.app',
+    package: 'no.nilsenkonsult.kroni',
     adaptiveIcon: {
       backgroundColor: '#FBFAF6',
       foregroundImage: './assets/images/android-icon-foreground.png',
