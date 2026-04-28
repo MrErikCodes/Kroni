@@ -1,0 +1,63 @@
+# Kroni — outstanding work
+
+A running list of what's not done, what needs testing, and what's parked. Group by surface.
+
+## Blockers before private beta
+
+- [ ] **Production RevenueCat keys** — currently `test_…`. Replace `EXPO_PUBLIC_RC_IOS_KEY` and `EXPO_PUBLIC_RC_ANDROID_KEY` in Phase + EAS once the App Store / Play subscriptions are live.
+- [ ] **Production API URL** — `EXPO_PUBLIC_API_URL` is the ngrok dev tunnel. Swap to `https://api.kroni.no` (or wherever prod lands) before any TestFlight build.
+- [ ] **Clerk production keys** — Clerk publishable + secret are `*_test_*`. Generate live keys, update Phase + EAS.
+- [ ] **Sentry source-map upload smoke test** — run `npm run release:sentry` once after a real build to confirm a release lands in `sentry.mkapi.no` with symbolicated stacks. Trigger one error on each side and verify the unminified frame.
+- [ ] **RevenueCat dashboard config** — see `revenuecat.md`. Until the entitlement / offering / products / webhook are wired, paying paths just no-op.
+- [ ] **App Store Connect** — products `kroni_family_monthly`, `kroni_family_yearly`, `kroni_lifetime` (non-consumable). 7-day intro trial on the recurring subs. Localized names per `appstore.md`.
+- [ ] **Google Play Console** — same product IDs. Subscription offers configured with 7-day trial eligibility = "New customers".
+
+## RevenueCat / billing — still untested end-to-end
+
+- [ ] Sandbox monthly purchase → webhook → `households.subscription_tier = 'family'` + correct `subscription_expires_at`.
+- [ ] Sandbox yearly purchase → same, with year-out expiration.
+- [ ] Sandbox lifetime purchase → `households.lifetime_paid = true`, no expiry.
+- [ ] Cancellation in App Store → `EXPIRATION` event fires when the period ends → tier flips back to free.
+- [ ] Lifetime owner does NOT lose access if a stale `EXPIRATION` for a previous sub fires (`isHouseholdPaid` should still return true). Verified in code; needs live test.
+- [ ] Restore purchases on a fresh install — re-runs the bridge, RC re-fires events, household re-grants entitlement.
+- [ ] Co-parent inheritance — second parent in the household sees `isHouseholdPaid = true` and bypasses kid/task limits.
+- [ ] Trial expiration without cancellation → automatic renewal → grants stay continuous.
+- [ ] Trial cancellation 24h before end → expiration fires at trial end → tier flips to free.
+
+## Sentry / observability
+
+- [ ] **Connect Sentry to GitHub** so `sentry-cli releases set-commits --auto` actually populates suspect-commit data.
+- [ ] **Source maps** — verify both backend and mobile traces are unminified after a build that runs `release:sentry`.
+- [ ] **PII review** — currently we set `email` on the parent Sentry user. If that's too much, drop it from `tagSentryUser` and `tagSentryScope`.
+- [ ] **Performance tracing volume** — backend defaults to 0.1, mobile to 0.2 (1.0 in dev). Tune once we see the actual event volume.
+- [ ] **Sentry alerts** — add a rule for "any unhandled error in production" + Telegram/Slack channel.
+
+## Mobile app
+
+- [ ] **Subscription detail trial banner** — currently inferred from "expires in ≤ 7 days" instead of an explicit `period_type: TRIAL` flag. If RevenueCat ships a trial → upgrade flow that hits a 7-day yearly window inadvertently the banner could lie. Plumb `period_type` through the webhook into a household column for precision when it matters.
+- [ ] **Paywall lifetime row** — the i18n strings (`paywall.lifetime` / `lifetimeBadge` / `lifetimeNote`) are added but not yet rendered in `(parent)/paywall.tsx`. RevenueCat's hosted paywall picks up the offering automatically; if/when we replace it with a custom paywall, render those keys.
+- [ ] **Sentry.wrap(RootLayout)** — opt in for auto profiling once we trust the integration.
+- [ ] **Error surfaces** — kid screens that talk to the API should show inline failures, not silently fall through to the generic "common.error". Same audit done for the rewards modal; tasks/balance still rely on react-query default behavior.
+- [ ] **Norwegian copy review** — every i18n string is currently AI-generated. Native speaker pass before launch (look for `// [REVIEW] Norwegian copy` file headers).
+
+## Backend
+
+- [ ] **Owner-only invite enforcement (server-side)** — UI hides the invite button for co-parents, but `POST /api/parent/household/invites` doesn't reject non-owners. Add a check in the route.
+- [ ] **`/api/parent/billing/verify-receipt`** — referenced in `mobile/lib/api.ts` but no backend route exists. Either remove the client method (RC webhook is authoritative) or add a server-side receipt re-check endpoint for support flows.
+- [ ] **Pairing tests** — backend test suite passes locally on the live DB. Wire a fresh test DB so they run in CI.
+- [ ] **`drizzle-kit generate` (no `--custom`)** — the legacy hand-written migrations 0002–0004 never produced snapshots, so auto-diff prompts about every column on every new run. Until we rebuild the snapshot baseline (introspect → seed → regen), `--custom` is the only flow that works in this terminal. Documented in `revenuecat.md`.
+- [ ] **`background-jobs/runner.ts`** is started separately (`npm run start:jobs`); make sure prod has it as its own service / container.
+- [ ] **Webhook signing** — RevenueCat webhook uses a shared bearer token (`REVENUECAT_WEBHOOK_AUTH`). Consider switching to an HMAC of the body once RC supports it self-hosted, or whitelist their source IPs at the load balancer.
+
+## Web (kroni.no) — out of scope this session
+
+- [ ] Update marketing-site pricing to mention "from 49 kr/mo, 399 kr/yr, 1200 kr lifetime, 7 days free".
+- [ ] Privacy + Terms updates: lifetime purchase terms, Sentry crash reporting disclosure.
+
+## Nice-to-have
+
+- [ ] Localized day names in the kid task-detail sheet for languages beyond nb (`formatRecurrence` hard-codes Norwegian `og`).
+- [ ] Reset password flow on the parent app (currently Clerk handles via email, but no UI link).
+- [ ] Avatar tweaking after pairing (kid can't currently change their avatar from the kid app).
+- [ ] Per-kid pairing-code regeneration UI on the kid detail screen (today the parent has to delete + re-add the kid).
+- [ ] `sentry-expo` source-map upload for OTA updates — only matters once we use EAS Update.
