@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useSignIn } from '@clerk/clerk-expo';
+import { useAuth, useSignIn } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
@@ -23,6 +23,17 @@ export default function ParentSignIn() {
   const theme = useTheme();
   const router = useRouter();
   const { signIn, setActive, isLoaded } = useSignIn();
+  const { isSignedIn, isLoaded: authLoaded } = useAuth();
+
+  // Already-signed-in guard. Without this Clerk throws 'You're already
+  // signed in' when the user lands on the sign-in screen with a live
+  // session (e.g. opens the app after a previous sign-in survived in
+  // the secure-store token cache).
+  useEffect(() => {
+    if (authLoaded && isSignedIn) {
+      router.replace('/(parent)/(tabs)/kids');
+    }
+  }, [authLoaded, isSignedIn, router]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

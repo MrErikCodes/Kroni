@@ -590,14 +590,16 @@ function AllowanceModal({
   const tx = theme.text;
   const api = useParentApi();
   const [frequency, setFrequency] = useState<AllowanceFrequency>(kid.allowanceFrequency);
-  const [amount, setAmount] = useState(String(Math.round(kid.allowanceCents / 100)));
+  const [amount, setAmount] = useState(
+    String(Math.round((kid.allowanceCents ?? 0) / 100)),
+  );
   const [dayOfWeek, setDayOfWeek] = useState<number | null>(kid.allowanceDayOfWeek);
   const [dayOfMonth, setDayOfMonth] = useState<number | null>(kid.allowanceDayOfMonth);
   const [error, setError] = useState<string | null>(null);
 
   const reset = useCallback(() => {
     setFrequency(kid.allowanceFrequency);
-    setAmount(String(Math.round(kid.allowanceCents / 100)));
+    setAmount(String(Math.round((kid.allowanceCents ?? 0) / 100)));
     setDayOfWeek(kid.allowanceDayOfWeek);
     setDayOfMonth(kid.allowanceDayOfMonth);
     setError(null);
