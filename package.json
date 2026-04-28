@@ -25,11 +25,7 @@
   },
   "devDependencies": {
     "tailwindcss": "^4.2.4",
-    "@tailwindcss/postcss": "^4.2.4"
-  },
-  "overrides": {
-    "nativewind": {
-      "tailwindcss": "^3.4.19"
-    }
+    "@tailwindcss/postcss": "^4.2.4",
+    "react-native-css-interop": "0.2.3"
   }
 }
