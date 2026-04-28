@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -26,6 +25,7 @@ import { useParentApi } from '../../lib/useParentApi';
 import { t } from '../../lib/i18n';
 import { EmptyState } from '../../components/ui/EmptyState';
 import { Spinner } from '../../components/ui/Spinner';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import type { PendingApprovalItem } from '../../lib/api';
 
 const formatNok = (ore: number) =>
@@ -200,20 +200,17 @@ export default function ApprovalsScreen() {
     approveMutation.mutate(completionId);
   }, [approveMutation]);
 
+  const [pendingRejectId, setPendingRejectId] = useState<string | null>(null);
   const handleReject = useCallback((completionId: string) => {
-    Alert.alert(
-      t('parent.approvals.reject'),
-      t('parent.approvals.confirmReject', { title: approvals?.find((a) => a.completionId === completionId)?.title ?? '' }),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('parent.approvals.reject'),
-          style: 'destructive',
-          onPress: () => rejectMutation.mutate(completionId),
-        },
-      ],
-    );
-  }, [approvals, rejectMutation]);
+    setPendingRejectId(completionId);
+  }, []);
+  const confirmReject = useCallback(() => {
+    if (!pendingRejectId) return;
+    rejectMutation.mutate(pendingRejectId);
+    setPendingRejectId(null);
+  }, [pendingRejectId, rejectMutation]);
+  const pendingRejectTitle =
+    approvals?.find((a) => a.completionId === pendingRejectId)?.title ?? '';
 
   const visibleApprovals = (approvals ?? []).filter(
     (a) => !removedIds.has(a.completionId),
@@ -282,6 +279,16 @@ export default function ApprovalsScreen() {
           }
         />
       )}
+
+      <ConfirmDialog
+        visible={pendingRejectId !== null}
+        title={t('parent.approvals.reject')}
+        message={t('parent.approvals.confirmReject', { title: pendingRejectTitle })}
+        confirmLabel={t('parent.approvals.reject')}
+        destructive
+        onConfirm={confirmReject}
+        onCancel={() => setPendingRejectId(null)}
+      />
     </SafeAreaView>
   );
 }

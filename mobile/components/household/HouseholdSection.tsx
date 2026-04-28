@@ -5,7 +5,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   Linking,
 } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -21,6 +20,7 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Modal } from '../ui/Modal';
 import { Spinner } from '../ui/Spinner';
+import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { ApiError, clientFor } from '../../lib/api';
 
 type ParentApi = ReturnType<typeof clientFor>;
@@ -530,26 +530,17 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
     },
   });
 
+  const [pendingRevokeCode, setPendingRevokeCode] = useState<string | null>(null);
   const handleRevoke = useCallback(
-    (code: string) => {
-      Alert.alert(
-        t('parent.household.invitesList.revokeAction'),
-        t('parent.household.invitesList.revokeConfirm', { code }),
-        [
-          { text: t('common.cancel'), style: 'cancel' },
-          {
-            text: t('parent.household.invitesList.revokeAction'),
-            style: 'destructive',
-            onPress: () => {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              revokeMutation.mutate(code);
-            },
-          },
-        ],
-      );
-    },
-    [revokeMutation],
+    (code: string) => setPendingRevokeCode(code),
+    [],
   );
+  const confirmRevoke = useCallback(() => {
+    if (!pendingRevokeCode) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    revokeMutation.mutate(pendingRevokeCode);
+    setPendingRevokeCode(null);
+  }, [pendingRevokeCode, revokeMutation]);
 
   const members = householdQuery.data?.members ?? [];
   const premiumOwnerId = householdQuery.data?.household.premiumOwnerParentId ?? null;
@@ -627,6 +618,20 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
         visible={inviteModalVisible}
         onClose={() => setInviteModalVisible(false)}
         api={api}
+      />
+
+      <ConfirmDialog
+        visible={pendingRevokeCode !== null}
+        title={t('parent.household.invitesList.revokeAction')}
+        message={
+          pendingRevokeCode
+            ? t('parent.household.invitesList.revokeConfirm', { code: pendingRevokeCode })
+            : ''
+        }
+        confirmLabel={t('parent.household.invitesList.revokeAction')}
+        destructive
+        onConfirm={confirmRevoke}
+        onCancel={() => setPendingRevokeCode(null)}
       />
     </View>
   );

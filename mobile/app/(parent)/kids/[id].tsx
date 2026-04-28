@@ -6,7 +6,6 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -28,6 +27,7 @@ import { Spinner } from '../../../components/ui/Spinner';
 import { BalanceText } from '../../../components/ui/BalanceText';
 import { KroniText } from '../../../components/ui/Text';
 import { Modal } from '../../../components/ui/Modal';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Label } from '../../../components/ui/Label';
 
@@ -118,23 +118,13 @@ export default function KidDetail() {
     },
   });
 
-  const handleDelete = useCallback(() => {
-    Alert.alert(
-      t('common.delete'),
-      t('parent.kidDetail.deleteConfirm', { name: kid?.name ?? '' }),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('common.delete'),
-          style: 'destructive',
-          onPress: () => {
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-            deleteMutation.mutate();
-          },
-        },
-      ],
-    );
-  }, [kid, deleteMutation]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const handleDelete = useCallback(() => setDeleteOpen(true), []);
+  const confirmDelete = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    deleteMutation.mutate();
+    setDeleteOpen(false);
+  }, [deleteMutation]);
 
   const handlePairingCode = useCallback(() => {
     router.push('/(parent)/pairing-code');
@@ -309,6 +299,16 @@ export default function KidDetail() {
           />
         </>
       ) : null}
+
+      <ConfirmDialog
+        visible={deleteOpen}
+        title={t('common.delete')}
+        message={t('parent.kidDetail.deleteConfirm', { name: kid?.name ?? '' })}
+        confirmLabel={t('common.delete')}
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </SafeAreaView>
   );
 }

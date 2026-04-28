@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -26,6 +25,7 @@ import { Input } from '../../../components/ui/Input';
 import { Button } from '../../../components/ui/Button';
 import { Label } from '../../../components/ui/Label';
 import { Spinner } from '../../../components/ui/Spinner';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 
 type FormValues = z.infer<typeof UpdateRewardSchema>;
 
@@ -77,18 +77,12 @@ export default function RewardDetail() {
     [handleSubmit, updateMutation],
   );
 
-  const handleDelete = useCallback(() => {
-    Alert.alert(t('parent.rewardDetail.delete'), t('parent.rewardDetail.deleteConfirm'), [
-      { text: t('common.cancel'), style: 'cancel' },
-      {
-        text: t('common.delete'),
-        style: 'destructive',
-        onPress: () => {
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          deleteMutation.mutate();
-        },
-      },
-    ]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const handleDelete = useCallback(() => setDeleteOpen(true), []);
+  const confirmDelete = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    deleteMutation.mutate();
+    setDeleteOpen(false);
   }, [deleteMutation]);
 
   return (
@@ -188,6 +182,16 @@ export default function RewardDetail() {
           </ScrollView>
         )}
       </KeyboardAvoidingView>
+
+      <ConfirmDialog
+        visible={deleteOpen}
+        title={t('parent.rewardDetail.delete')}
+        message={t('parent.rewardDetail.deleteConfirm')}
+        confirmLabel={t('common.delete')}
+        destructive
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteOpen(false)}
+      />
     </SafeAreaView>
   );
 }

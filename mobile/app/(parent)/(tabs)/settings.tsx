@@ -1,12 +1,11 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -33,6 +32,7 @@ import { useParentApi } from '../../../lib/useParentApi';
 import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../../lib/i18n';
 import { Card } from '../../../components/ui/Card';
 import { KroniText } from '../../../components/ui/Text';
+import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { HouseholdSection } from '../../../components/household/HouseholdSection';
 import Constants from 'expo-constants';
 
@@ -126,23 +126,13 @@ export default function SettingsTab() {
     premium: t('parent.settings.subscriptionTier.premium'),
   };
 
-  const handleSignOut = useCallback(() => {
-    Alert.alert(
-      t('parent.settings.signOut'),
-      t('parent.settings.signOutConfirm'),
-      [
-        { text: t('common.cancel'), style: 'cancel' },
-        {
-          text: t('parent.settings.signOut'),
-          style: 'destructive',
-          onPress: async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            await signOut();
-            router.replace('/');
-          },
-        },
-      ],
-    );
+  const [signOutVisible, setSignOutVisible] = useState(false);
+  const handleSignOut = useCallback(() => setSignOutVisible(true), []);
+  const confirmSignOut = useCallback(async () => {
+    setSignOutVisible(false);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    await signOut();
+    router.replace('/');
   }, [signOut, router]);
 
   return (
@@ -297,6 +287,16 @@ export default function SettingsTab() {
           />
         </Card>
       </ScrollView>
+
+      <ConfirmDialog
+        visible={signOutVisible}
+        title={t('parent.settings.signOut')}
+        message={t('parent.settings.signOutConfirm')}
+        confirmLabel={t('parent.settings.signOut')}
+        destructive
+        onConfirm={confirmSignOut}
+        onCancel={() => setSignOutVisible(false)}
+      />
     </SafeAreaView>
   );
 }
