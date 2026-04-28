@@ -14,6 +14,20 @@ import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useQuery } from '@tanstack/react-query';
 import { LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import * as WebBrowser from 'expo-web-browser';
+
+const WEB_LINKS = {
+  privacy: 'https://kroni.no/personvern',
+  terms: 'https://kroni.no/vilkar',
+  support: 'https://kroni.no/support',
+} as const;
+
+function openLink(key: keyof typeof WEB_LINKS): void {
+  void WebBrowser.openBrowserAsync(WEB_LINKS[key], {
+    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+    controlsColor: '#F5B015',
+  });
+}
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
@@ -188,19 +202,19 @@ export default function SettingsTab() {
           <SettingsRow
             icon={<Shield size={18} color={tx.secondary} strokeWidth={2} />}
             label={t('parent.settings.privacy')}
-            onPress={() => { /* [REVIEW] link to kroni.no/personvern */ }}
+            onPress={() => openLink('privacy')}
           />
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
             icon={<FileText size={18} color={tx.secondary} strokeWidth={2} />}
             label={t('parent.settings.terms')}
-            onPress={() => { /* [REVIEW] link to kroni.no/vilkar */ }}
+            onPress={() => openLink('terms')}
           />
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
             icon={<HelpCircle size={18} color={tx.secondary} strokeWidth={2} />}
             label={t('parent.settings.support')}
-            onPress={() => { /* [REVIEW] link to kroni.no/support */ }}
+            onPress={() => openLink('support')}
           />
           <View style={[styles.divider, { backgroundColor: s.border }]} />
           <SettingsRow
