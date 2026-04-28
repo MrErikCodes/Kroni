@@ -52,11 +52,20 @@ export default function PairingCode() {
   const mutation = useMutation({
     mutationFn: () => api.generatePairingCode(),
     onSuccess: (data) => {
-      console.log('[pairing-code] response', data);
       setCode(data.code);
-      const exp = new Date(data.expiresAt);
+      // Clock-skew safe: anchor the countdown on the device clock at the
+      // moment we received the response, capped at the known TTL. The
+      // server's expiresAt is the wall-clock truth at the API boundary,
+      // but a small drift between emulator/device and server can push the
+      // diff past 15 min or below it. Computing from the local 'now' keeps
+      // the user-facing timer honest.
+      const expFromServer = new Date(data.expiresAt);
+      const localExp = new Date(Date.now() + EXPIRY_SECONDS * 1000);
+      // If the server thinks the code expires sooner than our cap (e.g.
+      // because the request took more than a second), respect that.
+      const exp =
+        expFromServer.getTime() < localExp.getTime() ? expFromServer : localExp;
       const diff = Math.max(0, Math.floor((exp.getTime() - Date.now()) / 1000));
-      console.log('[pairing-code] expSec', diff, 'expires', exp.toISOString(), 'now', new Date().toISOString());
       setExpiresAt(exp);
       setSecondsLeft(diff);
     },
