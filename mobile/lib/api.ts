@@ -103,11 +103,18 @@ async function fetchWithAuth(
   token: string,
   init: RequestInit = {},
 ): Promise<Response> {
+  // Only declare Content-Type when we are actually sending a body. Fastify
+  // rejects POSTs with 'application/json' + empty body as
+  // "Body cannot be empty when content-type is set to 'application/json'".
+  const hasBody = init.body !== undefined && init.body !== null;
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${token}`,
+  };
+  if (hasBody) headers['Content-Type'] = 'application/json';
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      ...headers,
       ...(init.headers ?? {}),
     },
   });
