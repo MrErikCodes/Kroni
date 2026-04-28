@@ -52,11 +52,16 @@ export default function PairingCode() {
   const mutation = useMutation({
     mutationFn: () => api.generatePairingCode(),
     onSuccess: (data) => {
+      console.log('[pairing-code] response', data);
       setCode(data.code);
       const exp = new Date(data.expiresAt);
-      setExpiresAt(exp);
       const diff = Math.max(0, Math.floor((exp.getTime() - Date.now()) / 1000));
+      console.log('[pairing-code] expSec', diff, 'expires', exp.toISOString(), 'now', new Date().toISOString());
+      setExpiresAt(exp);
       setSecondsLeft(diff);
+    },
+    onError: (err) => {
+      console.log('[pairing-code] error', err);
     },
   });
 
