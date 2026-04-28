@@ -1,0 +1,25 @@
+{
+  "name": "kroni",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "mobile",
+    "website",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "dev:mobile": "npm --workspace=mobile run start",
+    "dev:website": "npm --workspace=website run dev",
+    "dev:backend": "npm --workspace=backend run dev",
+    "build:shared": "npm --workspace=@kroni/shared run build",
+    "build:backend": "npm --workspace=backend run build",
+    "build:website": "npm --workspace=website run build",
+    "lint": "npm --workspaces --if-present run lint",
+    "typecheck": "npm --workspaces --if-present run typecheck",
+    "test": "npm --workspaces --if-present run test"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
