@@ -189,7 +189,7 @@ export default function ParentSignUp() {
               {t('auth.parent.hasAccount')}
             </Text>
             <TouchableOpacity
-              onPress={() => router.back()}
+              onPress={() => router.replace('/auth/parent-sign-in')}
               accessibilityRole="link"
               accessibilityLabel={t('auth.parent.signIn')}
             >
