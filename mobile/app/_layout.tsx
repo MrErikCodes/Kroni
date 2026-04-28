@@ -1,4 +1,3 @@
-import '../global.css';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';

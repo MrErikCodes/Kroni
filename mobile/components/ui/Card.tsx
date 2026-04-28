@@ -13,7 +13,6 @@ interface CardProps extends ViewProps {
   tone?: CardTone;
   /** `lg` — list rows (radius 16). `xl` / `2xl` — hero/celebration cards. */
   radius?: 'lg' | 'xl' | '2xl';
-  className?: string;
 }
 
 export function Card({
@@ -21,7 +20,6 @@ export function Card({
   children,
   tone = 'default',
   radius = 'lg',
-  className,
   ...rest
 }: CardProps) {
   const scheme = useColorScheme() ?? 'light';
@@ -77,7 +75,6 @@ export function Card({
         elevation,
         style,
       ]}
-      className={className}
       {...rest}
     >
       {children}

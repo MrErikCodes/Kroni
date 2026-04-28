@@ -7,11 +7,9 @@ import {
 } from 'react-native';
 import { colors, fonts } from '../../lib/theme';
 
-interface InputProps extends TextInputProps {
-  className?: string;
-}
+type InputProps = TextInputProps;
 
-export function Input({ style, className, onFocus, onBlur, ...rest }: InputProps) {
+export function Input({ style, onFocus, onBlur, ...rest }: InputProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
   const [focused, setFocused] = useState(false);
@@ -49,7 +47,6 @@ export function Input({ style, className, onFocus, onBlur, ...rest }: InputProps
         setFocused(false);
         onBlur?.(e);
       }}
-      className={className}
       {...rest}
     />
   );

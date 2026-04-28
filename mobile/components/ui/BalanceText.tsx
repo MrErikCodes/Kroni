@@ -8,7 +8,6 @@ interface BalanceTextProps extends TextProps {
   large?: boolean;
   /** Locale for formatting — defaults to nb-NO */
   locale?: string;
-  className?: string;
 }
 
 /** Formats integer øre to localized NOK currency string.
@@ -22,7 +21,6 @@ export function BalanceText({
   large = false,
   locale = 'nb-NO',
   style,
-  className,
   ...rest
 }: BalanceTextProps) {
   const scheme = useColorScheme() ?? 'light';
@@ -61,7 +59,6 @@ export function BalanceText({
             },
         style,
       ]}
-      className={className}
       {...rest}
     >
       {formatted}

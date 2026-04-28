@@ -14,7 +14,6 @@ interface EmptyStateProps {
   body?: string;
   ctaLabel?: string;
   onCta?: () => void;
-  className?: string;
 }
 
 export function EmptyState({
@@ -23,13 +22,12 @@ export function EmptyState({
   body,
   ctaLabel,
   onCta,
-  className,
 }: EmptyStateProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
 
   return (
-    <View style={styles.container} className={className}>
+    <View style={styles.container}>
       {Icon ? (
         <View style={[styles.iconWrap, { borderColor: isDark ? '#2A3040' : colors.sand[200] }]}>
           <Icon

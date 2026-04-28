@@ -6,10 +6,9 @@ type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'gold' | 'defaul
 interface BadgeProps {
   label: string;
   variant?: BadgeVariant;
-  className?: string;
 }
 
-export function Badge({ label, variant = 'default', className }: BadgeProps) {
+export function Badge({ label, variant = 'default' }: BadgeProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
 
@@ -57,7 +56,6 @@ export function Badge({ label, variant = 'default', className }: BadgeProps) {
           borderWidth: border ? 1 : 0,
         },
       ]}
-      className={className}
     >
       <Text style={[styles.label, { color: text }]}>{label}</Text>
     </View>

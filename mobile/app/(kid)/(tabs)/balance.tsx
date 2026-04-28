@@ -3,9 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   RefreshControl,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import { Wallet } from 'lucide-react-native';

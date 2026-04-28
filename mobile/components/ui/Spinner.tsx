@@ -12,10 +12,9 @@ import { colors } from '../../lib/theme';
 interface SpinnerProps {
   size?: number;
   color?: string;
-  className?: string;
 }
 
-export function Spinner({ size = 24, color = colors.gold[500], className }: SpinnerProps) {
+export function Spinner({ size = 24, color = colors.gold[500] }: SpinnerProps) {
   const rotation = useSharedValue(0);
 
   useEffect(() => {
@@ -31,7 +30,7 @@ export function Spinner({ size = 24, color = colors.gold[500], className }: Spin
   }));
 
   return (
-    <View style={{ width: size, height: size }} className={className}>
+    <View style={{ width: size, height: size }}>
       <Animated.View style={[StyleSheet.absoluteFill, animStyle]}>
         <View
           style={{

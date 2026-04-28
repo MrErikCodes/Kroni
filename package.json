@@ -17,15 +17,9 @@
     "build:website": "npm --workspace=website run build",
     "lint": "npm --workspaces --if-present run lint",
     "typecheck": "npm --workspaces --if-present run typecheck",
-    "test": "npm --workspaces --if-present run test",
-    "postinstall": "node scripts/postinstall.cjs"
+    "test": "npm --workspaces --if-present run test"
   },
   "engines": {
     "node": ">=22"
-  },
-  "devDependencies": {
-    "tailwindcss": "^4.2.4",
-    "@tailwindcss/postcss": "^4.2.4",
-    "react-native-css-interop": "0.2.3"
   }
 }

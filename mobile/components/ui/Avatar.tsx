@@ -27,10 +27,9 @@ export type AvatarKey = keyof typeof AVATAR_MAP;
 interface AvatarProps {
   avatarKey: AvatarKey | string;
   size?: number;
-  className?: string;
 }
 
-export function Avatar({ avatarKey, size = 48, className }: AvatarProps) {
+export function Avatar({ avatarKey, size = 48 }: AvatarProps) {
   const IconComponent = AVATAR_MAP[avatarKey as AvatarKey] ?? Bot;
   const iconSize = Math.round(size * 0.55);
   const bg = colors.gold[100];
@@ -41,7 +40,6 @@ export function Avatar({ avatarKey, size = 48, className }: AvatarProps) {
         styles.container,
         { width: size, height: size, borderRadius: size / 2, backgroundColor: bg },
       ]}
-      className={className}
     >
       <IconComponent size={iconSize} color={colors.gold[700]} strokeWidth={2} />
     </View>

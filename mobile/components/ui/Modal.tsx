@@ -12,10 +12,9 @@ interface ModalProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  className?: string;
 }
 
-export function Modal({ visible, onClose, children, className }: ModalProps) {
+export function Modal({ visible, onClose, children }: ModalProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
 
@@ -38,7 +37,6 @@ export function Modal({ visible, onClose, children, className }: ModalProps) {
             styles.container,
             { backgroundColor: isDark ? colors.ink[800] : '#FFFFFF' },
           ]}
-          className={className}
         >
           {children}
         </TouchableOpacity>

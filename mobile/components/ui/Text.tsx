@@ -24,7 +24,6 @@ interface KroniTextProps extends TextProps {
   variant?: KroniTextVariant;
   /** Force a tone — defaults to primary for headlines, secondary for captions. */
   tone?: 'primary' | 'secondary' | 'tertiary' | 'inverse' | 'gold' | 'danger';
-  className?: string;
 }
 
 const VARIANT_STYLES: Record<KroniTextVariant, TextStyle> = {
@@ -112,7 +111,6 @@ export function KroniText({
   tone,
   style,
   children,
-  className,
   ...rest
 }: KroniTextProps) {
   const scheme = useColorScheme() ?? 'light';
@@ -147,7 +145,6 @@ export function KroniText({
   return (
     <Text
       style={[VARIANT_STYLES[variant], { color }, style]}
-      className={className}
       {...rest}
     >
       {children}

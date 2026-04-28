@@ -4,12 +4,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   RefreshControl,
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';

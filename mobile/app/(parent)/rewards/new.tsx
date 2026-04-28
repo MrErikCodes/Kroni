@@ -4,12 +4,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useForm, Controller, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

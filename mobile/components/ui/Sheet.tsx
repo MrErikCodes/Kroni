@@ -18,10 +18,9 @@ interface SheetProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  className?: string;
 }
 
-export function Sheet({ visible, onClose, children, className }: SheetProps) {
+export function Sheet({ visible, onClose, children }: SheetProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
   const translateY = useSharedValue(0);
@@ -60,7 +59,6 @@ export function Sheet({ visible, onClose, children, className }: SheetProps) {
             { backgroundColor: isDark ? colors.ink[800] : '#FFFFFF' },
             animStyle,
           ]}
-          className={className}
         >
           <View style={styles.handle} />
           {children}

@@ -17,7 +17,6 @@ interface ProgressRingProps {
   size?: number;
   strokeWidth?: number;
   color?: string;
-  className?: string;
 }
 
 export function ProgressRing({
@@ -25,7 +24,6 @@ export function ProgressRing({
   size = 64,
   strokeWidth = 6,
   color = colors.gold[500],
-  className,
 }: ProgressRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -43,7 +41,7 @@ export function ProgressRing({
   }));
 
   return (
-    <View style={{ width: size, height: size }} className={className}>
+    <View style={{ width: size, height: size }}>
       <Svg width={size} height={size} style={{ transform: [{ rotate: '-90deg' }] }}>
         {/* Track */}
         <Circle

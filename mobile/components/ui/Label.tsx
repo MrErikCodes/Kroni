@@ -2,7 +2,6 @@ import { Text, TextProps, useColorScheme } from 'react-native';
 import { colors, fonts } from '../../lib/theme';
 
 interface LabelProps extends TextProps {
-  className?: string;
   /** When true the label reads as an editorial eyebrow — uppercase, tracked,
    *  sand-500 — to match the website's "EYEBROW · SECTION" pattern. */
   eyebrow?: boolean;
@@ -11,7 +10,6 @@ interface LabelProps extends TextProps {
 export function Label({
   style,
   children,
-  className,
   eyebrow = false,
   ...rest
 }: LabelProps) {
@@ -41,7 +39,6 @@ export function Label({
             },
         style,
       ]}
-      className={className}
       {...rest}
     >
       {children}

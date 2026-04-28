@@ -14,7 +14,6 @@ interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   accessibilityLabel?: string;
-  className?: string;
 }
 
 export function Button({
@@ -25,7 +24,6 @@ export function Button({
   loading = false,
   disabled = false,
   accessibilityLabel,
-  className,
 }: ButtonProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
@@ -94,7 +92,6 @@ export function Button({
           opacity: disabled ? 0.45 : 1,
         },
       ]}
-      className={className}
       activeOpacity={variant === 'ghost' ? 0.6 : 0.85}
     >
       {loading ? (

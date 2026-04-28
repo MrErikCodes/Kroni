@@ -4,9 +4,9 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  SafeAreaView,
   useColorScheme,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { setRolePreference } from '../lib/auth';

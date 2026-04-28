@@ -4,11 +4,11 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   RefreshControl,
   ScrollView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import { Clipboard } from 'react-native';
