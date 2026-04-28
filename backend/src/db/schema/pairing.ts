@@ -2,14 +2,18 @@ import { pgTable, uuid, char, text, timestamp, index, unique } from 'drizzle-orm
 import { sql } from 'drizzle-orm';
 import { parents } from './parents.js';
 import { kids } from './kids.js';
+import { households } from './households.js';
 
 export const pairingCodes = pgTable(
   'pairing_codes',
   {
     code: char({ length: 6 }).primaryKey(),
-    parentId: uuid()
+    // Household scope — any parent in the household can issue / redeem.
+    householdId: uuid()
       .notNull()
-      .references(() => parents.id, { onDelete: 'cascade' }),
+      .references(() => households.id, { onDelete: 'cascade' }),
+    // Creator parent (audit). Nullable on parent delete.
+    parentId: uuid().references(() => parents.id, { onDelete: 'set null' }),
     expiresAt: timestamp({ withTimezone: true }).notNull(),
     usedAt: timestamp({ withTimezone: true }),
     usedByKidId: uuid().references(() => kids.id),

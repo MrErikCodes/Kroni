@@ -12,24 +12,28 @@ const { buildApp } = await import('../app.js');
 const { getDb } = await import('../db/index.js');
 const { getRedis } = await import('../lib/redis.js');
 const { parents } = await import('../db/schema/parents.js');
+const { households } = await import('../db/schema/households.js');
 const { pairingCodes } = await import('../db/schema/pairing.js');
 const { kids } = await import('../db/schema/kids.js');
 const { kidBalances } = await import('../db/schema/balance.js');
 const { signKidJwt, verifyKidJwt } = await import('../lib/jwt.js');
 const { eq } = await import('drizzle-orm');
 
-async function seedParent(): Promise<string> {
+async function seedParent(): Promise<{ parentId: string; householdId: string }> {
   const db = getDb();
+  const h = await db.insert(households).values({}).returning();
+  const householdId = h[0]!.id;
   const inserted = await db
     .insert(parents)
     .values({
       clerkUserId: `user_test_${Math.random().toString(36).slice(2, 10)}`,
       email: `t${Date.now()}@example.com`,
+      householdId,
     })
     .returning();
   const parent = inserted[0];
   assert.ok(parent);
-  return parent.id;
+  return { parentId: parent.id, householdId };
 }
 
 async function clearRedisRateLimits(): Promise<void> {
@@ -47,12 +51,12 @@ test.after(async () => {
 
 test('pairing — generate code as parent, redeem as kid', async () => {
   await clearRedisRateLimits();
-  const parentId = await seedParent();
+  const { parentId, householdId } = await seedParent();
   const db = getDb();
 
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-  await db.insert(pairingCodes).values({ code, parentId, expiresAt });
+  await db.insert(pairingCodes).values({ code, parentId, householdId, expiresAt });
 
   const app = await buildApp();
   try {
@@ -69,6 +73,7 @@ test('pairing — generate code as parent, redeem as kid', async () => {
 
     const kidRows = await db.select().from(kids).where(eq(kids.id, body.kid.id)).limit(1);
     assert.equal(kidRows.length, 1);
+    assert.equal(kidRows[0]?.householdId, householdId);
 
     const balanceRows = await db.select().from(kidBalances).where(eq(kidBalances.kidId, body.kid.id)).limit(1);
     assert.equal(balanceRows.length, 1);
@@ -87,11 +92,11 @@ test('pairing — generate code as parent, redeem as kid', async () => {
 
 test('pairing — expired code is rejected', async () => {
   await clearRedisRateLimits();
-  const parentId = await seedParent();
+  const { parentId, householdId } = await seedParent();
   const db = getDb();
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   const expiresAt = new Date(Date.now() - 60_000); // already expired
-  await db.insert(pairingCodes).values({ code, parentId, expiresAt });
+  await db.insert(pairingCodes).values({ code, parentId, householdId, expiresAt });
 
   const app = await buildApp();
   try {
@@ -108,12 +113,13 @@ test('pairing — expired code is rejected', async () => {
 
 test('pairing — already-used code is rejected', async () => {
   await clearRedisRateLimits();
-  const parentId = await seedParent();
+  const { parentId, householdId } = await seedParent();
   const db = getDb();
   const code = String(100_000 + Math.floor(Math.random() * 900_000));
   await db.insert(pairingCodes).values({
     code,
     parentId,
+    householdId,
     expiresAt: new Date(Date.now() + 15 * 60 * 1000),
     usedAt: new Date(),
   });
@@ -153,11 +159,11 @@ test('pairing — IP rate limit kicks in after 5 attempts', async () => {
 
 test('pairing — kid JWT refresh issues new header when token near expiry', async () => {
   await clearRedisRateLimits();
-  const parentId = await seedParent();
+  const { parentId, householdId } = await seedParent();
   const db = getDb();
   const inserted = await db
     .insert(kids)
-    .values({ parentId, name: 'Refresh' })
+    .values({ parentId, householdId, name: 'Refresh' })
     .returning();
   const kid = inserted[0];
   assert.ok(kid);

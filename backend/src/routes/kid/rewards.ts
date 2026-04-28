@@ -30,7 +30,7 @@ export async function kidRewardsRoutes(app: FastifyInstance): Promise<void> {
         .from(rewards)
         .where(
           and(
-            eq(rewards.parentId, kid.parentId),
+            eq(rewards.householdId, kid.householdId),
             eq(rewards.active, true),
             or(eq(rewards.kidId, kid.id), isNull(rewards.kidId)),
           ),

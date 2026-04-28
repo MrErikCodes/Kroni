@@ -13,8 +13,9 @@ export async function parentPairingRoutes(app: FastifyInstance): Promise<void> {
     },
     async (req) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
-      const result = await createPairingCode(parent.id);
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
+      const result = await createPairingCode(household.id, parent.id);
       return {
         code: result.code,
         expiresAt: result.expiresAt.toISOString(),

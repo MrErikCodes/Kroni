@@ -3,7 +3,8 @@ import { UUID, IsoTimestamp, Cents } from './common.js';
 
 export const RewardSchema = z.object({
   id: UUID,
-  parentId: UUID,
+  // Creator parent (audit). Nullable post-creator-deletion.
+  parentId: UUID.nullable(),
   kidId: UUID.nullable(),
   title: z.string().min(1).max(80),
   icon: z.string().max(40).nullable(),

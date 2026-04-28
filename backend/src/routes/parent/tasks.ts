@@ -12,11 +12,11 @@ import { serializeTask } from './_serializers.js';
 
 const IdParam = z.object({ id: z.string().uuid() });
 
-async function ensureKidBelongsToParent(parentId: string, kidId: string): Promise<void> {
+async function ensureKidInHousehold(householdId: string, kidId: string): Promise<void> {
   const rows = await getDb()
     .select({ id: kids.id })
     .from(kids)
-    .where(and(eq(kids.id, kidId), eq(kids.parentId, parentId)))
+    .where(and(eq(kids.id, kidId), eq(kids.householdId, householdId)))
     .limit(1);
   if (rows.length === 0) throw new BadRequestError('kid not in this household');
 }
@@ -31,8 +31,9 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
       schema: { response: { 200: z.array(TaskSchema) } },
     },
     async (req) => {
-      if (!req.parent) throw new UnauthorizedError('parent missing');
-      const rows = await getDb().select().from(tasks).where(eq(tasks.parentId, req.parent.id));
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
+      const rows = await getDb().select().from(tasks).where(eq(tasks.householdId, household.id));
       return rows.map(serializeTask);
     },
   );
@@ -45,14 +46,16 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
     },
     async (req, reply) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
-      if (req.body.kidId) await ensureKidBelongsToParent(parent.id, req.body.kidId);
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
+      if (req.body.kidId) await ensureKidInHousehold(household.id, req.body.kidId);
       if (req.body.active !== false) {
-        await assertCanAddActiveTask(parent);
+        await assertCanAddActiveTask(household);
       }
       const inserted = await getDb()
         .insert(tasks)
         .values({
+          householdId: household.id,
           parentId: parent.id,
           kidId: req.body.kidId ?? null,
           title: req.body.title,
@@ -79,21 +82,21 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: IdParam, body: UpdateTaskSchema, response: { 200: TaskSchema } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
-      if (req.body.kidId) await ensureKidBelongsToParent(parent.id, req.body.kidId);
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
+      if (req.body.kidId) await ensureKidInHousehold(household.id, req.body.kidId);
 
       const existingRows = await getDb()
         .select()
         .from(tasks)
-        .where(and(eq(tasks.id, req.params.id), eq(tasks.parentId, parent.id)))
+        .where(and(eq(tasks.id, req.params.id), eq(tasks.householdId, household.id)))
         .limit(1);
       const existing = existingRows[0];
       if (!existing) throw new NotFoundError('task not found');
 
-      // Gate active-flip-from-false-to-true on subscription tier.
+      // Gate active-flip-from-false-to-true on the household plan.
       if (req.body.active === true && !existing.active) {
-        await assertCanAddActiveTask(parent);
+        await assertCanAddActiveTask(household);
       }
 
       const update: Record<string, unknown> = {};
@@ -110,7 +113,7 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
       const updated = await getDb()
         .update(tasks)
         .set(update)
-        .where(and(eq(tasks.id, req.params.id), eq(tasks.parentId, parent.id)))
+        .where(and(eq(tasks.id, req.params.id), eq(tasks.householdId, household.id)))
         .returning();
       const task = updated[0];
       if (!task) throw new NotFoundError('task not found');
@@ -125,11 +128,11 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: IdParam, response: { 204: z.null() } },
     },
     async (req, reply) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const deleted = await getDb()
         .delete(tasks)
-        .where(and(eq(tasks.id, req.params.id), eq(tasks.parentId, parent.id)))
+        .where(and(eq(tasks.id, req.params.id), eq(tasks.householdId, household.id)))
         .returning({ id: tasks.id });
       if (deleted.length === 0) throw new NotFoundError('task not found');
       void reply.code(204);

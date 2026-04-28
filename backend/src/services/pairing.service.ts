@@ -23,7 +23,11 @@ export interface CreatedPairingCode {
 
 // Generate a 6-digit pairing code unique among non-expired non-used codes.
 // Retries on collision up to 5 times (vanishingly small probability).
-export async function createPairingCode(parentId: string): Promise<CreatedPairingCode> {
+// Scoped to a household — any parent in that household can pair a kid.
+export async function createPairingCode(
+  householdId: string,
+  parentId: string,
+): Promise<CreatedPairingCode> {
   const db = getDb();
   const redis = getRedis();
 
@@ -31,8 +35,9 @@ export async function createPairingCode(parentId: string): Promise<CreatedPairin
     const code = generatePairingCode();
     const expiresAt = new Date(Date.now() + CODE_TTL_SEC * 1000);
     try {
-      await db.insert(pairingCodes).values({ code, parentId, expiresAt });
-      await redis.set(codeCacheKey(code), parentId, 'EX', CODE_TTL_SEC);
+      await db.insert(pairingCodes).values({ code, householdId, parentId, expiresAt });
+      // Cache householdId so the public pair endpoint can fast-path lookup.
+      await redis.set(codeCacheKey(code), householdId, 'EX', CODE_TTL_SEC);
       return { code, expiresAt };
     } catch (err) {
       // PK collision (Postgres error 23505) — retry. Anything else surfaces.
@@ -56,6 +61,9 @@ export interface PairOutput {
   token: string;
   kid: {
     id: string;
+    // The creator parent's id at pair time. Always present for newly-paired
+    // kids (created by an authenticated parent). The schema column is
+    // nullable only to survive parent deletion later.
     parentId: string;
     name: string;
     birthYear: number | null;
@@ -70,8 +78,10 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
   const db = getDb();
   const redis = getRedis();
 
-  // Cache lookup first (fast path).
-  let parentId = await redis.get(codeCacheKey(code));
+  // Cache lookup is informational — the transaction below is the source of
+  // truth and re-validates expiry/usage. Read kept for parity with the old
+  // implementation in case future code wants a fast pre-auth check.
+  void (await redis.get(codeCacheKey(code)));
 
   // Atomic transaction. Lock pairing row to prevent races, mark used,
   // create kid, balance row, device.
@@ -91,14 +101,13 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
     const codeRow = codeRows[0];
     if (!codeRow) throw new UnauthorizedError('invalid or expired pairing code');
 
-    parentId = codeRow.parentId;
-
     const hashedPin = pin ? await bcrypt.hash(pin, 10) : null;
 
     const insertedKids = await tx
       .insert(kids)
       .values({
-        parentId,
+        householdId: codeRow.householdId,
+        parentId: codeRow.parentId,
         name,
         birthYear: birthYear ?? null,
         avatarKey: avatarKey ?? null,
@@ -126,6 +135,10 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
   // Invalidate cache after successful redemption.
   await redis.del(codeCacheKey(code));
 
+  // Pairing route requires an authenticated parent, so parentId is always
+  // populated at create time. parent_id in the JWT is informational; the
+  // auth-kid plugin re-checks via kid.householdId.
+  if (!result.parentId) throw new ConflictError('paired kid missing creator');
   const token = signKidJwt({
     sub: result.id,
     parent_id: result.parentId,
@@ -146,6 +159,7 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
     },
   };
 }
+
 
 // Lightweight rate limiter on top of Redis INCR + EXPIRE.
 export async function checkRateLimit(

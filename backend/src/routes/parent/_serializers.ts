@@ -3,10 +3,17 @@ import type { KidRow } from '../../db/schema/kids.js';
 import type { TaskRow } from '../../db/schema/tasks.js';
 import type { RewardRow } from '../../db/schema/rewards.js';
 import type {
+  HouseholdRow,
+  HouseholdInviteRow,
+} from '../../db/schema/households.js';
+import type {
   Parent as ParentDto,
   Kid as KidDto,
   Task as TaskDto,
   Reward as RewardDto,
+  Household as HouseholdDto,
+  HouseholdMember as HouseholdMemberDto,
+  HouseholdInvite as HouseholdInviteDto,
   Locale,
   SubscriptionTier,
   AvatarKey,
@@ -32,7 +39,7 @@ export function serializeParent(p: ParentRow): ParentDto {
 export function serializeKid(k: KidRow): KidDto {
   return {
     id: k.id as KidDto['id'],
-    parentId: k.parentId as KidDto['parentId'],
+    parentId: (k.parentId as KidDto['parentId']) ?? null,
     name: k.name,
     birthYear: k.birthYear,
     avatarKey: k.avatarKey as AvatarKey | null,
@@ -44,7 +51,7 @@ export function serializeKid(k: KidRow): KidDto {
 export function serializeTask(t: TaskRow): TaskDto {
   return {
     id: t.id as TaskDto['id'],
-    parentId: t.parentId as TaskDto['parentId'],
+    parentId: (t.parentId as TaskDto['parentId']) ?? null,
     kidId: (t.kidId as TaskDto['kidId']) ?? null,
     title: t.title,
     description: t.description,
@@ -61,12 +68,54 @@ export function serializeTask(t: TaskRow): TaskDto {
 export function serializeReward(r: RewardRow): RewardDto {
   return {
     id: r.id as RewardDto['id'],
-    parentId: r.parentId as RewardDto['parentId'],
+    parentId: (r.parentId as RewardDto['parentId']) ?? null,
     kidId: (r.kidId as RewardDto['kidId']) ?? null,
     title: r.title,
     icon: r.icon,
     costCents: r.costCents as RewardDto['costCents'],
     active: r.active,
     createdAt: r.createdAt.toISOString() as RewardDto['createdAt'],
+  };
+}
+
+export function serializeHousehold(h: HouseholdRow): HouseholdDto {
+  return {
+    id: h.id as HouseholdDto['id'],
+    name: h.name,
+    subscriptionTier: h.subscriptionTier as SubscriptionTier,
+    subscriptionExpiresAt: h.subscriptionExpiresAt
+      ? (h.subscriptionExpiresAt.toISOString() as HouseholdDto['subscriptionExpiresAt'])
+      : null,
+    premiumOwnerParentId: (h.premiumOwnerParentId as HouseholdDto['premiumOwnerParentId']) ?? null,
+    createdAt: h.createdAt.toISOString() as HouseholdDto['createdAt'],
+    updatedAt: h.updatedAt.toISOString() as HouseholdDto['updatedAt'],
+  };
+}
+
+export function serializeHouseholdMember(
+  p: ParentRow,
+  premiumOwnerParentId: string | null,
+): HouseholdMemberDto {
+  return {
+    id: p.id as HouseholdMemberDto['id'],
+    email: p.email,
+    displayName: p.displayName,
+    isPremiumOwner: premiumOwnerParentId !== null && p.id === premiumOwnerParentId,
+    joinedAt: p.createdAt.toISOString() as HouseholdMemberDto['joinedAt'],
+  };
+}
+
+export function serializeHouseholdInvite(i: HouseholdInviteRow): HouseholdInviteDto {
+  return {
+    code: i.code,
+    householdId: i.householdId as HouseholdInviteDto['householdId'],
+    invitedEmail: i.invitedEmail,
+    createdBy: i.createdBy as HouseholdInviteDto['createdBy'],
+    expiresAt: i.expiresAt.toISOString() as HouseholdInviteDto['expiresAt'],
+    usedAt: i.usedAt
+      ? (i.usedAt.toISOString() as HouseholdInviteDto['usedAt'])
+      : null,
+    usedByParentId: (i.usedByParentId as HouseholdInviteDto['usedByParentId']) ?? null,
+    createdAt: i.createdAt.toISOString() as HouseholdInviteDto['createdAt'],
   };
 }

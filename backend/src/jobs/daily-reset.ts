@@ -9,10 +9,12 @@ import { logger } from '../lib/logger.js';
 // task_completions rows. Push the kid if they got new tasks (count > 0).
 export async function runDailyReset(): Promise<void> {
   const db = getDb();
-  const allKids = await db.select({ id: kids.id, name: kids.name, parentId: kids.parentId }).from(kids);
+  const allKids = await db
+    .select({ id: kids.id, name: kids.name, householdId: kids.householdId })
+    .from(kids);
   for (const kid of allKids) {
     try {
-      await ensureTodayCompletions(kid.id, kid.parentId);
+      await ensureTodayCompletions(kid.id, kid.householdId);
       const today = await listTodayTasks(kid.id);
       const pending = today.filter((t) => t.status === 'pending').length;
       if (pending > 0) {

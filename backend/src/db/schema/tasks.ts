@@ -12,14 +12,19 @@ import {
 import { sql } from 'drizzle-orm';
 import { parents } from './parents.js';
 import { kids } from './kids.js';
+import { households } from './households.js';
 
 export const tasks = pgTable(
   'tasks',
   {
     id: uuid().primaryKey().defaultRandom(),
-    parentId: uuid()
+    // Household scope — the unit of ownership.
+    householdId: uuid()
       .notNull()
-      .references(() => parents.id, { onDelete: 'cascade' }),
+      .references(() => households.id, { onDelete: 'cascade' }),
+    // Creator parent (audit only). Nullable on parent delete so co-parents
+    // retain visibility into tasks the original creator made.
+    parentId: uuid().references(() => parents.id, { onDelete: 'set null' }),
     kidId: uuid().references(() => kids.id, { onDelete: 'cascade' }),
     title: text().notNull(),
     description: text(),
@@ -33,6 +38,9 @@ export const tasks = pgTable(
   },
   (t) => [
     index('idx_tasks_kid_active').on(t.kidId, t.active).where(sql`${t.active} = true`),
+    index('idx_tasks_household_active')
+      .on(t.householdId, t.active)
+      .where(sql`${t.active} = true`),
   ],
 );
 

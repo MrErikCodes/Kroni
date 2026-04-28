@@ -34,8 +34,8 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       schema: { response: { 200: PendingResponse } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const rows = await getDb()
         .select({
           completionId: taskCompletions.id,
@@ -51,7 +51,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
         .innerJoin(kids, eq(kids.id, taskCompletions.kidId))
         .where(
           and(
-            eq(tasks.parentId, parent.id),
+            eq(tasks.householdId, household.id),
             isNotNull(taskCompletions.completedAt),
             isNull(taskCompletions.approvedAt),
             isNull(taskCompletions.rejectedAt),
@@ -88,7 +88,8 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
     },
     async (req) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
       const db = getDb();
 
       const result = await db.transaction(async (tx) => {
@@ -97,7 +98,10 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
           .from(taskCompletions)
           .innerJoin(tasks, eq(tasks.id, taskCompletions.taskId))
           .where(
-            and(eq(taskCompletions.id, req.params.completionId), eq(tasks.parentId, parent.id)),
+            and(
+              eq(taskCompletions.id, req.params.completionId),
+              eq(tasks.householdId, household.id),
+            ),
           )
           .for('update', { of: taskCompletions })
           .limit(1);
@@ -113,7 +117,6 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
             .where(eq(taskCompletions.id, row.completion.id))
             .limit(1);
           void balanceRows;
-          // Look up current balance via balance service is overkill in this path.
           return { completionId: row.completion.id, newBalanceCents: -1 };
         }
 
@@ -153,8 +156,8 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       schema: { params: Params, response: { 200: RejectResponse } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const db = getDb();
 
       const updated = await db
@@ -164,20 +167,19 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
           and(
             eq(taskCompletions.id, req.params.completionId),
             isNull(taskCompletions.approvedAt),
-            // Ownership check via subquery would be ideal; simpler: ensure task belongs to parent.
           ),
         )
         .returning({ id: taskCompletions.id, taskId: taskCompletions.taskId });
       const row = updated[0];
       if (!row) throw new ConflictError('cannot reject: not found or already finalized');
 
-      // Verify ownership post-hoc; if mismatch, undo. (Cleaner: subquery on update.)
+      // Verify household ownership post-hoc; if mismatch, undo. (Cleaner: subquery on update.)
       const taskRows = await db
-        .select({ id: tasks.id, parentId: tasks.parentId })
+        .select({ id: tasks.id, householdId: tasks.householdId })
         .from(tasks)
         .where(eq(tasks.id, row.taskId))
         .limit(1);
-      if (taskRows[0]?.parentId !== parent.id) {
+      if (taskRows[0]?.householdId !== household.id) {
         await db
           .update(taskCompletions)
           .set({ rejectedAt: null })
@@ -208,10 +210,12 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
     },
     async (req) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
       const out = await approveRedemption({
         redemptionId: req.params.redemptionId,
-        parentId: parent.id,
+        householdId: household.id,
+        approverParentId: parent.id,
         note: req.body?.note,
       });
       return { redemptionId: out.redemptionId, approved: true as const, newBalanceCents: out.newBalanceCents };
@@ -234,11 +238,11 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
       },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const out = await rejectRedemption({
         redemptionId: req.params.redemptionId,
-        parentId: parent.id,
+        householdId: household.id,
         note: req.body?.note,
       });
       return { redemptionId: out.redemptionId, rejected: true as const };

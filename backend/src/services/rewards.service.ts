@@ -47,7 +47,9 @@ export async function requestRedemption(input: {
 
 export async function approveRedemption(input: {
   redemptionId: string;
-  parentId: string;
+  householdId: string;
+  // Parent who clicked approve — recorded in balance entry for audit.
+  approverParentId: string;
   note?: string | null | undefined;
 }): Promise<{ redemptionId: string; newBalanceCents: number }> {
   const db = getDb();
@@ -57,7 +59,10 @@ export async function approveRedemption(input: {
       .from(rewardRedemptions)
       .innerJoin(rewards, eq(rewards.id, rewardRedemptions.rewardId))
       .where(
-        and(eq(rewardRedemptions.id, input.redemptionId), eq(rewards.parentId, input.parentId)),
+        and(
+          eq(rewardRedemptions.id, input.redemptionId),
+          eq(rewards.householdId, input.householdId),
+        ),
       )
       .for('update', { of: rewardRedemptions })
       .limit(1);
@@ -77,7 +82,7 @@ export async function approveRedemption(input: {
       amountCents: -row.red.costCents,
       reason: 'redemption',
       referenceId: row.red.id,
-      createdBy: input.parentId,
+      createdBy: input.approverParentId,
       preventNegative: true,
     });
 
@@ -92,7 +97,7 @@ export async function approveRedemption(input: {
 
 export async function rejectRedemption(input: {
   redemptionId: string;
-  parentId: string;
+  householdId: string;
   note?: string | null | undefined;
 }): Promise<{ redemptionId: string }> {
   const db = getDb();
@@ -103,11 +108,15 @@ export async function rejectRedemption(input: {
     .returning({ id: rewardRedemptions.id, rewardId: rewardRedemptions.rewardId });
   const row = updated[0];
   if (!row) throw new NotFoundError('redemption not found');
-  // Verify ownership.
+  // Verify household ownership.
   const own = (
-    await db.select({ id: rewards.id, parentId: rewards.parentId }).from(rewards).where(eq(rewards.id, row.rewardId)).limit(1)
+    await db
+      .select({ id: rewards.id, householdId: rewards.householdId })
+      .from(rewards)
+      .where(eq(rewards.id, row.rewardId))
+      .limit(1)
   )[0];
-  if (own?.parentId !== input.parentId) {
+  if (own?.householdId !== input.householdId) {
     await db
       .update(rewardRedemptions)
       .set({ rejectedAt: null })

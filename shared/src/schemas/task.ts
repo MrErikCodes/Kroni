@@ -12,7 +12,9 @@ export const DaysOfWeekSchema = z
 
 export const TaskSchema = z.object({
   id: UUID,
-  parentId: UUID,
+  // Creator parent (audit). Nullable post-creator-deletion. Household
+  // ownership is authoritative.
+  parentId: UUID.nullable(),
   kidId: UUID.nullable(),
   title: z.string().min(1).max(80),
   description: z.string().max(500).nullable(),

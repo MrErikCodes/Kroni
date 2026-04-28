@@ -8,18 +8,18 @@ import type { TaskCompletionStatus } from '@kroni/shared';
 // Idempotently create today's task_completions for the kid. Safe to call repeatedly:
 // the unique index on (taskId, kidId, scheduledFor) blocks duplicates and we ignore
 // the conflicts. Returns rows present after the call.
-export async function ensureTodayCompletions(kidId: string, parentId: string): Promise<void> {
+export async function ensureTodayCompletions(kidId: string, householdId: string): Promise<void> {
   const db = getDb();
   const today = todayInAppTz();
   const dow = dayOfWeekInAppTz();
 
-  // Find active tasks targeting this kid (or unassigned for the parent).
+  // Find active tasks targeting this kid (or unassigned for the household).
   const candidateTasks = await db
     .select()
     .from(tasks)
     .where(
       and(
-        eq(tasks.parentId, parentId),
+        eq(tasks.householdId, householdId),
         eq(tasks.active, true),
         or(eq(tasks.kidId, kidId), isNull(tasks.kidId)),
       ),

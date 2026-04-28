@@ -29,7 +29,12 @@ export const authKidPlugin = fp(async (app: FastifyInstance) => {
     const rows = await db.select().from(kids).where(eq(kids.id, payload.sub)).limit(1);
     const kid = rows[0];
     if (!kid) throw new UnauthorizedError('kid not found');
-    if (kid.parentId !== payload.parent_id) throw new UnauthorizedError('parent mismatch');
+    // parent_id in the JWT is the creator parent at pair time. With the new
+    // household model the kid lives on after the creator deletes their
+    // account, so accept either an exact match OR a now-null parentId.
+    if (kid.parentId !== null && kid.parentId !== payload.parent_id) {
+      throw new UnauthorizedError('parent mismatch');
+    }
 
     req.kid = kid;
     req.kidJwt = payload;

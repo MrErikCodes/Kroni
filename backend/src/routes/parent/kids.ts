@@ -23,8 +23,9 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       schema: { response: { 200: z.array(KidSchema) } },
     },
     async (req) => {
-      if (!req.parent) throw new UnauthorizedError('parent missing');
-      const rows = await getDb().select().from(kids).where(eq(kids.parentId, req.parent.id));
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
+      const rows = await getDb().select().from(kids).where(eq(kids.householdId, household.id));
       return rows.map(serializeKid);
     },
   );
@@ -37,12 +38,14 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
     },
     async (req, reply) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
-      await assertCanAddKid(parent);
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
+      await assertCanAddKid(household);
       const hashedPin = req.body.pin ? await bcrypt.hash(req.body.pin, 10) : null;
       const inserted = await getDb()
         .insert(kids)
         .values({
+          householdId: household.id,
           parentId: parent.id,
           name: req.body.name,
           birthYear: req.body.birthYear ?? null,
@@ -66,11 +69,12 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: IdParam, response: { 200: KidSchema } },
     },
     async (req) => {
-      if (!req.parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const rows = await getDb()
         .select()
         .from(kids)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, req.parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .limit(1);
       const kid = rows[0];
       if (!kid) throw new NotFoundError('kid not found');
@@ -85,8 +89,8 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: IdParam, body: UpdateKidSchema, response: { 200: KidSchema } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const update: Record<string, unknown> = {};
       if (req.body.name !== undefined) update.name = req.body.name;
       if (req.body.birthYear !== undefined) update.birthYear = req.body.birthYear;
@@ -100,7 +104,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       const updated = await getDb()
         .update(kids)
         .set(update)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .returning();
       const kid = updated[0];
       if (!kid) throw new NotFoundError('kid not found');
@@ -115,11 +119,11 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: IdParam, response: { 204: z.null() } },
     },
     async (req, reply) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const deleted = await getDb()
         .delete(kids)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .returning({ id: kids.id });
       if (deleted.length === 0) throw new NotFoundError('kid not found');
       void reply.code(204);

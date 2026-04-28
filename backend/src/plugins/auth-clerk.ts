@@ -5,11 +5,14 @@ import { eq } from 'drizzle-orm';
 import { getConfig } from '../config.js';
 import { getDb } from '../db/index.js';
 import { parents, type ParentRow } from '../db/schema/parents.js';
+import { households, type HouseholdRow } from '../db/schema/households.js';
+import { ensureHouseholdForParent } from '../services/household.service.js';
 import { UnauthorizedError } from '../lib/errors.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
     parent?: ParentRow;
+    household?: HouseholdRow;
   }
   interface FastifyInstance {
     requireParent: (req: FastifyRequest, reply: FastifyReply) => Promise<void>;
@@ -71,6 +74,30 @@ export const authClerkPlugin = fp(async (app: FastifyInstance) => {
       }
     }
     if (!parent) throw new UnauthorizedError('parent backfill failed');
+
+    // Resolve / lazy-create the household. ensureHouseholdForParent is
+    // idempotent; the common path is a single SELECT.
+    let household: HouseholdRow;
+    if (parent.householdId) {
+      const hh = await db
+        .select()
+        .from(households)
+        .where(eq(households.id, parent.householdId))
+        .limit(1);
+      const existing = hh[0];
+      if (existing) {
+        household = existing;
+      } else {
+        // householdId points at a vanished row — recreate.
+        household = await ensureHouseholdForParent(parent);
+        parent = { ...parent, householdId: household.id };
+      }
+    } else {
+      household = await ensureHouseholdForParent(parent);
+      parent = { ...parent, householdId: household.id };
+    }
+
     req.parent = parent;
+    req.household = household;
   });
 });

@@ -13,7 +13,7 @@ export async function kidTodayRoutes(app: FastifyInstance): Promise<void> {
     async (req) => {
       const kid = req.kid;
       if (!kid) throw new UnauthorizedError('kid missing');
-      await ensureTodayCompletions(kid.id, kid.parentId);
+      await ensureTodayCompletions(kid.id, kid.householdId);
       const list = await listTodayTasks(kid.id);
       return list as never;
     },

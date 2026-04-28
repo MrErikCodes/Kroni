@@ -1,14 +1,18 @@
 import { pgTable, uuid, text, integer, boolean, timestamp, index } from 'drizzle-orm/pg-core';
 import { parents } from './parents.js';
 import { kids } from './kids.js';
+import { households } from './households.js';
 
 export const rewards = pgTable(
   'rewards',
   {
     id: uuid().primaryKey().defaultRandom(),
-    parentId: uuid()
+    // Household scope — the unit of ownership.
+    householdId: uuid()
       .notNull()
-      .references(() => parents.id, { onDelete: 'cascade' }),
+      .references(() => households.id, { onDelete: 'cascade' }),
+    // Creator parent (audit only). Nullable on parent delete.
+    parentId: uuid().references(() => parents.id, { onDelete: 'set null' }),
     kidId: uuid().references(() => kids.id, { onDelete: 'cascade' }),
     title: text().notNull(),
     icon: text(),
@@ -16,7 +20,7 @@ export const rewards = pgTable(
     active: boolean().notNull().default(true),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('idx_rewards_parent_active').on(t.parentId, t.active)],
+  (t) => [index('idx_rewards_household_active').on(t.householdId, t.active)],
 );
 
 export const rewardRedemptions = pgTable(

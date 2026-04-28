@@ -7,7 +7,10 @@ const maxBirthYear = currentYear;
 
 export const KidSchema = z.object({
   id: UUID,
-  parentId: UUID,
+  // Creator parent id at pair / create time. Nullable because the kid
+  // survives deletion of the creator parent — household ownership is
+  // authoritative now.
+  parentId: UUID.nullable(),
   name: z.string().min(1).max(40),
   birthYear: z.number().int().min(minBirthYear).max(maxBirthYear).nullable(),
   avatarKey: AvatarKey.nullable(),

@@ -1,4 +1,5 @@
 export * from './schemas/common.js';
+export * from './schemas/household.js';
 export * from './schemas/parent.js';
 export * from './schemas/kid.js';
 export * from './schemas/pairing.js';

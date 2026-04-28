@@ -35,11 +35,12 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
     },
     async (req) => {
       const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
       const kidRows = await getDb()
         .select({ id: kids.id })
         .from(kids)
-        .where(and(eq(kids.id, req.body.kidId), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.body.kidId), eq(kids.householdId, household.id)))
         .limit(1);
       if (kidRows.length === 0) throw new BadRequestError('kid not in this household');
       const result = await addBalanceEntry({
@@ -68,12 +69,12 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: Params, response: { 200: VerifyResponse } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const ownership = await getDb()
         .select({ id: kids.id })
         .from(kids)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .limit(1);
       if (ownership.length === 0) throw new NotFoundError('kid not found');
 
@@ -104,12 +105,12 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
       schema: { params: Params, response: { 200: BalanceSummarySchema } },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const ownership = await getDb()
         .select({ id: kids.id })
         .from(kids)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .limit(1);
       if (ownership.length === 0) throw new NotFoundError('kid not found');
       return (await getBalanceSummary(req.params.id)) as never;
@@ -127,12 +128,12 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     async (req) => {
-      const parent = req.parent;
-      if (!parent) throw new UnauthorizedError('parent missing');
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
       const ownership = await getDb()
         .select({ id: kids.id })
         .from(kids)
-        .where(and(eq(kids.id, req.params.id), eq(kids.parentId, parent.id)))
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
         .limit(1);
       if (ownership.length === 0) throw new NotFoundError('kid not found');
       const rows = await getDb()

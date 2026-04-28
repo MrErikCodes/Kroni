@@ -3,8 +3,10 @@ import { Webhook } from 'svix';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { parents } from '../../db/schema/parents.js';
+import { ensureHouseholdForParent } from '../../services/household.service.js';
 import { getConfig } from '../../config.js';
 import { UnauthorizedError, BadRequestError } from '../../lib/errors.js';
+import { logger } from '../../lib/logger.js';
 
 interface ClerkUserCreatedOrUpdated {
   type: 'user.created' | 'user.updated';
@@ -73,17 +75,32 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
       }
       const displayName =
         [ev.data.first_name, ev.data.last_name].filter(Boolean).join(' ') || null;
-      await db
+      const upserted = await db
         .insert(parents)
         .values({ clerkUserId: ev.data.id, email, displayName })
         .onConflictDoUpdate({
           target: parents.clerkUserId,
           set: { email, displayName, updatedAt: new Date() },
-        });
+        })
+        .returning();
+      const parent = upserted[0];
+      if (parent) {
+        // Materialize the household up front so the very next API call from
+        // this user finds an established household. Idempotent.
+        try {
+          await ensureHouseholdForParent(parent);
+        } catch (err) {
+          logger.error({ err, parentId: parent.id }, 'ensureHouseholdForParent failed in webhook');
+        }
+      }
       return reply.code(200).send({ ok: true });
     }
     if (event.type === 'user.deleted') {
       const ev = event as ClerkUserDeleted;
+      // Delete the parent row only. Households intentionally have no FK back
+      // to parents, so the household survives even if this was the last
+      // member — last-member cleanup is a separate concern handled by a
+      // future job ([TODO household] reaper for empty households).
       await db.delete(parents).where(eq(parents.clerkUserId, ev.data.id));
       return reply.code(200).send({ ok: true });
     }
