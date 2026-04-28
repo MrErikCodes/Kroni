@@ -10,6 +10,10 @@ config.watchFolders = [workspaceRoot];
 config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(workspaceRoot, 'node_modules'),
+  // NativeWind's runtime is nested under nativewind/ because of the workspace's
+  // tailwind v3 (mobile/nativewind) vs v4 (website) split. Surface it so Metro
+  // can resolve "react-native-css-interop/jsx-runtime" from any module.
+  path.resolve(workspaceRoot, 'node_modules/nativewind/node_modules'),
 ];
 config.resolver.disableHierarchicalLookup = true;
 
