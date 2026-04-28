@@ -16,6 +16,11 @@ import { authKidPlugin } from './plugins/auth-kid.js';
 import { healthRoutes } from './routes/public/health.js';
 import { publicPairRoutes } from './routes/public/pair.js';
 import { parentPairingRoutes } from './routes/parent/pairing.js';
+import { parentMeRoutes } from './routes/parent/me.js';
+import { parentKidsRoutes } from './routes/parent/kids.js';
+import { parentTasksRoutes } from './routes/parent/tasks.js';
+import { parentRewardsRoutes } from './routes/parent/rewards.js';
+import { clerkWebhookRoutes } from './routes/webhooks/clerk.js';
 
 export interface BuildOptions {
   fastifyOpts?: FastifyServerOptions;
@@ -54,7 +59,13 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
 
   await app.register(healthRoutes);
   await app.register(publicPairRoutes);
+  await app.register(clerkWebhookRoutes);
+
   await app.register(parentPairingRoutes);
+  await app.register(parentMeRoutes);
+  await app.register(parentKidsRoutes);
+  await app.register(parentTasksRoutes);
+  await app.register(parentRewardsRoutes);
 
   return app;
 }

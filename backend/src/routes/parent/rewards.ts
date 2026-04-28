@@ -1,0 +1,112 @@
+import type { FastifyInstance } from 'fastify';
+import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
+import { and, eq } from 'drizzle-orm';
+import { CreateRewardSchema, UpdateRewardSchema, RewardSchema } from '@kroni/shared';
+import { getDb } from '../../db/index.js';
+import { rewards } from '../../db/schema/rewards.js';
+import { kids } from '../../db/schema/kids.js';
+import { NotFoundError, UnauthorizedError, BadRequestError } from '../../lib/errors.js';
+import { serializeReward } from './_serializers.js';
+
+const IdParam = z.object({ id: z.string().uuid() });
+
+async function ensureKidBelongsToParent(parentId: string, kidId: string): Promise<void> {
+  const rows = await getDb()
+    .select({ id: kids.id })
+    .from(kids)
+    .where(and(eq(kids.id, kidId), eq(kids.parentId, parentId)))
+    .limit(1);
+  if (rows.length === 0) throw new BadRequestError('kid not in this household');
+}
+
+export async function parentRewardsRoutes(app: FastifyInstance): Promise<void> {
+  const r = app.withTypeProvider<ZodTypeProvider>();
+
+  r.get(
+    '/api/parent/rewards',
+    {
+      preHandler: app.requireParent,
+      schema: { response: { 200: z.array(RewardSchema) } },
+    },
+    async (req) => {
+      if (!req.parent) throw new UnauthorizedError('parent missing');
+      const rows = await getDb().select().from(rewards).where(eq(rewards.parentId, req.parent.id));
+      return rows.map(serializeReward);
+    },
+  );
+
+  r.post(
+    '/api/parent/rewards',
+    {
+      preHandler: app.requireParent,
+      schema: { body: CreateRewardSchema, response: { 201: RewardSchema } },
+    },
+    async (req, reply) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      if (req.body.kidId) await ensureKidBelongsToParent(parent.id, req.body.kidId);
+      const inserted = await getDb()
+        .insert(rewards)
+        .values({
+          parentId: parent.id,
+          kidId: req.body.kidId ?? null,
+          title: req.body.title,
+          icon: req.body.icon ?? null,
+          costCents: req.body.costCents,
+          active: req.body.active,
+        })
+        .returning();
+      const row = inserted[0];
+      if (!row) throw new Error('insert failed');
+      void reply.code(201);
+      return serializeReward(row);
+    },
+  );
+
+  r.patch(
+    '/api/parent/rewards/:id',
+    {
+      preHandler: app.requireParent,
+      schema: { params: IdParam, body: UpdateRewardSchema, response: { 200: RewardSchema } },
+    },
+    async (req) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      if (req.body.kidId) await ensureKidBelongsToParent(parent.id, req.body.kidId);
+      const update: Record<string, unknown> = {};
+      if (req.body.kidId !== undefined) update.kidId = req.body.kidId;
+      if (req.body.title !== undefined) update.title = req.body.title;
+      if (req.body.icon !== undefined) update.icon = req.body.icon;
+      if (req.body.costCents !== undefined) update.costCents = req.body.costCents;
+      if (req.body.active !== undefined) update.active = req.body.active;
+      const updated = await getDb()
+        .update(rewards)
+        .set(update)
+        .where(and(eq(rewards.id, req.params.id), eq(rewards.parentId, parent.id)))
+        .returning();
+      const row = updated[0];
+      if (!row) throw new NotFoundError('reward not found');
+      return serializeReward(row);
+    },
+  );
+
+  r.delete(
+    '/api/parent/rewards/:id',
+    {
+      preHandler: app.requireParent,
+      schema: { params: IdParam, response: { 204: z.null() } },
+    },
+    async (req, reply) => {
+      const parent = req.parent;
+      if (!parent) throw new UnauthorizedError('parent missing');
+      const deleted = await getDb()
+        .delete(rewards)
+        .where(and(eq(rewards.id, req.params.id), eq(rewards.parentId, parent.id)))
+        .returning({ id: rewards.id });
+      if (deleted.length === 0) throw new NotFoundError('reward not found');
+      void reply.code(204);
+      return null;
+    },
+  );
+}
