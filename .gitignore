@@ -21,3 +21,5 @@ coverage/
 .tmp/
 *.pid
 .pm2/
+.omc/
+**/.omc/
