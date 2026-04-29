@@ -1,7 +1,15 @@
-// [REVIEW] copy generated; native review needed.
 import Link from "next/link";
+import type { Locale } from "../_i18n/locales";
+import type { Dictionary } from "../_i18n/dict";
 
-export default function SiteFooter() {
+export default function SiteFooter({
+  locale,
+  dict,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const base = `/${locale}`;
   return (
     <footer className="mt-24 border-t border-sand-200 bg-sand-50">
       <div className="mx-auto max-w-6xl px-5 sm:px-8">
@@ -17,41 +25,32 @@ export default function SiteFooter() {
               />
             </div>
             <p className="mt-4 max-w-sm font-display text-[19px] italic leading-snug text-sand-700">
-              Lommepenger som lærer barn å mestre, ikke å forvente.
+              {dict.footer.tagline}
             </p>
             <p className="mt-6 text-[13px] leading-relaxed text-sand-500">
-              Bygd i Norge for norske familier. Ingen ekte penger,
-              ingen reklame, full kontroll.
+              {dict.footer.blurb}
             </p>
           </div>
 
           <div className="sm:col-span-3">
             <h3 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-sand-500">
-              Produkt
+              {dict.footer.productHeading}
             </h3>
             <ul className="mt-5 space-y-3 text-[15px]">
               <li>
                 <Link
-                  href="/"
+                  href={base}
                   className="text-sand-900 transition-colors hover:text-gold-700"
                 >
-                  Hjem
+                  {dict.footer.home}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/support"
+                  href={`${base}/support`}
                   className="text-sand-900 transition-colors hover:text-gold-700"
                 >
-                  Støtte
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/en"
-                  className="text-sand-900 transition-colors hover:text-gold-700"
-                >
-                  English
+                  {dict.footer.support}
                 </Link>
               </li>
             </ul>
@@ -59,23 +58,23 @@ export default function SiteFooter() {
 
           <div className="sm:col-span-4">
             <h3 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-sand-500">
-              Selskap
+              {dict.footer.companyHeading}
             </h3>
             <ul className="mt-5 space-y-3 text-[15px]">
               <li>
                 <Link
-                  href="/personvern"
+                  href={`${base}/personvern`}
                   className="text-sand-900 transition-colors hover:text-gold-700"
                 >
-                  Personvern
+                  {dict.footer.privacy}
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/vilkar"
+                  href={`${base}/vilkar`}
                   className="text-sand-900 transition-colors hover:text-gold-700"
                 >
-                  Vilkår
+                  {dict.footer.terms}
                 </Link>
               </li>
               <li>
@@ -91,11 +90,8 @@ export default function SiteFooter() {
         </div>
 
         <div className="flex flex-col gap-3 border-t border-sand-200 py-6 text-[12px] text-sand-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 Nilsen Konsult. Alle rettigheter forbeholdt.</p>
-          <p className="font-display italic">
-            {/* [REVIEW] tagline copy */}
-            Laget i Oslo med kaffe og to barn under bordet.
-          </p>
+          <p>{dict.footer.copyright}</p>
+          <p className="font-display italic">{dict.footer.madeIn}</p>
         </div>
       </div>
     </footer>

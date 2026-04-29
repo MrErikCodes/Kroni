@@ -69,50 +69,83 @@ function ChoreCard({ title, meta, reward, done = false }: ChoreCardProps) {
   );
 }
 
+type PhoneVariant = "nb" | "en" | "sv" | "da";
+
 type PhoneMockProps = {
   className?: string;
   children?: ReactNode;
-  variant?: "nb" | "en";
+  variant?: PhoneVariant;
+};
+
+const PHONE_COPY: Record<PhoneVariant, {
+  greeting: string;
+  today: string;
+  balance: string;
+  remaining: string;
+  ariaLabel: string;
+  chores: { title: string; meta: string; reward: string; done: boolean }[];
+}> = {
+  nb: {
+    greeting: "Hei, Mira",
+    today: "I dag, mandag",
+    balance: "Saldo",
+    remaining: "igjen å tjene",
+    ariaLabel: "Illustrasjon av Kroni-appen som viser dagens oppgaver.",
+    chores: [
+      { title: "Tøm oppvaskmaskinen", meta: "Før middag", reward: "10 kr", done: true },
+      { title: "Rydd rommet", meta: "Før leggetid", reward: "20 kr", done: false },
+      { title: "Ta ut søppel", meta: "Tirsdag", reward: "10 kr", done: false },
+    ],
+  },
+  en: {
+    greeting: "Hi, Mira",
+    today: "Today, Monday",
+    balance: "Balance",
+    remaining: "left to earn",
+    ariaLabel: "Illustration of the Kroni kid app showing today's chores.",
+    chores: [
+      { title: "Empty the dishwasher", meta: "Before dinner", reward: "10 kr", done: true },
+      { title: "Tidy the room", meta: "Before bedtime", reward: "20 kr", done: false },
+      { title: "Take out the trash", meta: "Tuesday", reward: "10 kr", done: false },
+    ],
+  },
+  sv: {
+    greeting: "Hej, Mira",
+    today: "Idag, måndag",
+    balance: "Saldo",
+    remaining: "kvar att tjäna",
+    ariaLabel: "Illustration av Kroni-appen som visar dagens sysslor.",
+    chores: [
+      { title: "Töm diskmaskinen", meta: "Före middag", reward: "10 kr", done: true },
+      { title: "Städa rummet", meta: "Innan läggdags", reward: "20 kr", done: false },
+      { title: "Ta ut soporna", meta: "Tisdag", reward: "10 kr", done: false },
+    ],
+  },
+  da: {
+    greeting: "Hej, Mira",
+    today: "I dag, mandag",
+    balance: "Saldo",
+    remaining: "tilbage at tjene",
+    ariaLabel: "Illustration af Kroni-appen der viser dagens opgaver.",
+    chores: [
+      { title: "Tøm opvaskemaskinen", meta: "Før aftensmad", reward: "10 kr", done: true },
+      { title: "Ryd værelset", meta: "Før sengetid", reward: "20 kr", done: false },
+      { title: "Smid skraldet ud", meta: "Tirsdag", reward: "10 kr", done: false },
+    ],
+  },
 };
 
 export default function PhoneMock({
   className = "",
   variant = "nb",
 }: PhoneMockProps) {
-  const t =
-    variant === "en"
-      ? {
-          greeting: "Hi, Mira",
-          today: "Today, Monday",
-          balance: "Balance",
-          remaining: "left to earn",
-          chores: [
-            { title: "Empty the dishwasher", meta: "Before dinner", reward: "10 kr", done: true },
-            { title: "Tidy the room", meta: "Before bedtime", reward: "20 kr", done: false },
-            { title: "Take out the trash", meta: "Tuesday", reward: "10 kr", done: false },
-          ],
-        }
-      : {
-          greeting: "Hei, Mira",
-          today: "I dag, mandag",
-          balance: "Saldo",
-          remaining: "igjen å tjene",
-          chores: [
-            { title: "Tøm oppvaskmaskinen", meta: "Før middag", reward: "10 kr", done: true },
-            { title: "Rydd rommet", meta: "Før leggetid", reward: "20 kr", done: false },
-            { title: "Ta ut søppel", meta: "Tirsdag", reward: "10 kr", done: false },
-          ],
-        };
+  const t = PHONE_COPY[variant];
 
   return (
     <div
       className={`phone-frame mx-auto w-[300px] sm:w-[330px] ${className}`}
       role="img"
-      aria-label={
-        variant === "en"
-          ? "Illustration of the Kroni kid app showing today's chores."
-          : "Illustrasjon av Kroni-appen som viser dagens oppgaver."
-      }
+      aria-label={t.ariaLabel}
     >
       <div className="phone-screen aspect-[9/19.5]">
         {/* Status bar */}
@@ -157,7 +190,7 @@ export default function PhoneMock({
               className="h-1 w-1 rounded-full bg-gold-500"
             />
             <p className="text-[10.5px] font-medium text-sand-50/70">
-              {variant === "en" ? "53 kr" : "53 kr"} {t.remaining}
+              53 kr {t.remaining}
             </p>
           </div>
         </div>

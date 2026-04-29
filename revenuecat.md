@@ -11,7 +11,7 @@ The mobile + backend integration is fully wired. You only need to configure RC +
 | Concept | Where it lives | What you must match |
 |---|---|---|
 | Public SDK keys | `EXPO_PUBLIC_RC_IOS_KEY` / `EXPO_PUBLIC_RC_ANDROID_KEY` (Phase + EAS) | Pull these from RC → API keys → Public app-specific |
-| Entitlement ID | `mobile/lib/billing.ts:5` → `'Kroni Pro'` | Create entitlement with EXACT id `Kroni Pro` (case-sensitive) |
+| Entitlement ID | `mobile/lib/billing.ts:5` → `'Kroni Family'` | Create entitlement with EXACT id `Kroni Family` (case-sensitive, space included) |
 | `app_user_id` | `mobile/app/_layout.tsx → RevenueCatIdentityBridge` calls `Purchases.logIn(clerkUserId)` | Backend webhook resolves the parent by `parents.clerk_user_id` = RC `app_user_id` |
 | Webhook URL | `POST /api/webhooks/revenuecat` | Configure in RC → Integrations → Webhooks |
 | Webhook auth | `REVENUECAT_WEBHOOK_AUTH` (Phase backend) | Same string in RC's webhook "Authorization" field |
@@ -63,7 +63,7 @@ Give each product a **Display Name** in nb-NO + en-US. The localized name shown 
 
 ## 4. Entitlement
 
-- RC → Entitlements → "+" → identifier **`Kroni Pro`** (exactly — capital K, capital P, space).
+- RC → Entitlements → "+" → identifier **`Kroni Family`** (exactly — capital K, capital F, space).
 - Attach all three products to it.
 - Description (internal): "Unlocks unlimited kids, tasks, history, notifications. Granted by any of: monthly, yearly, lifetime."
 
@@ -137,7 +137,7 @@ Run through this on both platforms before submitting for review:
 3. Webhook URL pointing at production API.
 4. EAS build with production keys.
 5. Internal test track / TestFlight build → run the sandbox checklist with real testers.
-6. Submit for review with reviewer notes containing the sandbox tester credentials AND a reminder that the entitlement is `Kroni Pro` so they can verify in RC if they email support.
+6. Submit for review with reviewer notes containing the sandbox tester credentials AND a reminder that the entitlement is `Kroni Family` so they can verify in RC if they email support.
 7. Once reviewed + live: switch the RC webhook URL to production if you were testing against ngrok, and confirm one real purchase end-to-end.
 
 ---

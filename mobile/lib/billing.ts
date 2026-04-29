@@ -2,7 +2,7 @@ import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import { Platform } from 'react-native';
 
-const ENTITLEMENT_ID = 'Kroni Pro';
+const ENTITLEMENT_ID = 'Kroni Family';
 
 export function configureRevenueCat(): void {
   if (__DEV__) {

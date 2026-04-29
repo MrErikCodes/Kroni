@@ -11,6 +11,7 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] **RevenueCat dashboard config** — see `revenuecat.md`. Until the entitlement / offering / products / webhook are wired, paying paths just no-op.
 - [ ] **App Store Connect** — products `kroni_family_monthly`, `kroni_family_yearly`, `kroni_lifetime` (non-consumable). 7-day intro trial on the recurring subs. Localized names per `appstore.md`.
 - [ ] **Google Play Console** — same product IDs. Subscription offers configured with 7-day trial eligibility = "New customers".
+- [ ] **ToS + Privacy consent on signup** — parent sign-up flow must require explicit acceptance of Terms of Service and Privacy Policy before account creation. Store `accepted_terms_at` / `accepted_privacy_at` timestamps on the user (or household) record. Link to the policy on the user's locale domain (`kroni.no/.dk/.se` + `/en`).
 
 ## RevenueCat / billing — still untested end-to-end
 
@@ -39,6 +40,9 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] **Sentry.wrap(RootLayout)** — opt in for auto profiling once we trust the integration.
 - [ ] **Error surfaces** — kid screens that talk to the API should show inline failures, not silently fall through to the generic "common.error". Same audit done for the rewards modal; tasks/balance still rely on react-query default behavior.
 - [ ] **Norwegian copy review** — every i18n string is currently AI-generated. Native speaker pass before launch (look for `// [REVIEW] Norwegian copy` file headers).
+- [ ] **Locale support: nb (default), sv, da, + en fallback** — launch markets are NO / SE / DK only. Auto-detect from device locale: `nb-*` → nb, `sv-*` → sv, `da-*` → da, anything else → en (catch-all for non-Nordic speakers). Expose a manual language picker in parent + kid settings. Add `sv`, `da`, `en` translation bundles alongside the existing `nb` one; keep `// [REVIEW]` headers per language for native-speaker passes.
+- [ ] **Signup consent UI** — checkbox + linked Terms / Privacy on `parent-sign-up.tsx`. Block submit until checked. Link target = locale-correct domain (`kroni.no/personvern`, `kroni.dk/privatliv`, `kroni.se/integritet`, `/en/privacy` etc.) — pick by current app locale.
+- [ ] **Share kid login link from parent app** — generate a deep link from the kid detail screen (e.g. `kroni://pair?code=…` + universal link fallback `https://kroni.no/pair/<code>`). Parent shares via system share sheet; opening the link on the device installs/opens the kid app, prefills the pairing code, and auto-completes pairing without the kid typing anything. Code must be single-use and short-lived (mirror existing pairing-code TTL).
 
 ## Backend
 
@@ -49,10 +53,13 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] **`background-jobs/runner.ts`** is started separately (`npm run start:jobs`); make sure prod has it as its own service / container.
 - [ ] **Webhook signing** — RevenueCat webhook uses a shared bearer token (`REVENUECAT_WEBHOOK_AUTH`). Consider switching to an HMAC of the body once RC supports it self-hosted, or whitelist their source IPs at the load balancer.
 
-## Web (kroni.no) — out of scope this session
+## Web (kroni.no)
 
-- [ ] Update marketing-site pricing to mention "from 49 kr/mo, 399 kr/yr, 1200 kr lifetime, 7 days free".
-- [ ] Privacy + Terms updates: lifetime purchase terms, Sentry crash reporting disclosure.
+- [x] Update marketing-site pricing to mention "from 49 kr/mo, 399 kr/yr, 1200 kr lifetime, 7 days free" — pricing cards (NO + EN), homepage FAQ, support FAQ. Added "Hvorfor koster Kroni penger?" / "Why does Kroni cost money?" FAQ on both locales.
+- [x] Privacy + Terms updates: lifetime purchase terms (vilkår §02 def, §06 priser, §08 betaling, §09 oppsigelse), Sentry crash reporting disclosure (personvern §02, §09, §13). Bumped "updated" to 29. april 2026.
+- [ ] **Multi-domain + multi-language site** — kroni.no (nb default), kroni.se (sv default), kroni.dk (da default). Each domain serves its market's language for privacy + terms. Expose `/en` on each domain as the catch-all English fallback for non-Nordic visitors. DNS / Caddy routing per host; Next.js locale segments under `app/[lang]/`.
+- [ ] **Localized legal pages** — translate Personvern + Vilkår to sv, da, en. Keep §-numbering aligned across locales so the mobile app can deep-link to a specific clause regardless of language.
+- [ ] **Universal-link `/pair/<code>` route** — landing page on kroni.no/.dk/.se that triggers the deep link into the kid app on iOS/Android (with App Store / Play fallback if not installed). Backs the "share kid login link" feature.
 
 ## Nice-to-have
 
@@ -61,3 +68,4 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] Avatar tweaking after pairing (kid can't currently change their avatar from the kid app).
 - [ ] Per-kid pairing-code regeneration UI on the kid detail screen (today the parent has to delete + re-add the kid).
 - [ ] `sentry-expo` source-map upload for OTA updates — only matters once we use EAS Update.
+

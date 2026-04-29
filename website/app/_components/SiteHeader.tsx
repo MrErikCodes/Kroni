@@ -1,31 +1,29 @@
-// [REVIEW] copy generated; native review needed.
 "use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import LocaleSwitcher from "./LocaleSwitcher";
+import type { Locale } from "../_i18n/locales";
+import type { Dictionary } from "../_i18n/dict";
 
-const NAV_NB = [
-  { href: "/", label: "Hjem" },
-  { href: "/personvern", label: "Personvern" },
-  { href: "/vilkar", label: "Vilkår" },
-  { href: "/support", label: "Støtte" },
-];
-
-const NAV_EN = [
-  { href: "/en", label: "Home" },
-  { href: "/personvern", label: "Privacy" },
-  { href: "/vilkar", label: "Terms" },
-  { href: "/support", label: "Support" },
-];
-
-export default function SiteHeader() {
-  const pathname = usePathname();
-  const isEn = pathname?.startsWith("/en") ?? false;
-  const nav = isEn ? NAV_EN : NAV_NB;
+export default function SiteHeader({
+  locale,
+  dict,
+}: {
+  locale: Locale;
+  dict: Dictionary;
+}) {
+  const pathname = usePathname() || "/";
+  const base = `/${locale}`;
+  const nav = [
+    { href: `${base}`, label: dict.header.home, exact: true },
+    { href: `${base}/personvern`, label: dict.header.privacy },
+    { href: `${base}/vilkar`, label: dict.header.terms },
+    { href: `${base}/support`, label: dict.header.support },
+  ];
 
   const [scrolled, setScrolled] = useState(false);
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -42,11 +40,11 @@ export default function SiteHeader() {
           : "bg-transparent border-b border-transparent",
       ].join(" ")}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <Link
-          href={isEn ? "/en" : "/"}
+          href={base}
           className="group inline-flex items-baseline gap-1.5"
-          aria-label={isEn ? "Kroni — home" : "Kroni — hjem"}
+          aria-label={dict.header.homeAria}
         >
           <span className="font-display text-[22px] font-semibold tracking-tight text-sand-900">
             Kroni
@@ -57,33 +55,33 @@ export default function SiteHeader() {
           />
         </Link>
 
-        <nav aria-label={isEn ? "Site navigation" : "Nettstednavigasjon"}>
-          <ul className="flex items-center gap-1 sm:gap-2">
-            {nav.map((item) => {
-              const active =
-                item.href === "/"
-                  ? pathname === "/"
-                  : item.href === "/en"
-                    ? pathname === "/en"
-                    : pathname?.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={[
-                      "inline-flex items-center rounded-md px-2.5 py-1.5 text-[13px] font-medium tracking-tight transition-colors sm:px-3 sm:text-[14px]",
-                      active
-                        ? "text-sand-900"
-                        : "text-sand-500 hover:text-sand-900",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </nav>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <nav aria-label={dict.header.nav} className="hidden sm:block">
+            <ul className="flex items-center gap-1 sm:gap-2">
+              {nav.map((item) => {
+                const active = item.exact
+                  ? pathname === item.href
+                  : pathname.startsWith(item.href);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={[
+                        "inline-flex items-center rounded-md px-2.5 py-1.5 text-[13px] font-medium tracking-tight transition-colors sm:px-3 sm:text-[14px]",
+                        active
+                          ? "text-sand-900"
+                          : "text-sand-500 hover:text-sand-900",
+                      ].join(" ")}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+          <LocaleSwitcher current={locale} label={dict.header.languageMenu} />
+        </div>
       </div>
     </header>
   );

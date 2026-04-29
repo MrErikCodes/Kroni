@@ -26,11 +26,23 @@ api.kroni.no {
     }
 }
 
-kroni.no, www.kroni.no {
-    @www host www.kroni.no
-    redir @www https://kroni.no{uri} permanent
+kroni.no, www.kroni.no, kroni.se, www.kroni.se, kroni.dk, www.kroni.dk {
+    # Strip www. → apex (per-TLD).
+    @wwwNo host www.kroni.no
+    redir @wwwNo https://kroni.no{uri} permanent
+    @wwwSe host www.kroni.se
+    redir @wwwSe https://kroni.se{uri} permanent
+    @wwwDk host www.kroni.dk
+    redir @wwwDk https://kroni.dk{uri} permanent
 
-    reverse_proxy localhost:3001
+    reverse_proxy localhost:3001 {
+        # Pass the original Host through so Next's proxy.ts can pick the
+        # right default locale per country domain.
+        header_up Host {host}
+        header_up X-Forwarded-Host {host}
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Forwarded-For {remote_host}
+    }
     encode gzip zstd
 
     header {
@@ -40,7 +52,7 @@ kroni.no, www.kroni.no {
     }
 
     log {
-        output file /var/log/caddy/kroni.no.log {
+        output file /var/log/caddy/kroni.web.log {
             roll_size 50mb
             roll_keep 14
         }
