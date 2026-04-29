@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
 import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo';
-import { nbNO } from '@clerk/localizations';
+import {
+  nbNO as clerkNb,
+  enUS as clerkEn,
+  svSE as clerkSv,
+  daDK as clerkDa,
+} from '@clerk/localizations';
+import type { LocalizationResource } from '@clerk/types';
 import { tokenCache } from '../lib/clerkTokenCache';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
@@ -23,8 +29,21 @@ import {
   Inter_600SemiBold,
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
+import * as Localization from 'expo-localization';
 import { registerNavigate } from '../lib/api';
-import { subscribeLocale } from '../lib/i18n';
+import {
+  subscribeLocale,
+  setAppLocale,
+  getAppLocale,
+  type ShortLocale,
+} from '../lib/i18n';
+
+const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
+  nb: clerkNb,
+  en: clerkEn,
+  sv: clerkSv,
+  da: clerkDa,
+};
 import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
 import { ensureInstallId } from '../lib/installInfo';
 import { getKidToken } from '../lib/auth';
@@ -34,6 +53,14 @@ import { kidApi } from '../lib/api';
 // errors during component setup are captured. No-op if SENTRY_DSN isn't
 // set (Expo Go without phase env, etc.).
 initSentry();
+
+// Bootstrap i18n with the device language before any screen mounts. The
+// settings screen overrides this with the server-stored `me.locale` once
+// the parent is authenticated, but pre-auth flows (sign-up, sign-in,
+// kid pairing) need to render in the right language and link to the
+// right legal-domain (kroni.no/.se/.dk).
+const deviceLocale = Localization.getLocales()[0]?.languageCode ?? 'nb';
+setAppLocale(deviceLocale);
 // RevenueCat is parent-only; configured lazily inside the identity bridge
 // once a Clerk session appears.
 import {
@@ -169,7 +196,17 @@ export default function RootLayout() {
   // QueryClientProvider sit above the key boundary, so auth + cached
   // data survive the swap.
   const [localeKey, setLocaleKey] = useState(0);
-  useEffect(() => subscribeLocale(() => setLocaleKey((n) => n + 1)), []);
+  const [shortLocale, setShortLocale] = useState<ShortLocale>(() =>
+    getAppLocale(),
+  );
+  useEffect(
+    () =>
+      subscribeLocale((next) => {
+        setLocaleKey((n) => n + 1);
+        setShortLocale(next);
+      }),
+    [],
+  );
 
   // Load Newsreader (display serif) + Inter (UI sans). Italic variants are
   // used for the single-noun emphasis in display headlines, mirroring the
@@ -201,7 +238,7 @@ export default function RootLayout() {
     <ClerkProvider
       publishableKey={clerkPublishableKey}
       tokenCache={tokenCache}
-      localization={nbNO}
+      localization={CLERK_LOCALES[shortLocale]}
     >
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>

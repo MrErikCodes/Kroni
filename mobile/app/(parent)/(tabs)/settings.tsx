@@ -297,7 +297,12 @@ export default function SettingsTab() {
                     ? t('subscriptionDetail.tierLifetime')
                     : tierLabel[billing?.tier ?? 'free'] ?? tierLabel.free
                 }
-                onPress={() => router.push('/(parent)/subscription')}
+                onPress={() =>
+                  // Cast: route file at app/(parent)/subscription.tsx exists
+                  // but expo-router's typed-routes file regenerates only on
+                  // dev-server start, so the static check sees a stale list.
+                  router.push('/(parent)/subscription' as never)
+                }
               />
               {billing?.tier === 'free' && !billing?.lifetimePaid ? (
                 <>

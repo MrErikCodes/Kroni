@@ -5,7 +5,13 @@ import { notFound } from "next/navigation";
 import "../globals.css";
 import SiteHeader from "../_components/SiteHeader";
 import SiteFooter from "../_components/SiteFooter";
-import { LOCALES, HTML_LANG, hasLocale, type Locale } from "../_i18n/locales";
+import {
+  CANONICAL_DOMAIN,
+  HTML_LANG,
+  LOCALES,
+  hasLocale,
+  type Locale,
+} from "../_i18n/locales";
 import { getDictionary } from "../_i18n/dict";
 
 const inter = Inter({
@@ -37,17 +43,22 @@ export async function generateMetadata(
   const { lang } = await params;
   if (!hasLocale(lang)) return {};
   const dict = await getDictionary(lang);
+  const base = CANONICAL_DOMAIN[lang];
   const alternates: Metadata["alternates"] = {
-    canonical: `/${lang}`,
-    languages: Object.fromEntries(LOCALES.map((l) => [l, `/${l}`])),
+    canonical: `${base}/${lang}`,
+    languages: Object.fromEntries(
+      LOCALES.map((l) => [l, `${CANONICAL_DOMAIN[l]}/${l}`]),
+    ),
   };
   return {
+    metadataBase: new URL(base),
     title: dict.meta.home.title,
     description: dict.meta.rootDescription,
     alternates,
     openGraph: {
       title: dict.meta.home.title,
       description: dict.meta.home.og,
+      url: `${base}/${lang}`,
       images: [{ url: "/og-image.png" }],
     },
   };

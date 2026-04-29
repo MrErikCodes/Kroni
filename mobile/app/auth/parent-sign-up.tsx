@@ -9,13 +9,14 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useSignUp, useAuth } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../lib/theme';
-import { t } from '../../lib/i18n';
+import { t, legalUrl } from '../../lib/i18n';
 import { formatClerkError } from '../../lib/clerkErrors';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -287,6 +288,26 @@ export default function ParentSignUp() {
                 disabled={!email || !password}
                 size="sm"
               />
+
+              <Text style={[styles.consent, { color: tx.secondary }]}>
+                {t('auth.parent.consentPre')}{' '}
+                <Text
+                  accessibilityRole="link"
+                  onPress={() => Linking.openURL(legalUrl('vilkar'))}
+                  style={[styles.consentLink, { color: theme.colors.gold[700] }]}
+                >
+                  {t('auth.parent.consentTerms')}
+                </Text>{' '}
+                {t('auth.parent.consentAnd')}{' '}
+                <Text
+                  accessibilityRole="link"
+                  onPress={() => Linking.openURL(legalUrl('personvern'))}
+                  style={[styles.consentLink, { color: theme.colors.gold[700] }]}
+                >
+                  {t('auth.parent.consentPrivacy')}
+                </Text>
+                {t('auth.parent.consentDot')}
+              </Text>
             </View>
           ) : (
             <View style={styles.form}>
@@ -388,6 +409,16 @@ const styles = StyleSheet.create({
   joinLinkRow: { paddingVertical: 4 },
   joinLink: {
     fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  consent: {
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  consentLink: {
     fontWeight: '600',
     textDecorationLine: 'underline',
   },

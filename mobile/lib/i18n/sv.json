@@ -20,8 +20,15 @@
       "password": "Password",
       "continueWithApple": "Continue with Apple",
       "continueWithEmail": "Continue with email",
-      "noAccount": "Don't have an account?",
-      "hasAccount": "Already have an account?"
+      "noAccount": "Har du inget konto?",
+      "hasAccount": "Har du redan ett konto?",
+      "welcomeBack": "Välkommen tillbaka",
+      "createAccount": "Skapa ett konto",
+      "consentPre": "Genom att skapa ett konto godkänner du våra",
+      "consentTerms": "Villkor",
+      "consentAnd": "och",
+      "consentPrivacy": "integritetspolicy",
+      "consentDot": "."
     },
     "kid": {
       "pair": "Connect to parent",

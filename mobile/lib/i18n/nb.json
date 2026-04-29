@@ -28,7 +28,12 @@
       "noAccount": "Har du ikke konto?",
       "hasAccount": "Har du allerede konto?",
       "welcomeBack": "Velkommen tilbake",
-      "createAccount": "Lag en konto"
+      "createAccount": "Lag en konto",
+      "consentPre": "Ved å opprette konto godtar du våre",
+      "consentTerms": "Vilkår",
+      "consentAnd": "og",
+      "consentPrivacy": "Personvernerklæring",
+      "consentDot": "."
     },
     "kid": {
       "pair": "Koble til forelder",

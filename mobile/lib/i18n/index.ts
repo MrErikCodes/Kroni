@@ -2,26 +2,35 @@ import { I18n } from 'i18n-js';
 
 import nb from './nb.json';
 import en from './en.json';
+import sv from './sv.json';
+import da from './da.json';
 
-export type AppLocale = 'nb-NO' | 'en-US';
+export type AppLocale = 'nb-NO' | 'en-US' | 'sv-SE' | 'da-DK';
+export type ShortLocale = 'nb' | 'en' | 'sv' | 'da';
 
 export const SUPPORTED_LOCALES: ReadonlyArray<{ code: AppLocale; label: string }> = [
   { code: 'nb-NO', label: 'Norsk (bokmål)' },
   { code: 'en-US', label: 'English' },
+  { code: 'sv-SE', label: 'Svenska' },
+  { code: 'da-DK', label: 'Dansk' },
 ];
 
-// nb is default. en falls back to nb for missing keys via enableFallback so
-// partial English translations degrade gracefully while the rest of en.json
-// gets filled in. Server-stored parents.locale drives both UI and email.
-const i18n = new I18n({ nb, en });
+// nb is default. Other locales fall back to nb for missing keys via
+// enableFallback so partial translations degrade gracefully while the rest
+// of the JSON files get filled in. Server-stored parents.locale drives both
+// UI and email.
+const i18n = new I18n({ nb, en, sv, da });
 
 i18n.locale = 'nb';
 i18n.defaultLocale = 'nb';
 i18n.enableFallback = true;
 
-function normalize(locale: string | null | undefined): 'nb' | 'en' {
+function normalize(locale: string | null | undefined): ShortLocale {
   if (!locale) return 'nb';
-  if (locale.toLowerCase().startsWith('en')) return 'en';
+  const lower = locale.toLowerCase();
+  if (lower.startsWith('en')) return 'en';
+  if (lower.startsWith('sv')) return 'sv';
+  if (lower.startsWith('da')) return 'da';
   return 'nb';
 }
 
@@ -30,7 +39,7 @@ function normalize(locale: string | null | undefined): 'nb' | 'en' {
 // `subscribeLocale` to bump a key on the navigation stack, which remounts
 // every screen and forces all `t(...)` calls to re-evaluate against the
 // new locale. Cheaper than threading a context through every screen.
-type LocaleListener = (locale: 'nb' | 'en') => void;
+type LocaleListener = (locale: ShortLocale) => void;
 const listeners = new Set<LocaleListener>();
 
 export function subscribeLocale(fn: LocaleListener): () => void {
@@ -45,6 +54,22 @@ export function setAppLocale(locale: string | null | undefined): void {
   if (i18n.locale === next) return;
   i18n.locale = next;
   for (const fn of listeners) fn(next);
+}
+
+export function getAppLocale(): ShortLocale {
+  return (i18n.locale as ShortLocale) ?? 'nb';
+}
+
+const LEGAL_DOMAIN: Record<ShortLocale, string> = {
+  nb: 'https://kroni.no',
+  en: 'https://kroni.no',
+  sv: 'https://kroni.se',
+  da: 'https://kroni.dk',
+};
+
+export function legalUrl(path: 'vilkar' | 'personvern'): string {
+  const locale = getAppLocale();
+  return `${LEGAL_DOMAIN[locale]}/${locale}/${path}`;
 }
 
 export { i18n };

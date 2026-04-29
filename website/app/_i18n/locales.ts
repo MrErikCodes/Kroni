@@ -26,6 +26,13 @@ export const DOMAIN_DEFAULT_LOCALE: Record<string, Locale> = {
   "www.kroni.dk": "da",
 };
 
+export const CANONICAL_DOMAIN: Record<Locale, string> = {
+  nb: "https://kroni.no",
+  en: "https://kroni.no",
+  sv: "https://kroni.se",
+  da: "https://kroni.dk",
+};
+
 export function hasLocale(value: string): value is Locale {
   return (LOCALES as readonly string[]).includes(value);
 }

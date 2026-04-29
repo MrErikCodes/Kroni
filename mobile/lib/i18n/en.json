@@ -28,7 +28,12 @@
       "noAccount": "Don't have an account?",
       "hasAccount": "Already have an account?",
       "welcomeBack": "Welcome back",
-      "createAccount": "Create an account"
+      "createAccount": "Create an account",
+      "consentPre": "By creating an account you agree to our",
+      "consentTerms": "Terms",
+      "consentAnd": "and",
+      "consentPrivacy": "Privacy Policy",
+      "consentDot": "."
     },
     "kid": {
       "pair": "Connect to parent",
