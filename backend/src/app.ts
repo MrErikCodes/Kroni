@@ -1,6 +1,5 @@
 import Fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify';
 import helmet from '@fastify/helmet';
-import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import {
   serializerCompiler,
@@ -55,17 +54,6 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(errorHandler);
   await app.register(sensible);
   await app.register(helmet, { contentSecurityPolicy: false });
-  await app.register(cors, {
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true); // mobile apps and tools
-      if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return cb(null, true);
-      if (origin === cfg.APP_WEBSITE_URL || origin === `${cfg.APP_WEBSITE_URL}/`) {
-        return cb(null, true);
-      }
-      cb(null, false);
-    },
-    credentials: true,
-  });
   await app.register(rateLimitPlugin);
   await app.register(authClerkPlugin);
   await app.register(authKidPlugin);

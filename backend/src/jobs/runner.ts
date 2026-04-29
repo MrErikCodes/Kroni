@@ -1,7 +1,8 @@
 import { Queue, Worker, type Job } from 'bullmq';
 import { getRedis } from '../lib/redis.js';
-import { getConfig } from '../config.js';
 import { logger } from '../lib/logger.js';
+
+const APP_TZ = 'Europe/Oslo';
 import { runDailyReset } from './daily-reset.js';
 import { runAllowance } from './allowance.js';
 import { runApprovalReminders } from './approval-reminders.js';
@@ -35,7 +36,6 @@ const schedule: Array<{ name: JobName; cron: string }> = [
 ];
 
 async function main(): Promise<void> {
-  const cfg = getConfig();
   const connection = getRedis();
 
   const queue = new Queue(QUEUE_NAME, { connection });
@@ -48,11 +48,11 @@ async function main(): Promise<void> {
 
   for (const entry of schedule) {
     await queue.add(entry.name, {}, {
-      repeat: { pattern: entry.cron, tz: cfg.APP_TIMEZONE },
+      repeat: { pattern: entry.cron, tz: APP_TZ },
       removeOnComplete: 50,
       removeOnFail: 100,
     });
-    logger.info({ name: entry.name, cron: entry.cron, tz: cfg.APP_TIMEZONE }, 'scheduled');
+    logger.info({ name: entry.name, cron: entry.cron, tz: APP_TZ }, 'scheduled');
   }
 
   const worker = new Worker(

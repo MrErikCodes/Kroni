@@ -42,9 +42,6 @@ const Env = z.object({
   // without flooding the project. Bump to 1.0 in dev for full visibility.
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
 
-  APP_TIMEZONE: z.string().default('Europe/Oslo'),
-  APP_PUBLIC_URL: z.string().url().default('https://api.kroni.no'),
-  APP_WEBSITE_URL: z.string().url().default('https://kroni.no'),
 });
 
 export type Config = z.infer<typeof Env>;

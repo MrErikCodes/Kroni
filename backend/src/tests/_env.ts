@@ -23,4 +23,3 @@ process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
 process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
 process.env.KID_JWT_SECRET ??= '0'.repeat(64);
 process.env.MAILPACE_API_TOKEN ??= 'mp_test_placeholder';
-process.env.APP_TIMEZONE ??= 'Europe/Oslo';

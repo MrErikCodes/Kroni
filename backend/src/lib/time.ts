@@ -1,8 +1,8 @@
 import { formatInTimeZone, toZonedTime } from 'date-fns-tz';
 import { startOfWeek } from 'date-fns';
-import { getConfig } from '../config.js';
 
-const tz = (): string => getConfig().APP_TIMEZONE;
+const APP_TZ = 'Europe/Oslo';
+const tz = (): string => APP_TZ;
 
 // Returns YYYY-MM-DD string in app timezone (Europe/Oslo).
 export function todayInAppTz(now: Date = new Date()): string {
