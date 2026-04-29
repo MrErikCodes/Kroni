@@ -12,7 +12,8 @@
     "ios": "phase run \"expo run:ios\"",
     "web": "phase run \"expo start --web\"",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "eas-build-post-install": "npm --prefix ../shared run build"
   },
   "dependencies": {
     "@clerk/clerk-expo": "^2.19.31",

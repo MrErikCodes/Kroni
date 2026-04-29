@@ -12,6 +12,12 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'no.nilsenkonsult.kroni',
+    // Declares the app uses no non-exempt encryption (only HTTPS / Apple
+    // crypto APIs). Skips the export-compliance question on every TestFlight
+    // upload. Re-evaluate if we ship custom crypto.
+    infoPlist: {
+      ITSAppUsesNonExemptEncryption: false,
+    },
     // Universal links for the "share kid login link" feature. iOS verifies
     // these against `<domain>/.well-known/apple-app-site-association`. The
     // AASA file is served by the marketing site (kroni.no/.se/.dk) and
