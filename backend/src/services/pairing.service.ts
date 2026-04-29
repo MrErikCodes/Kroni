@@ -23,6 +23,10 @@ export interface CreatedPairingCode {
 // Retries on collision up to 5 times (vanishingly small probability). The
 // code targets a specific kid the parent has already created; redemption
 // only attaches a device to that kid.
+//
+// Any pre-existing un-used pairing code for the same kid is invalidated
+// (marked used, cache evicted) before the new one is issued, so a parent
+// regenerating a code immediately revokes the prior one.
 export async function createPairingCode(
   householdId: string,
   parentId: string,
@@ -40,6 +44,23 @@ export async function createPairingCode(
   const kidRow = kidRows[0];
   if (!kidRow || kidRow.householdId !== householdId) {
     throw new NotFoundError('kid not found in household');
+  }
+
+  // Invalidate any prior un-used codes for this kid. The pair endpoint
+  // already filters on `usedAt IS NULL` + `expiresAt > now()`, so flipping
+  // `usedAt` is sufficient to revoke. Drop their redis cache entries too.
+  const stale = await db
+    .update(pairingCodes)
+    .set({ usedAt: new Date() })
+    .where(
+      and(
+        eq(pairingCodes.targetKidId, targetKidId),
+        isNull(pairingCodes.usedAt),
+      ),
+    )
+    .returning({ code: pairingCodes.code });
+  if (stale.length > 0) {
+    await Promise.all(stale.map((row) => redis.del(codeCacheKey(row.code))));
   }
 
   for (let attempt = 0; attempt < 5; attempt++) {

@@ -179,6 +179,10 @@ const BillingStatusSchema = z.object({
   // safe during a phased deploy.
   lifetimePaid: z.boolean().optional().default(false),
   isPaid: z.boolean().optional().default(false),
+  // Surfaced from RevenueCat via webhook. `null` for no-active-sub or
+  // lifetime owners (not periodic). Optional so cached responses from
+  // pre-rollout backends still parse — treated as "not trial".
+  periodType: z.enum(['TRIAL', 'INTRO', 'NORMAL']).nullable().optional(),
 });
 export type BillingStatus = z.infer<typeof BillingStatusSchema>;
 
@@ -294,6 +298,16 @@ export function clientFor(getToken: GetToken) {
         body: JSON.stringify({ kidId }),
       });
       return GeneratePairingCodeResponseSchema.parse(json);
+    },
+
+    // Regenerate (revoke + reissue) the kid's pairing code in place — used by
+    // the kid detail screen when the kid loses their device. Backend
+    // invalidates any prior un-used code for this kid, then issues a fresh
+    // 6-digit one with the standard 15-min TTL.
+    async regenerateKidPairingCode(
+      kidId: string,
+    ): Promise<{ code: string; expiresAt: string }> {
+      return this.generatePairingCode(kidId);
     },
 
     // ── Tasks ───────────────────────────────────────────────────────────────
@@ -419,13 +433,6 @@ export function clientFor(getToken: GetToken) {
     async getBillingStatus(): Promise<BillingStatus> {
       const json = await request('/api/parent/billing/status');
       return BillingStatusSchema.parse(json);
-    },
-
-    async verifyReceipt(receiptData: string): Promise<void> {
-      await request('/api/parent/billing/verify-receipt', {
-        method: 'POST',
-        body: JSON.stringify({ receiptData }),
-      });
     },
 
     // ── Household ───────────────────────────────────────────────────────────

@@ -78,6 +78,16 @@
       "verifyCodeLabel": "Verification code",
       "verifyCodeAccessibility": "Verification code"
     },
+    "resetPassword": {
+      "title": "Reset password",
+      "emailLabel": "Email address",
+      "sendCode": "Send code",
+      "codeLabel": "Code",
+      "newPasswordLabel": "New password",
+      "submit": "Reset",
+      "forgotLink": "Forgot password?",
+      "errorGeneric": "Couldn't reset your password. Try again."
+    },
     "kidPair": {
       "eyebrow": "Kid",
       "headlineA": "Enter",
@@ -192,7 +202,15 @@
         "monthly": "Monthly"
       },
       "nextPayment": "Next payment: %{date}",
-      "nextPaymentNone": "Next payment: —"
+      "nextPaymentNone": "Next payment: —",
+      "pairingCode": {
+        "regenerateButton": "Generate new pairing code",
+        "confirmTitle": "Generate new code?",
+        "confirmBody": "The old code will stop working.",
+        "newCodeTitle": "New code",
+        "expiresLabel": "Expires %{date}",
+        "copyButton": "Copy"
+      }
     },
     "tasksList": {
       "title": "Tasks",

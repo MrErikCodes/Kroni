@@ -238,6 +238,17 @@ export default function ParentSignIn() {
                   disabled={!email || !password}
                   size="sm"
                 />
+
+                <TouchableOpacity
+                  onPress={() => router.push('/auth/parent-reset-password')}
+                  accessibilityRole="link"
+                  accessibilityLabel={t('auth.resetPassword.forgotLink')}
+                  style={styles.forgotRow}
+                >
+                  <KroniText variant="small" tone="gold" style={styles.link}>
+                    {t('auth.resetPassword.forgotLink')}
+                  </KroniText>
+                </TouchableOpacity>
               </>
             ) : (
               <>
@@ -354,5 +365,9 @@ const styles = StyleSheet.create({
   },
   link: {
     textDecorationLine: 'underline',
+  },
+  forgotRow: {
+    alignItems: 'center',
+    paddingVertical: 4,
   },
 });

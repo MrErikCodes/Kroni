@@ -9,6 +9,12 @@ export const households = pgTable('households', {
   // updates this when the premium-owner parent buys / cancels.
   subscriptionTier: text().notNull().default('free'),
   subscriptionExpiresAt: timestamp({ withTimezone: true }),
+  // Stores RevenueCat's `period_type` from the most recent grant event
+  // (one of TRIAL, INTRO, NORMAL). Used for trial banner precision in
+  // mobile — was previously inferred from the expiry window (≤7 days =
+  // trial), which mis-flagged near-expiry yearly subs as trials. Null
+  // when no active sub or when the field isn't applicable (lifetime).
+  subscriptionPeriodType: text(),
   // True when the household has bought the lifetime IAP (`kroni_lifetime`).
   // Independent of subscriptionTier so a lifetime owner survives a future
   // tier rename and can't accidentally lose access when a recurring sub

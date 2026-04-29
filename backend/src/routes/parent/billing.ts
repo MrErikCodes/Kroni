@@ -12,6 +12,11 @@ const BillingStatusSchema = z.object({
   expiresAt: z.string().datetime().nullable(),
   lifetimePaid: z.boolean(),
   isPaid: z.boolean(),
+  // RevenueCat's `period_type` from the most recent grant event. Lets
+  // mobile distinguish a real trial (TRIAL) from a near-expiry yearly
+  // sub instead of inferring it from a 7-day expiry window. Null when
+  // no active sub or for lifetime owners (lifetime isn't periodic).
+  periodType: z.enum(['TRIAL', 'INTRO', 'NORMAL']).nullable(),
 });
 
 export async function parentBillingRoutes(app: FastifyInstance): Promise<void> {
@@ -26,6 +31,13 @@ export async function parentBillingRoutes(app: FastifyInstance): Promise<void> {
     async (req) => {
       const household = req.household;
       if (!household) throw new UnauthorizedError('household missing');
+      // Whitelist RC's documented period_type values; anything else
+      // (including stale rows from before this column existed) → null.
+      const rawPeriod = household.subscriptionPeriodType;
+      const periodType: 'TRIAL' | 'INTRO' | 'NORMAL' | null =
+        rawPeriod === 'TRIAL' || rawPeriod === 'INTRO' || rawPeriod === 'NORMAL'
+          ? rawPeriod
+          : null;
       return {
         tier: (household.subscriptionTier === 'family' ? 'family' : 'free') as 'free' | 'family',
         expiresAt: household.subscriptionExpiresAt
@@ -33,6 +45,7 @@ export async function parentBillingRoutes(app: FastifyInstance): Promise<void> {
           : null,
         lifetimePaid: household.lifetimePaid,
         isPaid: isHouseholdPaid(household),
+        periodType,
       };
     },
   );

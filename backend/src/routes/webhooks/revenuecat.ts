@@ -214,11 +214,15 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
 
     if (GRANT_EVENTS.has(ev.type)) {
       if (isLifetime) {
+        // Lifetime is not periodic — clear `subscriptionPeriodType` so a
+        // stale TRIAL/NORMAL value can't linger on a household that
+        // upgraded from a recurring sub to lifetime.
         await db
           .update(households)
           .set({
             lifetimePaid: true,
             subscriptionTier: 'family',
+            subscriptionPeriodType: null,
             premiumOwnerParentId: parent.id,
             updatedAt: new Date(),
           })
@@ -231,6 +235,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
           .set({
             subscriptionTier: 'family',
             subscriptionExpiresAt: expiresAt,
+            subscriptionPeriodType: ev.period_type ?? null,
             premiumOwnerParentId: parent.id,
             updatedAt: new Date(),
           })
@@ -266,6 +271,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
           .set({
             subscriptionTier: 'free',
             subscriptionExpiresAt: null,
+            subscriptionPeriodType: null,
             updatedAt: new Date(),
           })
           .where(eq(households.id, householdId));

@@ -103,19 +103,12 @@ export default function SubscriptionScreen() {
   const isFamily = billing?.tier === 'family' && !isLifetime;
   const isFree = !isLifetime && !isFamily;
 
-  // RevenueCat doesn't surface period_type directly to the client, but the
-  // expiration window (~7 days) plus first-time purchase is the trial
-  // signal. If we ever need exact precision we can plumb period_type
-  // through the webhook into a household column.
+  const isTrial = isFamily && billing?.periodType === 'TRIAL';
   let trialBanner: string | null = null;
-  if (isFamily && billing?.expiresAt) {
-    const expires = new Date(billing.expiresAt).getTime();
-    const daysLeft = Math.ceil((expires - Date.now()) / 86_400_000);
-    if (daysLeft <= 7 && daysLeft >= 0) {
-      trialBanner = t('subscriptionDetail.trialActiveBody', {
-        date: formatDate(billing.expiresAt, locale),
-      });
-    }
+  if (isTrial && billing?.expiresAt) {
+    trialBanner = t('subscriptionDetail.trialActiveBody', {
+      date: formatDate(billing.expiresAt, locale),
+    });
   }
 
   return (

@@ -78,6 +78,16 @@
       "verifyCodeLabel": "Bekreftelseskode",
       "verifyCodeAccessibility": "Bekreftelseskode"
     },
+    "resetPassword": {
+      "title": "Tilbakestill passord",
+      "emailLabel": "E-postadresse",
+      "sendCode": "Send kode",
+      "codeLabel": "Kode",
+      "newPasswordLabel": "Nytt passord",
+      "submit": "Tilbakestill",
+      "forgotLink": "Glemt passord?",
+      "errorGeneric": "Kunne ikke tilbakestille passordet. Prøv igjen."
+    },
     "kidPair": {
       "eyebrow": "Barn",
       "headlineA": "Skriv inn",
@@ -192,7 +202,15 @@
         "monthly": "Månedlig"
       },
       "nextPayment": "Neste utbetaling: %{date}",
-      "nextPaymentNone": "Neste utbetaling: —"
+      "nextPaymentNone": "Neste utbetaling: —",
+      "pairingCode": {
+        "regenerateButton": "Generer ny kobling-kode",
+        "confirmTitle": "Generere ny kode?",
+        "confirmBody": "Den gamle koden vil slutte å virke.",
+        "newCodeTitle": "Ny kode",
+        "expiresLabel": "Utløper %{date}",
+        "copyButton": "Kopier"
+      }
     },
     "tasksList": {
       "title": "Oppgaver",

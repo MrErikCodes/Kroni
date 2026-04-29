@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack, useRouter } from 'expo-router';
-import { ClerkProvider, useAuth, useUser } from '@clerk/clerk-expo';
+import { ClerkProvider, useAuth } from '@clerk/clerk-expo';
 import {
   nbNO as clerkNb,
   enUS as clerkEn,
@@ -128,7 +128,6 @@ function NavigationRegistrar() {
  */
 function SentryIdentityBridge() {
   const { userId: clerkUserId, isLoaded } = useAuth();
-  const { user } = useUser();
 
   // Resolve the install id once at startup, then re-tag.
   useEffect(() => {
@@ -142,7 +141,6 @@ function SentryIdentityBridge() {
       tagSentryUser({
         role: 'parent',
         userId: clerkUserId,
-        email: user?.primaryEmailAddress?.emailAddress ?? null,
       });
     } else {
       // No Clerk session — fall through to kid-token check below.
@@ -161,7 +159,7 @@ function SentryIdentityBridge() {
         tagSentryUser(null);
       })();
     }
-  }, [clerkUserId, isLoaded, user?.primaryEmailAddress?.emailAddress]);
+  }, [clerkUserId, isLoaded]);
 
   return null;
 }
@@ -268,7 +266,7 @@ function ParentDevicePushBridge() {
   return null;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   // Locale-version key — bumped whenever setAppLocale fires. The Stack
   // below uses this as its `key`, so every screen remounts and re-runs
   // its `t(...)` calls against the new locale. ClerkProvider and
@@ -331,3 +329,5 @@ export default function RootLayout() {
     </ClerkProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

@@ -35,6 +35,16 @@
       "enterCode": "Enter the code you got from your parent",
       "connecting": "Connecting...",
       "paired": "Connected! Hi %{name}!"
+    },
+    "resetPassword": {
+      "title": "Återställ lösenord",
+      "emailLabel": "E-postadress",
+      "sendCode": "Skicka kod",
+      "codeLabel": "Kod",
+      "newPasswordLabel": "Nytt lösenord",
+      "submit": "Återställ",
+      "forgotLink": "Glömt lösenord?",
+      "errorGeneric": "Kunde inte återställa lösenordet. Försök igen."
     }
   },
   "parent": {
@@ -43,14 +53,43 @@
     "rewards": "Rewards",
     "approvals": "Approvals",
     "settings": "Settings",
-    "paywall": "Upgrade to Family"
+    "paywall": "Upgrade to Family",
+    "kidDetail": {
+      "pairingCode": {
+        "regenerateButton": "Skapa ny parningskod",
+        "confirmTitle": "Skapa ny kod?",
+        "confirmBody": "Den gamla koden slutar fungera.",
+        "newCodeTitle": "Ny kod",
+        "expiresLabel": "Förfaller %{date}",
+        "copyButton": "Kopiera"
+      }
+    }
   },
   "kid": {
     "today": "Today",
     "balance": "Balance",
     "rewards": "Rewards",
     "profile": "Profile",
-    "celebrate": "Great job!"
+    "celebrate": "Great job!",
+    "todayScreen": {
+      "detailSheet": {
+        "recurrenceDaily": "Varje dag",
+        "recurrenceOnce": "Endast en gång",
+        "recurrenceWeekly": "Varje vecka",
+        "recurrenceAllDays": "Valfri",
+        "recurrenceOneDay": "Varje %{day}",
+        "connector": "och",
+        "dayNames": {
+          "0": "söndag",
+          "1": "måndag",
+          "2": "tisdag",
+          "3": "onsdag",
+          "4": "torsdag",
+          "5": "fredag",
+          "6": "lördag"
+        }
+      }
+    }
   },
   "roleChooser": {
     "title": "Who are you?",

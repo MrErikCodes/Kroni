@@ -1,0 +1,1 @@
+ALTER TABLE "households" ADD COLUMN "subscription_period_type" text;

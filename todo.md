@@ -29,15 +29,15 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 - [ ] **Connect Sentry to GitHub** so `sentry-cli releases set-commits --auto` actually populates suspect-commit data.
 - [ ] **Source maps** — verify both backend and mobile traces are unminified after a build that runs `release:sentry`.
-- [ ] **PII review** — currently we set `email` on the parent Sentry user. If that's too much, drop it from `tagSentryUser` and `tagSentryScope`.
+- [x] **PII review** — email removed from Sentry user identity 2026-04-29; userId only.
 - [ ] **Performance tracing volume** — backend defaults to 0.1, mobile to 0.2 (1.0 in dev). Tune once we see the actual event volume.
 - [ ] **Sentry alerts** — add a rule for "any unhandled error in production" + Telegram/Slack channel.
 
 ## Mobile app
 
-- [ ] **Subscription detail trial banner** — currently inferred from "expires in ≤ 7 days" instead of an explicit `period_type: TRIAL` flag. If RevenueCat ships a trial → upgrade flow that hits a 7-day yearly window inadvertently the banner could lie. Plumb `period_type` through the webhook into a household column for precision when it matters.
+- [x] **Subscription detail trial banner** — plumbed periodType through webhook + API + mobile 2026-04-29; banner now shows only when RC reports `period_type: TRIAL`.
 - [ ] **Paywall lifetime row** — the i18n strings (`paywall.lifetime` / `lifetimeBadge` / `lifetimeNote`) are added but not yet rendered in `(parent)/paywall.tsx`. RevenueCat's hosted paywall picks up the offering automatically; if/when we replace it with a custom paywall, render those keys.
-- [ ] **Sentry.wrap(RootLayout)** — opt in for auto profiling once we trust the integration.
+- [x] **Sentry.wrap(RootLayout)** — wrapped 2026-04-29.
 - [ ] **Error surfaces** — kid screens that talk to the API should show inline failures, not silently fall through to the generic "common.error". Same audit done for the rewards modal; tasks/balance still rely on react-query default behavior.
 - [ ] **Norwegian copy review** — every i18n string is currently AI-generated. Native speaker pass before launch (look for `// [REVIEW] Norwegian copy` file headers).
 - [ ] **Locale support: nb (default), sv, da, + en fallback** — launch markets are NO / SE / DK only. Auto-detect from device locale: `nb-*` → nb, `sv-*` → sv, `da-*` → da, anything else → en (catch-all for non-Nordic speakers). Expose a manual language picker in parent + kid settings. Add `sv`, `da`, `en` translation bundles alongside the existing `nb` one; keep `// [REVIEW]` headers per language for native-speaker passes.
@@ -46,8 +46,8 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 ## Backend
 
-- [ ] **Owner-only invite enforcement (server-side)** — UI hides the invite button for co-parents, but `POST /api/parent/household/invites` doesn't reject non-owners. Add a check in the route.
-- [ ] **`/api/parent/billing/verify-receipt`** — referenced in `mobile/lib/api.ts` but no backend route exists. Either remove the client method (RC webhook is authoritative) or add a server-side receipt re-check endpoint for support flows.
+- [x] Owner-only invite enforcement — done 2026-04-29. `POST /api/parent/household/invites` rejects with 403 when the requesting parent isn't `households.premiumOwnerParentId`. Mirrors mobile UI's `isOwner` check.
+- [x] **`/api/parent/billing/verify-receipt`** — removed dead client method 2026-04-29; RC webhook is authoritative.
 - [ ] **Pairing tests** — backend test suite passes locally on the live DB. Wire a fresh test DB so they run in CI.
 - [x] Drizzle snapshot baseline rebuild — done 2026-04-29. Introspected live DB, replaced `drizzle/meta/0007_snapshot.json` with full 15-table state, normalized `_journal.json` `when` values + `__drizzle_migrations.created_at` to monotonic 1700000000000 + idx*1000. `npm run db:generate` now reports `No schema changes, nothing to migrate`. Root cause was: legacy migrations 0002–0004 had hand-edited future-dated `when` (e.g. 1798820000000) and drizzle's migrator at `pg-core/dialect.js:62` uses `lastDbMigration.created_at < migration.folderMillis` to decide what to apply (purely timestamp comparison, ignores hash), so 0005–0007 were silently skipped on every `db:migrate` run.
 - [ ] **`background-jobs/runner.ts`** is started separately (`npm run start:jobs`); make sure prod has it as its own service / container.
@@ -63,9 +63,9 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 ## Nice-to-have
 
-- [ ] Localized day names in the kid task-detail sheet for languages beyond nb (`formatRecurrence` hard-codes Norwegian `og`).
-- [ ] Reset password flow on the parent app (currently Clerk handles via email, but no UI link).
+- [x] Localized day names in the kid task-detail sheet for languages beyond nb (`formatRecurrence` hard-codes Norwegian `og`). <!-- localized 2026-04-29 via i18n -->
+- [x] Reset password flow on the parent app (currently Clerk handles via email, but no UI link). <!-- added forgot-password flow on parent sign-in 2026-04-29 via Clerk reset_password_email_code -->
 - [ ] Avatar tweaking after pairing (kid can't currently change their avatar from the kid app).
-- [ ] Per-kid pairing-code regeneration UI on the kid detail screen (today the parent has to delete + re-add the kid).
+- [x] Per-kid pairing-code regeneration UI on the kid detail screen (today the parent has to delete + re-add the kid). <!-- shipped 2026-04-29 -->
 - [ ] `sentry-expo` source-map upload for OTA updates — only matters once we use EAS Update.
 

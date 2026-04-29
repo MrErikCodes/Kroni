@@ -102,7 +102,7 @@ export function refreshSentryInstallTag(): void {
  */
 export function tagSentryUser(
   scope:
-    | { role: AppRole; userId: string; email?: string | null; householdId?: string | null }
+    | { role: AppRole; userId: string; householdId?: string | null }
     | null,
 ): void {
   if (!initialized) return;
@@ -113,7 +113,6 @@ export function tagSentryUser(
   }
   Sentry.setUser({
     id: scope.userId,
-    ...(scope.email ? { email: scope.email } : {}),
   });
   Sentry.setTags({
     app_role: scope.role,

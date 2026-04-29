@@ -64,6 +64,13 @@
       "when": 1700000008000,
       "tag": "0008_verify_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777455794900,
+      "tag": "0009_lovely_champions",
+      "breakpoints": true
     }
   ]
 }

@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
+import * as Clipboard from 'expo-clipboard';
 import { ArrowLeft, Trash2 } from 'lucide-react-native';
 import type { BalanceEntry, AllowanceFrequency, Kid } from '@kroni/shared';
 import { nextPaymentDate as computeNextPaymentDate } from '@kroni/shared';
@@ -129,6 +130,39 @@ export default function KidDetail() {
   const handlePairingCode = useCallback(() => {
     router.push({ pathname: '/(parent)/pairing-code', params: { kidId: id } });
   }, [router, id]);
+
+  // Inline regenerate flow: confirm → API call → modal with the new code.
+  // Distinct from the full-screen "Generer paringskode" flow above so a
+  // parent who lost the kid's device can rotate the code in two taps
+  // without leaving the kid detail.
+  const [regenConfirmOpen, setRegenConfirmOpen] = useState(false);
+  const [regenResult, setRegenResult] = useState<{ code: string; expiresAt: string } | null>(null);
+  const [regenCopied, setRegenCopied] = useState(false);
+  const regenMutation = useMutation({
+    mutationFn: () => api.regenerateKidPairingCode(id),
+    onSuccess: (data) => {
+      setRegenResult(data);
+      setRegenConfirmOpen(false);
+    },
+  });
+  const handleRegeneratePress = useCallback(() => {
+    setRegenConfirmOpen(true);
+  }, []);
+  const confirmRegenerate = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    regenMutation.mutate();
+  }, [regenMutation]);
+  const handleCopyRegenCode = useCallback(async () => {
+    if (!regenResult) return;
+    await Clipboard.setStringAsync(regenResult.code);
+    setRegenCopied(true);
+    await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setTimeout(() => setRegenCopied(false), 2000);
+  }, [regenResult]);
+  const closeRegenResult = useCallback(() => {
+    setRegenResult(null);
+    setRegenCopied(false);
+  }, []);
 
   const isLoading = kidLoading || balanceLoading;
 
@@ -265,6 +299,14 @@ export default function KidDetail() {
             variant="secondary"
             size="sm"
           />
+
+          {/* Regenerate pairing code — inline: confirm + result modal. */}
+          <Button
+            label={t('parent.kidDetail.pairingCode.regenerateButton')}
+            onPress={handleRegeneratePress}
+            variant="secondary"
+            size="sm"
+          />
         </ScrollView>
       )}
 
@@ -309,6 +351,62 @@ export default function KidDetail() {
         onConfirm={confirmDelete}
         onCancel={() => setDeleteOpen(false)}
       />
+
+      {/* Regenerate confirm */}
+      <ConfirmDialog
+        visible={regenConfirmOpen}
+        title={t('parent.kidDetail.pairingCode.confirmTitle')}
+        message={t('parent.kidDetail.pairingCode.confirmBody')}
+        confirmLabel={t('common.confirm')}
+        cancelLabel={t('common.cancel')}
+        loading={regenMutation.isPending}
+        onConfirm={confirmRegenerate}
+        onCancel={() => setRegenConfirmOpen(false)}
+      />
+
+      {/* New code reveal */}
+      <Modal visible={regenResult !== null} onClose={closeRegenResult}>
+        <View style={styles.regenResult}>
+          <KroniText variant="display" tone="primary" style={styles.modalTitle}>
+            {t('parent.kidDetail.pairingCode.newCodeTitle')}
+          </KroniText>
+          <Text
+            style={[styles.regenCode, { color: theme.colors.gold[500] }]}
+            accessibilityLabel={regenResult?.code}
+          >
+            {regenResult ? formatPairingCode(regenResult.code) : ''}
+          </Text>
+          <KroniText variant="caption" tone="secondary">
+            {t('parent.kidDetail.pairingCode.expiresLabel', {
+              date: regenResult ? formatExpiresAt(regenResult.expiresAt) : '',
+            })}
+          </KroniText>
+          <View style={styles.regenActions}>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={t('common.close')}
+                onPress={closeRegenResult}
+                variant="ghost"
+                size="sm"
+              />
+            </View>
+            <View style={styles.modalActionBtn}>
+              <Button
+                label={
+                  regenCopied
+                    ? t('parent.pairingCode.copied')
+                    : t('parent.kidDetail.pairingCode.copyButton')
+                }
+                onPress={() => {
+                  void handleCopyRegenCode();
+                }}
+                variant="primary"
+                size="sm"
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -843,6 +941,18 @@ function AllowanceModal({
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
+function formatPairingCode(code: string): string {
+  return code.length === 6 ? `${code.slice(0, 3)} ${code.slice(3)}` : code;
+}
+
+function formatExpiresAt(iso: string): string {
+  const d = new Date(iso);
+  return new Intl.DateTimeFormat('nb-NO', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(d);
+}
+
 function formatNextPaymentLine(kid: Kid): string {
   if (kid.allowanceFrequency === 'none') {
     return t('parent.kidDetail.nextPaymentNone');
@@ -965,4 +1075,21 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   modalActionBtn: { flex: 1 },
+  regenResult: {
+    gap: 12,
+    alignItems: 'center',
+  },
+  regenCode: {
+    fontSize: 44,
+    fontWeight: '700',
+    letterSpacing: 6,
+    fontVariant: ['tabular-nums'],
+    marginVertical: 8,
+  },
+  regenActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+    alignSelf: 'stretch',
+  },
 });
