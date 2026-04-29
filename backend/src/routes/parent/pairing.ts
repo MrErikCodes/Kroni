@@ -9,7 +9,7 @@ import { UnauthorizedError } from '../../lib/errors.js';
 
 export async function parentPairingRoutes(app: FastifyInstance): Promise<void> {
   app.withTypeProvider<ZodTypeProvider>().post(
-    '/api/parent/pairing-code',
+    '/parent/pairing-code',
     {
       preHandler: app.requireParent,
       config: { rateLimit: { max: 10, timeWindow: '1 hour' } },

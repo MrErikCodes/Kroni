@@ -145,7 +145,7 @@ async function handleResponse(res: Response): Promise<unknown> {
 
 export type GetToken = () => Promise<string | null>;
 
-// Shape returned from GET /api/parent/approvals
+// Shape returned from GET /parent/approvals
 export interface PendingApprovalItem {
   completionId: string;
   taskId: string;
@@ -187,7 +187,7 @@ const BillingStatusSchema = z.object({
 });
 export type BillingStatus = z.infer<typeof BillingStatusSchema>;
 
-// Balance entry from GET /api/kid/history
+// Balance entry from GET /kid/history
 const BalanceHistoryResponseSchema = z.object({
   entries: z.array(BalanceEntrySchema),
   total: z.number(),
@@ -223,12 +223,12 @@ export function clientFor(getToken: GetToken) {
   return {
     // ── Me ──────────────────────────────────────────────────────────────────
     async getMe(): Promise<z.infer<typeof ParentSchema>> {
-      const json = await request('/api/parent/me');
+      const json = await request('/parent/me');
       return ParentSchema.parse(json);
     },
 
     async updateMe(data: z.infer<typeof UpdateParentSchema>): Promise<z.infer<typeof ParentSchema>> {
-      const json = await request('/api/parent/me', {
+      const json = await request('/parent/me', {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
@@ -237,17 +237,17 @@ export function clientFor(getToken: GetToken) {
 
     // ── Kids ────────────────────────────────────────────────────────────────
     async getKids(): Promise<z.infer<typeof KidSchema>[]> {
-      const json = await request('/api/parent/kids');
+      const json = await request('/parent/kids');
       return z.array(KidSchema).parse(json);
     },
 
     async getKid(id: string): Promise<z.infer<typeof KidSchema>> {
-      const json = await request(`/api/parent/kids/${id}`);
+      const json = await request(`/parent/kids/${id}`);
       return KidSchema.parse(json);
     },
 
     async createKid(data: z.infer<typeof CreateKidSchema>): Promise<z.infer<typeof KidSchema>> {
-      const json = await request('/api/parent/kids', {
+      const json = await request('/parent/kids', {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -255,7 +255,7 @@ export function clientFor(getToken: GetToken) {
     },
 
     async updateKid(id: string, data: z.infer<typeof UpdateKidSchema>): Promise<z.infer<typeof KidSchema>> {
-      const json = await request(`/api/parent/kids/${id}`, {
+      const json = await request(`/parent/kids/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
@@ -263,25 +263,25 @@ export function clientFor(getToken: GetToken) {
     },
 
     async deleteKid(id: string): Promise<void> {
-      await request(`/api/parent/kids/${id}`, { method: 'DELETE' });
+      await request(`/parent/kids/${id}`, { method: 'DELETE' });
     },
 
     // ── Kid balance & history ───────────────────────────────────────────────
     async getKidBalance(id: string): Promise<z.infer<typeof BalanceSummarySchema>> {
-      const json = await request(`/api/parent/kids/${id}/balance`);
+      const json = await request(`/parent/kids/${id}/balance`);
       return BalanceSummarySchema.parse(json);
     },
 
     async getKidHistory(id: string, limit?: number): Promise<z.infer<typeof BalanceEntrySchema>[]> {
       const qs = limit !== undefined ? `?limit=${encodeURIComponent(limit)}` : '';
-      const json = await request(`/api/parent/kids/${id}/history${qs}`);
+      const json = await request(`/parent/kids/${id}/history${qs}`);
       return z.array(BalanceEntrySchema).parse(json);
     },
 
     async adjustKidBalance(
       input: z.infer<typeof BalanceAdjustSchema>,
     ): Promise<{ entryId: string; newBalanceCents: number }> {
-      const json = await request('/api/parent/balance/adjust', {
+      const json = await request('/parent/balance/adjust', {
         method: 'POST',
         body: JSON.stringify(input),
       });
@@ -294,7 +294,7 @@ export function clientFor(getToken: GetToken) {
     async generatePairingCode(
       kidId: string,
     ): Promise<z.infer<typeof GeneratePairingCodeResponseSchema>> {
-      const json = await request('/api/parent/pairing-code', {
+      const json = await request('/parent/pairing-code', {
         method: 'POST',
         body: JSON.stringify({ kidId }),
       });
@@ -313,12 +313,12 @@ export function clientFor(getToken: GetToken) {
 
     // ── Tasks ───────────────────────────────────────────────────────────────
     async getTasks(): Promise<z.infer<typeof TaskSchema>[]> {
-      const json = await request('/api/parent/tasks');
+      const json = await request('/parent/tasks');
       return z.array(TaskSchema).parse(json);
     },
 
     async createTask(data: z.infer<typeof CreateTaskSchema>): Promise<z.infer<typeof TaskSchema>> {
-      const json = await request('/api/parent/tasks', {
+      const json = await request('/parent/tasks', {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -326,7 +326,7 @@ export function clientFor(getToken: GetToken) {
     },
 
     async updateTask(id: string, data: z.infer<typeof UpdateTaskSchema>): Promise<z.infer<typeof TaskSchema>> {
-      const json = await request(`/api/parent/tasks/${id}`, {
+      const json = await request(`/parent/tasks/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
@@ -334,12 +334,12 @@ export function clientFor(getToken: GetToken) {
     },
 
     async deleteTask(id: string): Promise<void> {
-      await request(`/api/parent/tasks/${id}`, { method: 'DELETE' });
+      await request(`/parent/tasks/${id}`, { method: 'DELETE' });
     },
 
     // ── Approvals ────────────────────────────────────────────────────────────
     async getApprovals(): Promise<PendingApprovals> {
-      const json = await request('/api/parent/approvals');
+      const json = await request('/parent/approvals');
       const parsed = z
         .object({
           taskCompletions: z.array(
@@ -380,38 +380,38 @@ export function clientFor(getToken: GetToken) {
 
     async approveTask(completionId: string): Promise<{ newBalanceCents: number }> {
       const json = await request(
-        `/api/parent/approvals/tasks/${completionId}/approve`,
+        `/parent/approvals/tasks/${completionId}/approve`,
         { method: 'POST' },
       );
       return z.object({ newBalanceCents: z.number() }).parse(json);
     },
 
     async rejectTask(completionId: string): Promise<void> {
-      await request(`/api/parent/approvals/tasks/${completionId}/reject`, {
+      await request(`/parent/approvals/tasks/${completionId}/reject`, {
         method: 'POST',
       });
     },
 
     async approveReward(redemptionId: string): Promise<void> {
-      await request(`/api/parent/approvals/rewards/${redemptionId}/approve`, {
+      await request(`/parent/approvals/rewards/${redemptionId}/approve`, {
         method: 'POST',
       });
     },
 
     async rejectReward(redemptionId: string): Promise<void> {
-      await request(`/api/parent/approvals/rewards/${redemptionId}/reject`, {
+      await request(`/parent/approvals/rewards/${redemptionId}/reject`, {
         method: 'POST',
       });
     },
 
     // ── Rewards ─────────────────────────────────────────────────────────────
     async getRewards(): Promise<z.infer<typeof RewardSchema>[]> {
-      const json = await request('/api/parent/rewards');
+      const json = await request('/parent/rewards');
       return z.array(RewardSchema).parse(json);
     },
 
     async createReward(data: z.infer<typeof CreateRewardSchema>): Promise<z.infer<typeof RewardSchema>> {
-      const json = await request('/api/parent/rewards', {
+      const json = await request('/parent/rewards', {
         method: 'POST',
         body: JSON.stringify(data),
       });
@@ -419,7 +419,7 @@ export function clientFor(getToken: GetToken) {
     },
 
     async updateReward(id: string, data: z.infer<typeof UpdateRewardSchema>): Promise<z.infer<typeof RewardSchema>> {
-      const json = await request(`/api/parent/rewards/${id}`, {
+      const json = await request(`/parent/rewards/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
@@ -427,18 +427,18 @@ export function clientFor(getToken: GetToken) {
     },
 
     async deleteReward(id: string): Promise<void> {
-      await request(`/api/parent/rewards/${id}`, { method: 'DELETE' });
+      await request(`/parent/rewards/${id}`, { method: 'DELETE' });
     },
 
     // ── Billing ─────────────────────────────────────────────────────────────
     async getBillingStatus(): Promise<BillingStatus> {
-      const json = await request('/api/parent/billing/status');
+      const json = await request('/parent/billing/status');
       return BillingStatusSchema.parse(json);
     },
 
     // ── Household ───────────────────────────────────────────────────────────
     async getHousehold(): Promise<HouseholdSummary> {
-      const json = await request('/api/parent/household/me');
+      const json = await request('/parent/household/me');
       return HouseholdSummarySchema.parse(json);
     },
 
@@ -449,7 +449,7 @@ export function clientFor(getToken: GetToken) {
         input.invitedEmail !== undefined
           ? JSON.stringify({ invitedEmail: input.invitedEmail })
           : JSON.stringify({});
-      const json = await request('/api/parent/household/invites', {
+      const json = await request('/parent/household/invites', {
         method: 'POST',
         body,
       });
@@ -457,12 +457,12 @@ export function clientFor(getToken: GetToken) {
     },
 
     async listHouseholdInvites(): Promise<HouseholdInvite[]> {
-      const json = await request('/api/parent/household/invites');
+      const json = await request('/parent/household/invites');
       return z.array(HouseholdInviteSchema).parse(json);
     },
 
     async revokeHouseholdInvite(code: string): Promise<void> {
-      await request(`/api/parent/household/invites/${encodeURIComponent(code)}`, {
+      await request(`/parent/household/invites/${encodeURIComponent(code)}`, {
         method: 'DELETE',
       });
     },
@@ -470,7 +470,7 @@ export function clientFor(getToken: GetToken) {
     async joinHousehold(code: string): Promise<JoinHouseholdResponse> {
       // Note: requires Clerk Bearer (parent session); reuses the same `request`
       // helper because it threads the parent token via `getToken`.
-      const json = await request('/api/public/household/join', {
+      const json = await request('/public/household/join', {
         method: 'POST',
         body: JSON.stringify({ code }),
       });
@@ -478,13 +478,13 @@ export function clientFor(getToken: GetToken) {
     },
 
     // ── Devices (push) ──────────────────────────────────────────────────────
-    /** POST /api/parent/devices */
+    /** POST /parent/devices */
     async registerParentDevice(
       deviceId: string,
       pushToken: string,
       platform: 'ios' | 'android',
     ): Promise<void> {
-      await request('/api/parent/devices', {
+      await request('/parent/devices', {
         method: 'POST',
         body: JSON.stringify({ deviceId, pushToken, platform }),
       });
@@ -527,51 +527,51 @@ async function kidRequest(path: string, init: RequestInit = {}): Promise<unknown
 }
 
 export const kidApi = {
-  /** GET /api/kid/me */
+  /** GET /kid/me */
   async getMe(): Promise<z.infer<typeof KidMeSchema>> {
-    const json = await kidRequest('/api/kid/me');
+    const json = await kidRequest('/kid/me');
     return KidMeSchema.parse(json);
   },
 
-  /** PATCH /api/kid/me — kid updates their own avatar from the kid app. */
+  /** PATCH /kid/me — kid updates their own avatar from the kid app. */
   async updateMyAvatar(avatarKey: AvatarKey): Promise<z.infer<typeof KidMeSchema>> {
-    const json = await kidRequest('/api/kid/me', {
+    const json = await kidRequest('/kid/me', {
       method: 'PATCH',
       body: JSON.stringify({ avatarKey }),
     });
     return KidMeSchema.parse(json);
   },
 
-  /** GET /api/kid/today */
+  /** GET /kid/today */
   async getTodayTasks(): Promise<z.infer<typeof TodayTaskSchema>[]> {
-    const json = await kidRequest('/api/kid/today');
+    const json = await kidRequest('/kid/today');
     return z.array(TodayTaskSchema).parse(json);
   },
 
-  /** POST /api/kid/tasks/:completionId/complete */
+  /** POST /kid/tasks/:completionId/complete */
   async completeTask(completionId: string, idempotencyKey: string): Promise<void> {
-    await kidRequest(`/api/kid/tasks/${completionId}/complete`, {
+    await kidRequest(`/kid/tasks/${completionId}/complete`, {
       method: 'POST',
       headers: { 'Idempotency-Key': idempotencyKey },
     });
   },
 
-  /** POST /api/kid/tasks/:completionId/uncomplete — undo a mistaken complete */
+  /** POST /kid/tasks/:completionId/uncomplete — undo a mistaken complete */
   async uncompleteTask(completionId: string): Promise<void> {
-    await kidRequest(`/api/kid/tasks/${completionId}/uncomplete`, {
+    await kidRequest(`/kid/tasks/${completionId}/uncomplete`, {
       method: 'POST',
     });
   },
 
-  /** GET /api/kid/balance */
+  /** GET /kid/balance */
   async getBalance(): Promise<z.infer<typeof BalanceSummarySchema>> {
-    const json = await kidRequest('/api/kid/balance');
+    const json = await kidRequest('/kid/balance');
     return BalanceSummarySchema.parse(json);
   },
 
-  /** GET /api/kid/history */
+  /** GET /kid/history */
   async getHistory(): Promise<z.infer<typeof BalanceEntrySchema>[]> {
-    const json = await kidRequest('/api/kid/history');
+    const json = await kidRequest('/kid/history');
     // Backend may return array directly or { entries: [...] }
     if (Array.isArray(json)) {
       return z.array(BalanceEntrySchema).parse(json);
@@ -580,13 +580,13 @@ export const kidApi = {
     return parsed.entries;
   },
 
-  /** GET /api/kid/rewards */
+  /** GET /kid/rewards */
   async getRewards(): Promise<z.infer<typeof RewardSchema>[]> {
-    const json = await kidRequest('/api/kid/rewards');
+    const json = await kidRequest('/kid/rewards');
     return z.array(RewardSchema).parse(json);
   },
 
-  /** POST /api/kid/rewards/:id/redeem
+  /** POST /kid/rewards/:id/redeem
    *
    * Backend returns the lightweight redemption descriptor — we don't need
    * the full row here, just confirmation that the redemption was accepted
@@ -599,7 +599,7 @@ export const kidApi = {
     rewardId: string;
     costCents: number;
   }> {
-    const json = await kidRequest(`/api/kid/rewards/${rewardId}/redeem`, {
+    const json = await kidRequest(`/kid/rewards/${rewardId}/redeem`, {
       method: 'POST',
     });
     return z
@@ -611,9 +611,9 @@ export const kidApi = {
       .parse(json);
   },
 
-  /** POST /api/kid/device */
+  /** POST /kid/device */
   async registerDevice(deviceId: string, pushToken: string): Promise<void> {
-    await kidRequest('/api/kid/device', {
+    await kidRequest('/kid/device', {
       method: 'POST',
       body: JSON.stringify({ deviceId, pushToken }),
     });
@@ -623,9 +623,9 @@ export const kidApi = {
 // ── Public API ────────────────────────────────────────────────────────────────
 
 export const publicApi = {
-  /** POST /api/public/pair */
+  /** POST /public/pair */
   async pair(data: z.infer<typeof PairRequestSchema>): Promise<z.infer<typeof PairResponseSchema>> {
-    const res = await fetch(`${API_URL}/api/public/pair`, {
+    const res = await fetch(`${API_URL}/public/pair`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

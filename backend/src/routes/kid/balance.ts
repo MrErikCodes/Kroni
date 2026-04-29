@@ -14,7 +14,7 @@ export async function kidBalanceRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/kid/balance',
+    '/kid/balance',
     { preHandler: app.requireKid, schema: { response: { 200: BalanceSummarySchema } } },
     async (req) => {
       const kid = req.kid;
@@ -24,7 +24,7 @@ export async function kidBalanceRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.get(
-    '/api/kid/history',
+    '/kid/history',
     {
       preHandler: app.requireKid,
       schema: { querystring: HistoryQuery, response: { 200: z.array(BalanceEntrySchema) } },

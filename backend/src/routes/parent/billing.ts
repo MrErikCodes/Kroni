@@ -23,7 +23,7 @@ export async function parentBillingRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/billing/status',
+    '/parent/billing/status',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: BillingStatusSchema } },

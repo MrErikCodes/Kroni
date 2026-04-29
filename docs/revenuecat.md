@@ -13,7 +13,7 @@ The mobile + backend integration is fully wired. You only need to configure RC +
 | Public SDK keys | `EXPO_PUBLIC_RC_IOS_KEY` / `EXPO_PUBLIC_RC_ANDROID_KEY` (Phase + EAS) | Pull these from RC → API keys → Public app-specific |
 | Entitlement ID | `mobile/lib/billing.ts:5` → `'Kroni Family'` | Create entitlement with EXACT id `Kroni Family` (case-sensitive, space included) |
 | `app_user_id` | `mobile/app/_layout.tsx → RevenueCatIdentityBridge` calls `Purchases.logIn(clerkUserId)` | Backend webhook resolves the parent by `parents.clerk_user_id` = RC `app_user_id` |
-| Webhook URL | `POST /api/webhooks/revenuecat` | Configure in RC → Integrations → Webhooks |
+| Webhook URL | `POST /webhooks/revenuecat` | Configure in RC → Integrations → Webhooks |
 | Webhook auth | `REVENUECAT_WEBHOOK_AUTH` (Phase backend) | Same string in RC's webhook "Authorization" field |
 | Lifetime tracking | `households.lifetime_paid` (boolean) | Webhook sets this when product ID is `kroni_lifetime` |
 | Recurring tracking | `households.subscription_tier` + `subscription_expires_at` | Webhook sets `tier='family'` + expiration on grants |
@@ -101,7 +101,7 @@ When the trial starts, RC fires `INITIAL_PURCHASE` with `period_type: "TRIAL"` a
 ## 8. Webhook
 
 - RC → Project Settings → Integrations → Webhooks → "+ New webhook".
-- URL: `https://api.kroni.no/api/webhooks/revenuecat` (or your ngrok dev URL while testing).
+- URL: `https://api.kroni.no/webhooks/revenuecat` (or your ngrok dev URL while testing).
 - Authorization header: paste the same string you put in `REVENUECAT_WEBHOOK_AUTH` on the backend Phase. The route compares the bearer token byte-for-byte.
 - Send: **all event types**. The backend explicitly handles `INITIAL_PURCHASE`, `RENEWAL`, `PRODUCT_CHANGE`, `NON_RENEWING_PURCHASE`, `UNCANCELLATION`, `TRANSFER` (grant), `EXPIRATION` (revoke). Everything else (`CANCELLATION`, `BILLING_ISSUE`, `TEST`, `SUBSCRIPTION_EXTENDED`, `SUBSCRIBER_ALIAS`) is logged and ignored on purpose.
 - After saving, click "Send test event" — should land as a logged 200 with no DB change (test events have no `app_user_id`).

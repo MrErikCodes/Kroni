@@ -20,7 +20,7 @@ export async function kidRewardsRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/kid/rewards',
+    '/kid/rewards',
     { preHandler: app.requireKid, schema: { response: { 200: z.array(RewardSchema) } } },
     async (req) => {
       const kid = req.kid;
@@ -49,7 +49,7 @@ export async function kidRewardsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.post(
-    '/api/kid/rewards/:id/redeem',
+    '/kid/rewards/:id/redeem',
     {
       preHandler: app.requireKid,
       schema: { params: Params, response: { 200: RedeemResponse } },

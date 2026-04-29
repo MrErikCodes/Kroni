@@ -234,7 +234,7 @@ function authorized(req: FastifyRequest, expected: string | undefined): boolean 
 }
 
 export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<void> {
-  app.post('/api/webhooks/revenuecat', async (req, reply) => {
+  app.post('/webhooks/revenuecat', async (req, reply) => {
     const cfg = getConfig();
     if (!authorized(req, cfg.REVENUECAT_WEBHOOK_AUTH)) {
       throw new ForbiddenError('invalid revenuecat webhook auth');

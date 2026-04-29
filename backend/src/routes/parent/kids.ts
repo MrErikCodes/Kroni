@@ -92,7 +92,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/kids',
+    '/parent/kids',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: z.array(KidSchema) } },
@@ -106,7 +106,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.post(
-    '/api/parent/kids',
+    '/parent/kids',
     {
       preHandler: app.requireParent,
       schema: { body: CreateKidSchema, response: { 201: KidSchema } },
@@ -142,7 +142,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.get(
-    '/api/parent/kids/:id',
+    '/parent/kids/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, response: { 200: KidSchema } },
@@ -162,7 +162,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.patch(
-    '/api/parent/kids/:id',
+    '/parent/kids/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, body: UpdateKidSchema, response: { 200: KidSchema } },
@@ -190,7 +190,7 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.delete(
-    '/api/parent/kids/:id',
+    '/parent/kids/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, response: { 204: z.null() } },

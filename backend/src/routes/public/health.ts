@@ -11,7 +11,7 @@ const VERSION = process.env.npm_package_version ?? '0.1.0';
 const startedAt = Date.now();
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
-  app.get('/api/public/health', {
+  app.get('/public/health', {
     schema: { response: { 200: HealthResponse } },
   }, async () => ({
     status: 'ok' as const,

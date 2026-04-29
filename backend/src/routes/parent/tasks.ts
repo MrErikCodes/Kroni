@@ -25,7 +25,7 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/tasks',
+    '/parent/tasks',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: z.array(TaskSchema) } },
@@ -39,7 +39,7 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.post(
-    '/api/parent/tasks',
+    '/parent/tasks',
     {
       preHandler: app.requireParent,
       schema: { body: CreateTaskSchema, response: { 201: TaskSchema } },
@@ -76,7 +76,7 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.patch(
-    '/api/parent/tasks/:id',
+    '/parent/tasks/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, body: UpdateTaskSchema, response: { 200: TaskSchema } },
@@ -122,7 +122,7 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.delete(
-    '/api/parent/tasks/:id',
+    '/parent/tasks/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, response: { 204: z.null() } },

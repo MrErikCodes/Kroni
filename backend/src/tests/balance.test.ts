@@ -114,7 +114,7 @@ test('task completion — requiresApproval=false credits immediately', async () 
     })
     .returning();
 
-  // Simulate the kid POST /api/kid/tasks/:id/complete flow inline.
+  // Simulate the kid POST /kid/tasks/:id/complete flow inline.
   await db.transaction(async (tx) => {
     const { addBalanceEntryInTx } = await import('../services/balance.service.js');
     await tx

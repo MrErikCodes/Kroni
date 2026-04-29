@@ -15,7 +15,7 @@ const UpdateKidMeSchema = z.object({ avatarKey: AvatarKey });
 export async function kidMeRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
   r.get(
-    '/api/kid/me',
+    '/kid/me',
     { preHandler: app.requireKid, schema: { response: { 200: KidSchema } } },
     async (req) => {
       const kid = req.kid;
@@ -53,7 +53,7 @@ export async function kidMeRoutes(app: FastifyInstance): Promise<void> {
   // tap-loop from hammering the DB; the natural UI gating (modal close after
   // save) makes this far higher than any real user would need.
   r.patch(
-    '/api/kid/me',
+    '/kid/me',
     {
       preHandler: app.requireKid,
       config: { rateLimit: { max: 30, timeWindow: '1 hour' } },

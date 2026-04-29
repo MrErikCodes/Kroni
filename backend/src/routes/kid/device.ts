@@ -14,7 +14,7 @@ const Response = z.object({ ok: z.literal(true) });
 export async function kidDeviceRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
   r.post(
-    '/api/kid/device',
+    '/kid/device',
     {
       preHandler: app.requireKid,
       schema: { body: Body, response: { 200: Response } },

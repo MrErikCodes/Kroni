@@ -8,7 +8,7 @@ import { UnauthorizedError } from '../../lib/errors.js';
 export async function kidTodayRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
   r.get(
-    '/api/kid/today',
+    '/kid/today',
     { preHandler: app.requireKid, schema: { response: { 200: z.array(TodayTaskSchema) } } },
     async (req) => {
       const kid = req.kid;

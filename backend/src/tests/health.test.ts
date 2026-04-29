@@ -14,10 +14,10 @@ test.before(async () => {
   await setupTestDb();
 });
 
-test('GET /api/public/health returns 200 ok', async () => {
+test('GET /public/health returns 200 ok', async () => {
   const app = await buildApp();
   try {
-    const res = await app.inject({ method: 'GET', url: '/api/public/health' });
+    const res = await app.inject({ method: 'GET', url: '/public/health' });
     assert.equal(res.statusCode, 200);
     const body = res.json() as { status: string; uptime: number; version: string };
     assert.equal(body.status, 'ok');

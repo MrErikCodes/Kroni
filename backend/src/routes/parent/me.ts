@@ -12,7 +12,7 @@ export async function parentMeRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/me',
+    '/parent/me',
     { preHandler: app.requireParent, schema: { response: { 200: ParentSchema } } },
     async (req) => {
       if (!req.parent) throw new UnauthorizedError('parent missing');
@@ -21,7 +21,7 @@ export async function parentMeRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.patch(
-    '/api/parent/me',
+    '/parent/me',
     {
       preHandler: app.requireParent,
       schema: { body: UpdateParentSchema, response: { 200: ParentSchema } },

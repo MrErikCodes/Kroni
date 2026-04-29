@@ -30,7 +30,7 @@ Set these in Phase (`phase secrets edit`) for the backend service. The
 - `backend/src/lib/mailpace.ts` — `sendMail({ to, subject, html, text, replyTo? })`. Posts to `https://app.mailpace.com/api/v1/send` with `MailPace-Server-Token`. Throws typed `MailpaceError` on non-2xx. Native fetch (Node 22+), no SDK.
 - `backend/src/lib/email-templates.ts` — `loadTemplate(event, locale, vars)` reads from disk and does `{{name}}` substitution. Caches files per process.
 - `backend/src/emails/<event>.<locale>.{html,txt,subject.txt}` — template files. 4 locales × 3 files per event.
-- `backend/src/routes/webhooks/clerk.ts` — Clerk webhook receiver, mounted at `POST /api/webhooks/clerk`. svix verify, then on `user.created` calls `sendMail` with the welcome template.
+- `backend/src/routes/webhooks/clerk.ts` — Clerk webhook receiver, mounted at `POST /webhooks/clerk`. svix verify, then on `user.created` calls `sendMail` with the welcome template.
 
 ## Bilingual layout
 
@@ -70,7 +70,7 @@ before private beta.
 
 In the Clerk dashboard → **Webhooks** → **Add endpoint**:
 
-- **URL:** `https://api.kroni.no/api/webhooks/clerk` (prod) or the ngrok tunnel URL during dev.
+- **URL:** `https://api.kroni.no/webhooks/clerk` (prod) or the ngrok tunnel URL during dev.
 - **Subscribe to events:** `user.created`, `user.updated`, `user.deleted`. (Phase 2 will add `email.created` for OTP verification and `password.reset_*` events.)
 - Copy the **Signing secret** from the endpoint detail page into `CLERK_WEBHOOK_SECRET`.
 
@@ -128,7 +128,7 @@ API. Instead:
 
 - Verify `npm --workspace=backend run typecheck` is clean.
 - Verify the webhook route mounts (start the backend, hit
-  `POST /api/webhooks/clerk` with no headers — should 401 from
+  `POST /webhooks/clerk` with no headers — should 401 from
   the missing svix headers, not 404).
 - Once the token lands in Phase, send a test signup through Clerk dev
   and confirm a real email arrives. Test against Gmail web + iOS,
@@ -143,7 +143,7 @@ API. Instead:
 | `email-verification` | Clerk webhook `email.created` with slug = `verification_code`, `magic_link_sign_up`, or `magic_link_sign_in` | `{{name}}`, `{{code}}` | — |
 | `billing-failed` | RevenueCat webhook `BILLING_ISSUE` event in `revenuecat.ts` (alongside `notifyOwner` push) | `{{name}}`, `{{updatePaymentUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
 | `subscription-expired` | RevenueCat webhook `EXPIRATION` event for non-lifetime household (alongside `notifyOwner` push) | `{{name}}`, `{{renewUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
-| `household-invite` | `POST /api/parent/household/invites` after invite row inserted, when `invitedEmail` non-null | `{{inviterName}}`, `{{householdName}}`, `{{code}}`, `{{acceptUrl}}` | `https://kroni.no/invite/<code>` (TODO swap to real `/invite` landing) |
+| `household-invite` | `POST /parent/household/invites` after invite row inserted, when `invitedEmail` non-null | `{{inviterName}}`, `{{householdName}}`, `{{code}}`, `{{acceptUrl}}` | `https://kroni.no/invite/<code>` (TODO swap to real `/invite` landing) |
 
 In Clerk dashboard → **Webhooks** → also subscribe to `email.created`
 on the same endpoint. Disable Clerk's built-in delivery for the

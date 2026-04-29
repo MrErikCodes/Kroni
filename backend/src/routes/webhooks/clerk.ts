@@ -108,7 +108,7 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  app.post('/api/webhooks/clerk', async (req, reply) => {
+  app.post('/webhooks/clerk', async (req, reply) => {
     const headers = req.headers;
     const id = headers['svix-id'];
     const timestamp = headers['svix-timestamp'];

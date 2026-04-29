@@ -24,7 +24,7 @@ export async function parentRewardsRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/rewards',
+    '/parent/rewards',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: z.array(RewardSchema) } },
@@ -38,7 +38,7 @@ export async function parentRewardsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.post(
-    '/api/parent/rewards',
+    '/parent/rewards',
     {
       preHandler: app.requireParent,
       schema: { body: CreateRewardSchema, response: { 201: RewardSchema } },
@@ -68,7 +68,7 @@ export async function parentRewardsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.patch(
-    '/api/parent/rewards/:id',
+    '/parent/rewards/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, body: UpdateRewardSchema, response: { 200: RewardSchema } },
@@ -95,7 +95,7 @@ export async function parentRewardsRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.delete(
-    '/api/parent/rewards/:id',
+    '/parent/rewards/:id',
     {
       preHandler: app.requireParent,
       schema: { params: IdParam, response: { 204: z.null() } },

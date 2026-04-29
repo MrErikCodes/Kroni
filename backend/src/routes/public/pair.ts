@@ -6,7 +6,7 @@ import { RateLimitError } from '../../lib/errors.js';
 
 export async function publicPairRoutes(app: FastifyInstance): Promise<void> {
   app.withTypeProvider<ZodTypeProvider>().post(
-    '/api/public/pair',
+    '/public/pair',
     {
       schema: {
         body: PairRequestSchema,

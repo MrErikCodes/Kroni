@@ -211,7 +211,7 @@ function RevenueCatIdentityBridge() {
  * Registers the signed-in parent's Expo push token with our backend so
  * RevenueCat-driven billing notifications (failed payment, expiration)
  * can be delivered to the household owner. We declined RC's direct APNs
- * push integration; everything routes through `/api/parent/devices`.
+ * push integration; everything routes through `/parent/devices`.
  *
  * Idempotency: keyed on (Clerk userId, push token) — never re-sends the
  * same pair. Permission denial is respected; we don't re-prompt on every

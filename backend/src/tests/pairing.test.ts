@@ -88,7 +88,7 @@ test('pairing — code redemption attaches device to existing kid', async () => 
   try {
     const res = await app.inject({
       method: 'POST',
-      url: '/api/public/pair',
+      url: '/public/pair',
       payload: { code, deviceId },
     });
     assert.equal(res.statusCode, 200);
@@ -134,7 +134,7 @@ test('pairing — expired code is rejected', async () => {
   try {
     const res = await app.inject({
       method: 'POST',
-      url: '/api/public/pair',
+      url: '/public/pair',
       payload: { code, deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
     });
     assert.equal(res.statusCode, 401);
@@ -162,7 +162,7 @@ test('pairing — already-used code is rejected', async () => {
   try {
     const res = await app.inject({
       method: 'POST',
-      url: '/api/public/pair',
+      url: '/public/pair',
       payload: { code, deviceId: 'dev_' + Math.random().toString(36).slice(2, 12) },
     });
     assert.equal(res.statusCode, 401);
@@ -179,7 +179,7 @@ test('pairing — IP rate limit kicks in after 5 attempts', async () => {
     for (let i = 0; i < 6; i++) {
       const res = await app.inject({
         method: 'POST',
-        url: '/api/public/pair',
+        url: '/public/pair',
         payload: { code: '000000', deviceId: `dev_unique_${i}` },
         remoteAddress: '203.0.113.42',
       });
@@ -213,7 +213,7 @@ test('pairing — kid JWT refresh issues new header when token near expiry', asy
   try {
     const res = await app.inject({
       method: 'GET',
-      url: '/api/public/health',
+      url: '/public/health',
       headers: { authorization: `Bearer ${shortToken}` },
     });
     // Health route doesn't require kid auth, so we test refresh on a kid route once it exists.

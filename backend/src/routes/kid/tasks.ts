@@ -21,7 +21,7 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.post(
-    '/api/kid/tasks/:completionId/complete',
+    '/kid/tasks/:completionId/complete',
     {
       preHandler: app.requireKid,
       schema: { params: Params, response: { 200: TodayTaskSchema } },
@@ -123,7 +123,7 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
   // than try to back out the balance entry. Removes the row from the parent
   // approvals queue and returns the completion to 'pending'.
   r.post(
-    '/api/kid/tasks/:completionId/uncomplete',
+    '/kid/tasks/:completionId/uncomplete',
     {
       preHandler: app.requireKid,
       schema: { params: Params, response: { 200: TodayTaskSchema } },

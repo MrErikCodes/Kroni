@@ -30,7 +30,7 @@ const Env = z.object({
   // domain-scoped, so this token can only send `from: *@kroni.no`.
   MAILPACE_API_TOKEN: z.string().min(1),
   // Verified sending address. Must match a domain authenticated in
-  // Mailpace (SPF/DKIM/DMARC on kroni.no — see email.md).
+  // Mailpace (SPF/DKIM/DMARC on kroni.no — see docs/email.md).
   MAILPACE_FROM_EMAIL: z.string().email().default('noreply@kroni.no'),
   // Friendly From: display name. Renders as `Kroni <noreply@kroni.no>`.
   MAILPACE_FROM_NAME: z.string().default('Kroni'),

@@ -205,5 +205,5 @@ Run that against your DB after each tester signs up. They'll see Kroni Familie a
 - Promote the TestFlight build → **App Store Review** (App Store Connect → Distribution → Add for Review).
 - Promote internal-testing build to **Closed → Open testing → Production** in Play Console (each step requires the new "12 testers for 14 days" rule for first-time pubs).
 - Update `EXPO_PUBLIC_API_URL` to production, `_CLERK_PUBLISHABLE_KEY` to live, RC keys (still the same, but switch the SDK environment indicator if you're using RC sandbox toggles).
-- Switch the RC webhook URL from ngrok to `https://api.kroni.no/api/webhooks/revenuecat`.
+- Switch the RC webhook URL from ngrok to `https://api.kroni.no/webhooks/revenuecat`.
 - Re-confirm Sentry releases match the App Store / Play build version + build number.

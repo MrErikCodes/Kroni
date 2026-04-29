@@ -8,8 +8,8 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] **Production API URL** — `EXPO_PUBLIC_API_URL` is the ngrok dev tunnel. Swap to `https://api.kroni.no` (or wherever prod lands) before any TestFlight build.
 - [ ] **Clerk production keys** — Clerk publishable + secret are `*_test_*`. Generate live keys, update Phase + EAS.
 - [ ] **Sentry source-map upload smoke test** — run `npm run release:sentry` once after a real build to confirm a release lands in `sentry.mkapi.no` with symbolicated stacks. Trigger one error on each side and verify the unminified frame.
-- [ ] **RevenueCat dashboard config** — see `revenuecat.md`. Until the entitlement / offering / products / webhook are wired, paying paths just no-op.
-- [ ] **App Store Connect** — products `kroni_family_monthly`, `kroni_family_yearly`, `kroni_lifetime` (non-consumable). 7-day intro trial on the recurring subs. Localized names per `appstore.md`.
+- [ ] **RevenueCat dashboard config** — see `docs/revenuecat.md`. Until the entitlement / offering / products / webhook are wired, paying paths just no-op.
+- [ ] **App Store Connect** — products `kroni_family_monthly`, `kroni_family_yearly`, `kroni_lifetime` (non-consumable). 7-day intro trial on the recurring subs. Localized names per `docs/appstore.md`.
 - [ ] **Google Play Console** — same product IDs. Subscription offers configured with 7-day trial eligibility = "New customers".
 - [x] ToS + Privacy consent on signup — done 2026-04-29. Passive notice on `parent-sign-up.tsx`: "By creating an account you agree to our Terms and Privacy Policy" (localized nb/sv/da/en) with both phrases linked to the locale-correct domain via `legalUrl()`. No checkbox: account creation = acceptance per user decision; no `accepted_at` timestamps stored.
 
@@ -48,7 +48,8 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 - [x] Owner-only invite enforcement — done 2026-04-29. `POST /api/parent/household/invites` rejects with 403 when the requesting parent isn't `households.premiumOwnerParentId`. Mirrors mobile UI's `isOwner` check.
 - [x] **`/api/parent/billing/verify-receipt`** — removed dead client method 2026-04-29; RC webhook is authoritative.
-- [x] **Pairing tests — local test DB hygiene** — shipped 2026-04-29 — TEST_DATABASE_URL config + truncate-between-tests setup. Run `createdb kroni_test` once to bootstrap the local DB. See `testing.md`.
+- [x] stripped `/api/` prefix from all routes + mobile API client 2026-04-29; cleaner URLs (`api.kroni.no/webhooks/clerk` vs former `api.kroni.no/api/webhooks/clerk`).
+- [x] **Pairing tests — local test DB hygiene** — shipped 2026-04-29 — TEST_DATABASE_URL config + truncate-between-tests setup. Run `createdb kroni_test` once to bootstrap the local DB. See `docs/testing.md`.
 - [x] Drizzle snapshot baseline rebuild — done 2026-04-29. Introspected live DB, replaced `drizzle/meta/0007_snapshot.json` with full 15-table state, normalized `_journal.json` `when` values + `__drizzle_migrations.created_at` to monotonic 1700000000000 + idx*1000. `npm run db:generate` now reports `No schema changes, nothing to migrate`. Root cause was: legacy migrations 0002–0004 had hand-edited future-dated `when` (e.g. 1798820000000) and drizzle's migrator at `pg-core/dialect.js:62` uses `lastDbMigration.created_at < migration.folderMillis` to decide what to apply (purely timestamp comparison, ignores hash), so 0005–0007 were silently skipped on every `db:migrate` run.
 - [ ] **`background-jobs/runner.ts`** is started separately (`npm run start:jobs`); make sure prod has it as its own service / container.
 - [ ] **Webhook signing** — RevenueCat webhook uses a shared bearer token (`REVENUECAT_WEBHOOK_AUTH`). Consider switching to an HMAC of the body once RC supports it self-hosted, or whitelist their source IPs at the load balancer.

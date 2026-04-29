@@ -39,7 +39,7 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/household/me',
+    '/parent/household/me',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: HouseholdSummarySchema } },
@@ -58,7 +58,7 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
   );
 
   r.post(
-    '/api/parent/household/invites',
+    '/parent/household/invites',
     {
       preHandler: app.requireParent,
       // Mirror the parent pairing-code rate ceiling but tighter: 5/hour/parent.
@@ -134,7 +134,7 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
   );
 
   r.get(
-    '/api/parent/household/invites',
+    '/parent/household/invites',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: z.array(HouseholdInviteSchema) } },
@@ -148,7 +148,7 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
   );
 
   r.delete(
-    '/api/parent/household/invites/:code',
+    '/parent/household/invites/:code',
     {
       preHandler: app.requireParent,
       schema: { params: CodeParam, response: { 204: z.null() } },
@@ -163,12 +163,12 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
     },
   );
 
-  // Auth-gated by Clerk session, but path-prefixed under /api/public/ to
+  // Auth-gated by Clerk session, but path-prefixed under /public/ to
   // signal the joining parent may not yet be in any household. Body validates
   // the invite code; the Clerk preHandler also runs ensureHouseholdForParent
   // for the joiner so we delete that placeholder household before assigning.
   r.post(
-    '/api/public/household/join',
+    '/public/household/join',
     {
       preHandler: app.requireParent,
       schema: {

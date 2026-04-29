@@ -40,7 +40,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   const r = app.withTypeProvider<ZodTypeProvider>();
 
   r.get(
-    '/api/parent/approvals',
+    '/parent/approvals',
     {
       preHandler: app.requireParent,
       schema: { response: { 200: PendingResponse } },
@@ -129,7 +129,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   });
 
   r.post(
-    '/api/parent/approvals/tasks/:completionId/approve',
+    '/parent/approvals/tasks/:completionId/approve',
     {
       preHandler: app.requireParent,
       schema: { params: Params, response: { 200: ApproveResponse } },
@@ -199,7 +199,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   });
 
   r.post(
-    '/api/parent/approvals/tasks/:completionId/reject',
+    '/parent/approvals/tasks/:completionId/reject',
     {
       preHandler: app.requireParent,
       schema: { params: Params, response: { 200: RejectResponse } },
@@ -255,7 +255,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   });
 
   r.post(
-    '/api/parent/approvals/rewards/:redemptionId/approve',
+    '/parent/approvals/rewards/:redemptionId/approve',
     {
       preHandler: app.requireParent,
       schema: {
@@ -284,7 +284,7 @@ export async function parentApprovalsRoutes(app: FastifyInstance): Promise<void>
   });
 
   r.post(
-    '/api/parent/approvals/rewards/:redemptionId/reject',
+    '/parent/approvals/rewards/:redemptionId/reject',
     {
       preHandler: app.requireParent,
       schema: {

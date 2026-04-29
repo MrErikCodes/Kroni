@@ -200,7 +200,7 @@ export async function acceptHouseholdInvite(
 }
 
 // Members of a household, ordered by signup time so the original creator
-// appears first. Used by GET /api/parent/household/me.
+// appears first. Used by GET /parent/household/me.
 export async function listHouseholdMembers(householdId: string): Promise<ParentRow[]> {
   const db = getDb();
   return db

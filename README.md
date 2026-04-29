@@ -40,9 +40,20 @@ Postgres 17 + Redis 7 must be reachable. See `docs/SERVER-SETUP.md` for producti
 - `balance_entries` is **append-only**. Reverse a credit by inserting a negative entry.
 - `kid_balances` (materialized) updates in the same Drizzle transaction as every entry.
 
-## Build spec
+## Runbooks
 
-Full build specification: `kroni-agent-prompt.md` at repo root.
+Operational docs live in `docs/`:
+
+- `docs/appstore.md` — App Store + Play Store setup (capabilities, IAP products, sandbox testers).
+- `docs/revenuecat.md` — RC dashboard config (entitlement, products, offering, sandbox testing).
+- `docs/email.md` — Mailpace transactional email pipeline.
+- `docs/webhooks.md` — RevenueCat + Clerk webhook endpoints + auth.
+- `docs/universal-links.md` — `apple-app-site-association` + `assetlinks.json` setup.
+- `docs/closedbeta.md` — TestFlight + Play internal-testing playbook.
+- `docs/testing.md` — local test DB hygiene.
+- `docs/SERVER-SETUP.md` — production deploy notes.
+
+`todo.md` at repo root is the running outstanding-work list.
 
 ## License
 

@@ -6,15 +6,15 @@ Backend endpoints that receive events from external services. Both are mounted i
 
 | Service     | Path                       | Source file                                     | Auth                                                   |
 | ----------- | -------------------------- | ----------------------------------------------- | ------------------------------------------------------ |
-| RevenueCat  | `POST /api/webhooks/revenuecat` | `backend/src/routes/webhooks/revenuecat.ts` | `Authorization: Bearer ${REVENUECAT_WEBHOOK_AUTH}`     |
-| Clerk       | `POST /api/webhooks/clerk`      | `backend/src/routes/webhooks/clerk.ts`      | svix-signed (verified with `${CLERK_WEBHOOK_SECRET}`)  |
+| RevenueCat  | `POST /webhooks/revenuecat` | `backend/src/routes/webhooks/revenuecat.ts` | `Authorization: Bearer ${REVENUECAT_WEBHOOK_AUTH}`     |
+| Clerk       | `POST /webhooks/clerk`      | `backend/src/routes/webhooks/clerk.ts`      | svix-signed (verified with `${CLERK_WEBHOOK_SECRET}`)  |
 
 ## Full URLs
 
 | Environment | RevenueCat | Clerk |
 | ----------- | ---------- | ----- |
-| **Dev (ngrok)**  | `https://square-logically-shark.ngrok-free.app/api/webhooks/revenuecat` | `https://square-logically-shark.ngrok-free.app/api/webhooks/clerk` |
-| **Prod**         | `https://api.kroni.no/api/webhooks/revenuecat`                          | `https://api.kroni.no/api/webhooks/clerk`                          |
+| **Dev (ngrok)**  | `https://square-logically-shark.ngrok-free.app/webhooks/revenuecat` | `https://square-logically-shark.ngrok-free.app/webhooks/clerk` |
+| **Prod**         | `https://api.kroni.no/webhooks/revenuecat`                          | `https://api.kroni.no/webhooks/clerk`                          |
 
 The ngrok tunnel domain is `square-logically-shark.ngrok-free.app` (see `backend/package.json` `ngrok` script). Run `npm run ngrok` from `backend/` to start the tunnel locally.
 

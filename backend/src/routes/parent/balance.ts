@@ -28,7 +28,7 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
   });
 
   r.post(
-    '/api/parent/balance/adjust',
+    '/parent/balance/adjust',
     {
       preHandler: app.requireParent,
       schema: { body: BalanceAdjustSchema, response: { 200: AdjustResponse } },
@@ -63,7 +63,7 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
   });
 
   r.get(
-    '/api/parent/kids/:id/balance/verify',
+    '/parent/kids/:id/balance/verify',
     {
       preHandler: app.requireParent,
       schema: { params: Params, response: { 200: VerifyResponse } },
@@ -99,7 +99,7 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
   });
 
   r.get(
-    '/api/parent/kids/:id/balance',
+    '/parent/kids/:id/balance',
     {
       preHandler: app.requireParent,
       schema: { params: Params, response: { 200: BalanceSummarySchema } },
@@ -118,7 +118,7 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
   );
 
   r.get(
-    '/api/parent/kids/:id/history',
+    '/parent/kids/:id/history',
     {
       preHandler: app.requireParent,
       schema: {
