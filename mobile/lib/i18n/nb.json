@@ -429,6 +429,10 @@
     "balance": "Saldo",
     "rewards": "Belønninger",
     "profile": "Profil",
+    "profileLanguage": {
+      "title": "Språk",
+      "subtitle": "Velg språket appen skal være på"
+    },
     "todayScreen": {
       "greeting": "Hei, %{name}!",
       "greetingMorning": "God morgen, %{name}!",
@@ -527,6 +531,13 @@
       "youGot": "Du fikk",
       "dismiss": "Juhu!",
       "newBalance": "Din saldo nå:"
+    },
+    "errors": {
+      "loadFailedTitle": "Kunne ikke laste",
+      "loadFailedBody": "Noe gikk galt. Sjekk nettet og prøv igjen.",
+      "retry": "Prøv igjen",
+      "completeFailed": "Kunne ikke registrere oppgaven. Prøv igjen.",
+      "uncompleteFailed": "Kunne ikke angre oppgaven. Prøv igjen."
     }
   },
   "paywall": {

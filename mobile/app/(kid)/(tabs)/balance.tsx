@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -89,17 +90,31 @@ export default function BalanceScreen() {
   const s = theme.surface;
   const tx = theme.text;
 
-  const { data: summary, isLoading: summaryLoading, refetch: refetchSummary } = useQuery({
+  const {
+    data: summary,
+    isLoading: summaryLoading,
+    isError: summaryIsError,
+    refetch: refetchSummary,
+  } = useQuery({
     queryKey: ['kid', 'balance'],
     queryFn: () => kidApi.getBalance(),
   });
 
-  const { data: history, isLoading: historyLoading, refetch: refetchHistory } = useQuery({
+  const {
+    data: history,
+    isLoading: historyLoading,
+    isError: historyIsError,
+    refetch: refetchHistory,
+  } = useQuery({
     queryKey: ['kid', 'history'],
     queryFn: () => kidApi.getHistory(),
   });
 
   const isLoading = summaryLoading || historyLoading;
+  // Treat either query failing as a load failure — the kid would otherwise
+  // see a "no transactions yet" empty state even when the network is just
+  // down. Mirrors the rewards modal's inline-error pattern.
+  const isError = summaryIsError || historyIsError;
 
   function handleRefresh() {
     void refetchSummary();
@@ -170,7 +185,36 @@ export default function BalanceScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
-      {(history ?? []).length === 0 ? (
+      {isError ? (
+        <View style={styles.emptyContainer}>
+          {ListHeader}
+          <View
+            style={[
+              styles.errorBanner,
+              { backgroundColor: theme.colors.semantic.danger + '18' },
+            ]}
+            accessibilityLiveRegion="polite"
+            accessibilityRole="alert"
+          >
+            <KroniText variant="body" tone="primary" style={styles.errorTitle}>
+              {t('kid.errors.loadFailedTitle')}
+            </KroniText>
+            <KroniText variant="small" tone="secondary" style={styles.errorBody}>
+              {t('kid.errors.loadFailedBody')}
+            </KroniText>
+            <TouchableOpacity
+              onPress={handleRefresh}
+              style={[styles.retryBtn, { borderColor: theme.colors.gold[500] }]}
+              accessibilityRole="button"
+              accessibilityLabel={t('kid.errors.retry')}
+            >
+              <KroniText variant="body" tone="gold">
+                {t('kid.errors.retry')}
+              </KroniText>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (history ?? []).length === 0 ? (
         <View style={styles.emptyContainer}>
           {ListHeader}
           <EmptyState
@@ -238,4 +282,20 @@ const styles = StyleSheet.create({
   historyDate: { fontSize: 13 },
   historyNote: { fontSize: 12 },
   historyAmount: { fontSize: 16, fontWeight: '700' },
+  errorBanner: {
+    marginHorizontal: 24,
+    borderRadius: 16,
+    padding: 16,
+    gap: 8,
+    alignItems: 'flex-start',
+  },
+  errorTitle: { fontSize: 15, fontWeight: '600' },
+  errorBody: { fontSize: 13 },
+  retryBtn: {
+    marginTop: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1.5,
+  },
 });

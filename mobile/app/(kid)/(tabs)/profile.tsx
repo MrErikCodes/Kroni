@@ -13,11 +13,17 @@ import { useQuery } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
 import * as Application from 'expo-application';
-import { ClipboardCopy, LogOut, User } from 'lucide-react-native';
+import { Check, ClipboardCopy, LogOut, User } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
-import { clearKidToken } from '../../../lib/auth';
-import { t } from '../../../lib/i18n';
+import { clearKidToken, setKidLocale } from '../../../lib/auth';
+import {
+  t,
+  setAppLocale,
+  SUPPORTED_LOCALES,
+  getAppLocale,
+  type AppLocale,
+} from '../../../lib/i18n';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -121,6 +127,17 @@ export default function KidProfileScreen() {
 
   const [signOutOpen, setSignOutOpen] = useState(false);
   const handleSignOut = useCallback(() => setSignOutOpen(true), []);
+
+  // Locale picker — kid choice lives only on the device (no server schema).
+  // The root layout's `subscribeLocale` bump remounts the Stack, so this
+  // screen re-renders with the right `t(...)` strings after a tap; we just
+  // need to read the current short locale to mark the active row.
+  const activeShortLocale = getAppLocale();
+  const handlePickLocale = useCallback(async (code: AppLocale) => {
+    await setKidLocale(code);
+    setAppLocale(code);
+    await Haptics.selectionAsync();
+  }, []);
   const confirmSignOut = useCallback(async () => {
     setSignOutOpen(false);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -219,6 +236,45 @@ export default function KidProfileScreen() {
             </Text>
           )}
         </Card>
+
+        {/* Language picker — mirrors the parent settings row layout, but
+            persists to SecureStore (`kid.locale.v1`) since kids have no
+            server-side `locale` column. The root layout reads this on boot. */}
+        <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
+          {t('kid.profileLanguage.title')}
+        </Text>
+        <Card style={styles.langSection}>
+          {SUPPORTED_LOCALES.map((opt, idx) => {
+            const shortCode = opt.code.slice(0, 2);
+            const active = activeShortLocale === shortCode;
+            return (
+              <View key={opt.code}>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!active) void handlePickLocale(opt.code);
+                  }}
+                  style={styles.langRow}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={opt.label}
+                >
+                  <Text style={[styles.langLabel, { color: tx.primary }]}>
+                    {opt.label}
+                  </Text>
+                  {active ? (
+                    <Check size={18} color={theme.colors.gold[500]} strokeWidth={2.5} />
+                  ) : null}
+                </TouchableOpacity>
+                {idx < SUPPORTED_LOCALES.length - 1 ? (
+                  <View style={[styles.langDivider, { backgroundColor: theme.surface.border }]} />
+                ) : null}
+              </View>
+            );
+          })}
+        </Card>
+        <Text style={[styles.langHelp, { color: tx.secondary }]}>
+          {t('kid.profileLanguage.subtitle')}
+        </Text>
 
         {/* Kopier app info — same shape as parent settings */}
         <TouchableOpacity
@@ -336,4 +392,26 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
   },
   diagActions: { flexDirection: 'row', gap: 12 },
+  sectionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    paddingHorizontal: 4,
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  langSection: { overflow: 'hidden' },
+  langRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 44,
+    gap: 10,
+  },
+  langLabel: { fontSize: 15, fontWeight: '500' },
+  langDivider: { height: 1, marginHorizontal: 16 },
+  langHelp: { fontSize: 12, paddingHorizontal: 8, marginTop: 6, lineHeight: 16 },
 });

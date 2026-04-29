@@ -46,7 +46,7 @@ const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
 };
 import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
 import { ensureInstallId } from '../lib/installInfo';
-import { getKidToken } from '../lib/auth';
+import { getKidToken, getKidLocale } from '../lib/auth';
 import { kidApi, parentApi } from '../lib/api';
 import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
@@ -61,8 +61,26 @@ initSentry();
 // the parent is authenticated, but pre-auth flows (sign-up, sign-in,
 // kid pairing) need to render in the right language and link to the
 // right legal-domain (kroni.no/.se/.dk).
+//
+// Boot-order resolution: stored kid locale (if a kid session is active)
+// → server-stored parent locale (applied later in settings.tsx) → device
+// locale → 'nb' default. The kid override below is async since
+// SecureStore is async; the device fallback runs synchronously first so
+// the very first frame renders in *some* locale rather than blank.
 const deviceLocale = Localization.getLocales()[0]?.languageCode ?? 'nb';
 setAppLocale(deviceLocale);
+void (async () => {
+  // Only honor the stored kid locale when a kid token is present —
+  // otherwise the parent is using the device and their server-stored
+  // `me.locale` should win once the settings screen mounts.
+  const [kidToken, storedKidLocale] = await Promise.all([
+    getKidToken(),
+    getKidLocale(),
+  ]);
+  if (kidToken && storedKidLocale) {
+    setAppLocale(storedKidLocale);
+  }
+})();
 // RevenueCat is parent-only; configured lazily inside the identity bridge
 // once a Clerk session appears.
 import {

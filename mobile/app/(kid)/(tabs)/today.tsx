@@ -434,19 +434,34 @@ export default function TodayScreen() {
     queryFn: () => kidApi.getTodayTasks(),
   });
 
+  // Surface mutation failures inline (matches the rewards modal pattern):
+  // a previous "silent fall-through to common.error" hid network blips when
+  // the kid tapped the circle. Now we render a hairline banner above the
+  // task list and bounce the kid back into the pending list (react-query
+  // already reverts the cache on error).
+  const [mutationError, setMutationError] = useState<string | null>(null);
+
   const completeMutation = useMutation({
     mutationFn: ({ completionId }: { completionId: string }) =>
       kidApi.completeTask(completionId, generateIdempotencyKey()),
     onSuccess: () => {
+      setMutationError(null);
       void queryClient.invalidateQueries({ queryKey: ['kid', 'today'] });
       void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
+    },
+    onError: () => {
+      setMutationError(t('kid.errors.completeFailed'));
     },
   });
 
   const uncompleteMutation = useMutation({
     mutationFn: (completionId: string) => kidApi.uncompleteTask(completionId),
     onSuccess: () => {
+      setMutationError(null);
       void queryClient.invalidateQueries({ queryKey: ['kid', 'today'] });
+    },
+    onError: () => {
+      setMutationError(t('kid.errors.uncompleteFailed'));
     },
   });
 
@@ -517,12 +532,15 @@ export default function TodayScreen() {
           </View>
         ) : isError ? (
           <View style={styles.center}>
-            <KroniText variant="body" tone="danger">
-              {t('common.error')}
+            <KroniText variant="body" tone="primary">
+              {t('kid.errors.loadFailedTitle')}
+            </KroniText>
+            <KroniText variant="small" tone="secondary">
+              {t('kid.errors.loadFailedBody')}
             </KroniText>
             <TouchableOpacity onPress={() => void refetch()} style={{ marginTop: 8 }}>
               <KroniText variant="body" tone="gold">
-                {t('common.retry')}
+                {t('kid.errors.retry')}
               </KroniText>
             </TouchableOpacity>
           </View>
@@ -533,6 +551,33 @@ export default function TodayScreen() {
           />
         ) : (
           <>
+            {mutationError ? (
+              <View
+                style={[
+                  styles.mutationError,
+                  { backgroundColor: theme.colors.semantic.danger + '18' },
+                ]}
+                accessibilityLiveRegion="polite"
+                accessibilityRole="alert"
+              >
+                <KroniText
+                  variant="small"
+                  style={{ color: theme.colors.semantic.danger, flex: 1 }}
+                >
+                  {mutationError}
+                </KroniText>
+                <TouchableOpacity
+                  onPress={() => setMutationError(null)}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('common.close')}
+                >
+                  <KroniText variant="small" tone="danger">
+                    ×
+                  </KroniText>
+                </TouchableOpacity>
+              </View>
+            ) : null}
             {pending.length > 0 ? (
               <View style={styles.section}>
                 <KroniText variant="eyebrow" tone="tertiary">
@@ -610,6 +655,14 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   section: { gap: 10 },
+  mutationError: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
   taskCard: {
     borderRadius: 24,
     borderWidth: 1,

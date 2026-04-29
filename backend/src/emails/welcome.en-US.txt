@@ -1,0 +1,18 @@
+[REVIEW] en-US email copy
+
+WELCOME TO KRONI
+
+Hi {{firstName}},
+
+Thanks for joining! Kroni makes pocket money simple — you create tasks,
+your child completes them, and the kroner build up on an account you
+manage together.
+
+You're ready to go. Open the app and add your first child:
+{{appOpenUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

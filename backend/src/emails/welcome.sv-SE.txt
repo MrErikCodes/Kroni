@@ -1,0 +1,38 @@
+[REVIEW] sv-SE email copy
+
+VÄLKOMMEN TILL KRONI
+
+Hej {{firstName}},
+
+Tack för att du är med! Kroni gör veckopeng enkelt — du skapar
+uppgifter, ditt barn slutför dem, och kronorna samlas på ett konto ni
+sköter tillsammans.
+
+Du är redo att börja. Öppna appen och lägg till ditt första barn:
+{{appOpenUrl}}
+
+Behöver du hjälp? Svara på det här mejlet — vi läser allt själva.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Swedish above. Here's the English version for our
+non-Nordic readers.
+
+Hi {{firstName}},
+
+Thanks for joining! Kroni makes pocket money simple — you create tasks,
+your child completes them, and the kronor build up on an account you
+manage together.
+
+You're ready to go. Open the app and add your first child:
+{{appOpenUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

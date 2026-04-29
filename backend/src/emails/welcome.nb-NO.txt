@@ -1,0 +1,38 @@
+[REVIEW] nb-NO email copy
+
+VELKOMMEN TIL KRONI
+
+Hei {{firstName}},
+
+Takk for at du ble med! Kroni gjør lommepenger enkelt — du oppretter
+oppgaver, barnet ditt fullfører dem, og kronene samles opp på en konto
+dere styrer sammen.
+
+Du er klar til å komme i gang. Åpne appen og legg til ditt første barn:
+{{appOpenUrl}}
+
+Trenger du hjelp? Svar på denne e-posten — vi leser alt selv.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Norwegian above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{firstName}},
+
+Thanks for joining! Kroni makes pocket money simple — you create tasks,
+your child completes them, and the kroner build up on an account you
+manage together.
+
+You're ready to go. Open the app and add your first child:
+{{appOpenUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

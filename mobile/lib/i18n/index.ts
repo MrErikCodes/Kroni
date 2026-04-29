@@ -25,13 +25,29 @@ i18n.locale = 'nb';
 i18n.defaultLocale = 'nb';
 i18n.enableFallback = true;
 
+// Launch markets are NO / SE / DK only — we ship four UI locales:
+// nb (Norwegian Bokmål, default), sv (Swedish), da (Danish) and en (English).
+// `nb-*`, `nn-*` and the legacy `no` tag all map to `nb`. `sv-*`/`da-*`/`en-*`
+// map to their respective bundles. Anything else (de, fr, es, …) falls
+// through to `en` — non-Nordic speakers are far more likely to read English
+// than Norwegian, so the previous `nb` catch-all was wrong. The empty/null
+// case keeps `nb` so genuinely missing input still hits the app's default.
 function normalize(locale: string | null | undefined): ShortLocale {
   if (!locale) return 'nb';
   const lower = locale.toLowerCase();
-  if (lower.startsWith('en')) return 'en';
+  if (
+    lower.startsWith('nb') ||
+    lower.startsWith('nn') ||
+    lower === 'no' ||
+    lower.startsWith('no-') ||
+    lower.startsWith('no_')
+  ) {
+    return 'nb';
+  }
   if (lower.startsWith('sv')) return 'sv';
   if (lower.startsWith('da')) return 'da';
-  return 'nb';
+  if (lower.startsWith('en')) return 'en';
+  return 'en';
 }
 
 // Subscribers listen for locale flips so React can rerender any tree

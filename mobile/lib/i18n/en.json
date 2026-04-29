@@ -429,6 +429,10 @@
     "balance": "Balance",
     "rewards": "Rewards",
     "profile": "Profile",
+    "profileLanguage": {
+      "title": "Language",
+      "subtitle": "Choose the app language"
+    },
     "todayScreen": {
       "greeting": "Hi, %{name}!",
       "greetingMorning": "Good morning, %{name}!",
@@ -527,6 +531,13 @@
       "youGot": "You got",
       "dismiss": "Yay!",
       "newBalance": "Your balance now:"
+    },
+    "errors": {
+      "loadFailedTitle": "Couldn't load",
+      "loadFailedBody": "Something went wrong. Check your connection and try again.",
+      "retry": "Try again",
+      "completeFailed": "Couldn't mark this task done. Please try again.",
+      "uncompleteFailed": "Couldn't undo that. Please try again."
     }
   },
   "paywall": {

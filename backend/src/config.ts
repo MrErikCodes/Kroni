@@ -18,6 +18,15 @@ const Env = z.object({
   EXPO_ACCESS_TOKEN: z.string().optional(),
   REVENUECAT_WEBHOOK_AUTH: z.string().optional(),
 
+  // Mailpace transactional email. Server token from the Mailpace dashboard;
+  // domain-scoped, so this token can only send `from: *@kroni.no`.
+  MAILPACE_API_TOKEN: z.string().min(1),
+  // Verified sending address. Must match a domain authenticated in
+  // Mailpace (SPF/DKIM/DMARC on kroni.no — see email.md).
+  MAILPACE_FROM_EMAIL: z.string().email().default('noreply@kroni.no'),
+  // Friendly From: display name. Renders as `Kroni <noreply@kroni.no>`.
+  MAILPACE_FROM_NAME: z.string().default('Kroni'),
+
   // Crash + error reporting. Optional so dev / tests run without it.
   SENTRY_DSN: z.string().url().optional(),
   SENTRY_RELEASE: z.string().optional(),

@@ -70,7 +70,18 @@
     "balance": "Balance",
     "rewards": "Rewards",
     "profile": "Profile",
+    "profileLanguage": {
+      "title": "Sprog",
+      "subtitle": "Vælg appens sprog"
+    },
     "celebrate": "Great job!",
+    "errors": {
+      "loadFailedTitle": "Kunne ikke indlæse",
+      "loadFailedBody": "Noget gik galt. Tjek forbindelsen og prøv igen.",
+      "retry": "Prøv igen",
+      "completeFailed": "Kunne ikke registrere opgaven. Prøv igen.",
+      "uncompleteFailed": "Kunne ikke fortryde. Prøv igen."
+    },
     "todayScreen": {
       "detailSheet": {
         "recurrenceDaily": "Hver dag",
