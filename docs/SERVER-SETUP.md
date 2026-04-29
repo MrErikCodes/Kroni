@@ -86,7 +86,7 @@ sudo systemctl reload caddy
 
 ## 7. Checkout + first run
 
-> **Note:** running as `root` out of `/root/kroni` for now. Not best practice (a dedicated unprivileged service user is the proper move) but acceptable while bootstrapping. Migrate to a `kroni` user under `/srv/kroni` later — change the `cwd` paths in `backend/ecosystem.config.js`, the path in `deploy.sh`, and re-run `pm2 startup` against the new user.
+> **Note:** running as `root` out of `/root/kroni` for now. Not best practice (a dedicated unprivileged service user is the proper move) but acceptable while bootstrapping. Migrate to a `kroni` user under `/srv/kroni` later — change the `cwd` paths in `backend/ecosystem.config.cjs`, the path in `deploy.sh`, and re-run `pm2 startup` against the new user.
 
 ```bash
 # As root
@@ -104,7 +104,7 @@ npm --workspace=website run build
 
 # Start under PM2 + persist across reboot
 cd /root/kroni/backend
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 save
 pm2 startup systemd
 # Run the command pm2 prints at the end of the previous line — it pins
