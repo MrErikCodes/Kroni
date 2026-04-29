@@ -1,0 +1,34 @@
+[REVIEW] sv-SE email copy
+
+BEKRÄFTA DIN E-POST
+
+Hej {{name}},
+
+Ange koden nedan i Kroni-appen för att bekräfta din e-postadress.
+
+    {{code}}
+
+Koden går ut snart. Om du inte försökte logga in eller registrera
+dig kan du ignorera mejlet.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Swedish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+Enter the code below in the Kroni app to confirm your email address:
+
+    {{code}}
+
+The code expires shortly. If you didn't try to sign in or sign up,
+you can ignore this email.
+
+— The Kroni team
+
+Kroni · https://kroni.no

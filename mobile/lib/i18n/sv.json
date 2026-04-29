@@ -62,6 +62,11 @@
         "newCodeTitle": "Ny kod",
         "expiresLabel": "Förfaller %{date}",
         "copyButton": "Kopiera"
+      },
+      "shareLink": {
+        "button": "Dela parningslänk",
+        "shareTitle": "Parning till %{name}",
+        "shareBody": "Öppna %{url} på din telefon för att logga in %{name} i Kroni Family. Länken är giltig i %{minutes} minuter."
       }
     }
   },

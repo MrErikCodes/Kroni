@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
+import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
@@ -57,6 +58,60 @@ export default function KidPair() {
     const lastFilled = Math.min(chars.length, CODE_LENGTH - 1);
     inputRefs.current[lastFilled]?.focus();
   }, []);
+
+  // Deep-link receiver — accepts:
+  //   • https://kroni.no/pair/<code>  (universal link, after AASA verifies)
+  //   • https://kroni.se/pair/<code>  (same)
+  //   • https://kroni.dk/pair/<code>  (same)
+  //   • kroni://pair?code=<code>      (custom-scheme fallback)
+  // Returns the 6-digit code if the URL matches, else null. We deliberately
+  // *prefill* and require the kid to tap "pair" rather than auto-submitting
+  // — the URL might've been opened accidentally and an unintended pair
+  // would silently rotate the kid's session token.
+  const extractPairingCode = useCallback((url: string | null): string | null => {
+    if (!url) return null;
+    try {
+      const parsed = Linking.parse(url);
+      // Custom scheme: kroni://pair?code=123456 → hostname='pair', queryParams.code
+      const queryCode = parsed.queryParams?.['code'];
+      if (typeof queryCode === 'string') {
+        const digits = queryCode.replace(/\D/g, '').slice(0, CODE_LENGTH);
+        if (digits.length === CODE_LENGTH) return digits;
+      }
+      // Universal link: https://kroni.no/pair/123456 → path='pair/123456'
+      const path = parsed.path ?? '';
+      const match = /(?:^|\/)pair\/(\d{6})\b/.exec(path);
+      if (match?.[1]) return match[1];
+    } catch {
+      // Malformed URL — ignore.
+    }
+    return null;
+  }, []);
+
+  // Cold-start path: app launched from a deep link with no instance running.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const initial = await Linking.getInitialURL();
+      if (cancelled) return;
+      const code = extractPairingCode(initial);
+      if (code) handlePaste(code);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [extractPairingCode, handlePaste]);
+
+  // Warm path: app already running and a deep link arrives.
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', ({ url }) => {
+      const code = extractPairingCode(url);
+      if (code) handlePaste(code);
+    });
+    return () => {
+      sub.remove();
+    };
+  }, [extractPairingCode, handlePaste]);
 
   const handleConnect = useCallback(async () => {
     if (code.length < CODE_LENGTH) return;

@@ -293,4 +293,20 @@ export const en: typeof nb = {
     translationNotice:
       "This page has been translated from Norwegian. The Norwegian version is the legally binding one. Translation errors may occur — please let us know at support@kroni.no if you find any.",
   },
+  pair: {
+    metaTitle: "Open Kroni Family",
+    metaDescription:
+      "Open the Kroni app to finish pairing your child's device.",
+    eyebrow: "Pairing",
+    title: "Open Kroni on your child's phone",
+    body: "Tap the button to open the Kroni app and finish pairing automatically. If the app opened on its own when you tapped the link, you can close this tab.",
+    codeLabel: "Pairing code",
+    openButton: "Open in Kroni app",
+    notInstalled: "Don't have the app yet?",
+    appStore: "Download for iOS",
+    playStore: "Download for Android",
+    autoOpen:
+      "We'll try to open the app automatically in a few seconds. Nothing happening? Tap the button above.",
+    helpLine: "Need help? Email support@kroni.no.",
+  },
 };

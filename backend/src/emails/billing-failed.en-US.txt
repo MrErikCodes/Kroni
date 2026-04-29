@@ -1,0 +1,17 @@
+[REVIEW] en-US email copy
+
+PAYMENT FAILED
+
+Hi {{name}},
+
+We couldn't renew your Kroni Family subscription. Your access stays
+active for a short grace period while we retry, but you'll need to
+update your payment method to keep it.
+
+Update your payment method: {{updatePaymentUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

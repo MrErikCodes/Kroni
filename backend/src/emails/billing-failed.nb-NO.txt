@@ -1,0 +1,36 @@
+[REVIEW] nb-NO email copy
+
+BETALINGEN FEILET
+
+Hei {{name}},
+
+Vi fikk ikke fornyet Kroni Family-abonnementet ditt. Tilgangen er
+fortsatt aktiv en kort periode mens vi prøver igjen, men du må
+oppdatere betalingsmåten din for å unngå å miste tilgang.
+
+Oppdater betalingsmåte: {{updatePaymentUrl}}
+
+Trenger du hjelp? Svar på denne e-posten — vi leser alt selv.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Norwegian above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+We couldn't renew your Kroni Family subscription. Your access stays
+active for a short grace period while we retry, but you'll need to
+update your payment method to keep it.
+
+Update your payment method: {{updatePaymentUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

@@ -1,0 +1,36 @@
+[REVIEW] sv-SE email copy
+
+PRENUMERATIONEN HAR UPPHÖRT
+
+Hej {{name}},
+
+Din Kroni Family-prenumeration är slut. Hushållet är tillbaka på
+gratisplanen — barn och data är säkert sparade, men medföräldrar och
+fler barn är pausade tills du förnyar.
+
+Förnya Kroni Family: {{renewUrl}}
+
+Behöver du hjälp? Svara på det här mejlet — vi läser allt själva.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Swedish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+Your Kroni Family subscription has ended. The household is back on
+the free plan — kids and data are safely stored, but co-parents and
+extra kids are paused until you renew.
+
+Renew Kroni Family: {{renewUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

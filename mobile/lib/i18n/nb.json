@@ -210,6 +210,11 @@
         "newCodeTitle": "Ny kode",
         "expiresLabel": "Utløper %{date}",
         "copyButton": "Kopier"
+      },
+      "shareLink": {
+        "button": "Del kobling-lenke",
+        "shareTitle": "Kobling til %{name}",
+        "shareBody": "Åpne %{url} på telefonen din for å logge %{name} på Kroni Family. Lenken er gyldig i %{minutes} minutter."
       }
     },
     "tasksList": {

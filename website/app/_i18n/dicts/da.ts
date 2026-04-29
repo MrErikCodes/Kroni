@@ -293,4 +293,20 @@ export const da: typeof nb = {
     translationNotice:
       "Denne side er oversat fra norsk. Den norske version er den juridisk bindende. Oversættelsesfejl kan forekomme — giv os besked på support@kroni.no hvis du finder nogen.",
   },
+  pair: {
+    metaTitle: "Åbn Kroni Familie",
+    metaDescription:
+      "Åbn Kroni-appen for at færdiggøre parringen af barnets enhed.",
+    eyebrow: "Parring",
+    title: "Åbn Kroni på barnets telefon",
+    body: "Tryk på knappen for at åbne Kroni-appen og færdiggøre parringen automatisk. Hvis appen åbnede af sig selv da du trykkede på linket, kan du lukke denne fane.",
+    codeLabel: "Parringskode",
+    openButton: "Åbn i Kroni-appen",
+    notInstalled: "Har du ikke appen endnu?",
+    appStore: "Download til iOS",
+    playStore: "Download til Android",
+    autoOpen:
+      "Vi forsøger at åbne appen automatisk om få sekunder. Sker der ingenting? Tryk på knappen ovenfor.",
+    helpLine: "Brug for hjælp? Skriv til support@kroni.no.",
+  },
 };

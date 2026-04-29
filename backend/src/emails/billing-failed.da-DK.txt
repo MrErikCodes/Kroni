@@ -1,0 +1,36 @@
+[REVIEW] da-DK email copy
+
+BETALINGEN MISLYKKEDES
+
+Hej {{name}},
+
+Vi kunne ikke forny dit Kroni Family-abonnement. Adgangen er aktiv
+en kort periode, mens vi prøver igen, men du skal opdatere din
+betalingsmetode for ikke at miste adgang.
+
+Opdater betalingsmetode: {{updatePaymentUrl}}
+
+Brug for hjælp? Svar bare på denne mail — vi læser alle selv.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Danish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+We couldn't renew your Kroni Family subscription. Your access stays
+active for a short grace period while we retry, but you'll need to
+update your payment method to keep it.
+
+Update your payment method: {{updatePaymentUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

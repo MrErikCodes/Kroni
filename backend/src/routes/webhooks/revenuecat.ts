@@ -11,6 +11,73 @@ import {
   NotFoundError,
 } from '../../lib/errors.js';
 import { sendPushToParent } from '../../services/notification.service.js';
+import { sendMail, MailpaceError } from '../../lib/mailpace.js';
+import {
+  loadTemplate,
+  isSupportedLocale,
+  type SupportedLocale as TemplateLocale,
+} from '../../lib/email-templates.js';
+
+// URLs in RC billing emails. The mobile app deep-links these to the
+// in-app subscription detail screen on iOS/Android; on the web they
+// fall back to kroni.no/account. [TODO email] swap in real
+// universal-link landing pages once the website ships them.
+const UPDATE_PAYMENT_URL = 'https://kroni.no/account/billing';
+const RENEW_URL = 'https://kroni.no/account/billing';
+
+function emailLocale(locale: string | null | undefined): TemplateLocale {
+  if (isSupportedLocale(locale)) return locale;
+  if (locale && locale.startsWith('en')) return 'en-US';
+  return 'nb-NO';
+}
+
+async function sendBillingEmail(
+  req: FastifyRequest,
+  ownerId: string | null,
+  template: 'billing-failed' | 'subscription-expired',
+  vars: Record<string, string>,
+): Promise<void> {
+  if (!ownerId) return;
+  const db = getDb();
+  const [owner] = await db
+    .select({
+      email: parents.email,
+      locale: parents.locale,
+      displayName: parents.displayName,
+    })
+    .from(parents)
+    .where(eq(parents.id, ownerId))
+    .limit(1);
+  if (!owner || !owner.email) {
+    req.log.warn(
+      { parent_id: ownerId, template },
+      'cannot send revenuecat email — parent has no email on record',
+    );
+    return;
+  }
+  try {
+    const locale = emailLocale(owner.locale);
+    const name = owner.displayName?.trim() || owner.email.split('@')[0] || 'there';
+    const tpl = loadTemplate(template, locale, { name, ...vars });
+    await sendMail({
+      to: owner.email,
+      subject: tpl.subject,
+      html: tpl.html,
+      text: tpl.text,
+    });
+    req.log.info({ parent_id: ownerId, template, locale }, 'revenuecat email sent');
+  } catch (err) {
+    if (err instanceof MailpaceError) {
+      req.log.error(
+        { err, status: err.status, body: err.body, parent_id: ownerId, template },
+        'revenuecat email send failed (mailpace)',
+      );
+    } else {
+      req.log.error({ err, parent_id: ownerId, template }, 'revenuecat email send failed');
+    }
+    // Swallow — push notification path is independent and runs separately.
+  }
+}
 
 // Localized push copy for billing events. The backend has no i18n
 // framework — keep this inline and keyed off `parents.locale`. nb-NO is
@@ -292,6 +359,15 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
           expirationStrings,
           { kind: 'revenuecat-expiration' },
         );
+        // ALSO send a localized email to the owner's address. Independent
+        // try/catch lives inside `sendBillingEmail` — push above is
+        // unaffected by email failures and vice versa.
+        await sendBillingEmail(
+          req,
+          row?.premiumOwnerParentId ?? null,
+          'subscription-expired',
+          { renewUrl: RENEW_URL },
+        );
       }
     } else if (ev.type === 'BILLING_ISSUE') {
       // RC fires BILLING_ISSUE when payment fails — access is still valid
@@ -316,6 +392,14 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
         row?.premiumOwnerParentId ?? null,
         billingIssueStrings,
         { kind: 'revenuecat-billing-issue' },
+      );
+      // ALSO send a localized email to the owner. Independent of push
+      // success — both paths are wrapped in their own try/catch.
+      await sendBillingEmail(
+        req,
+        row?.premiumOwnerParentId ?? null,
+        'billing-failed',
+        { updatePaymentUrl: UPDATE_PAYMENT_URL },
       );
     } else {
       // CANCELLATION, TEST, SUBSCRIPTION_EXTENDED, etc. Logged for

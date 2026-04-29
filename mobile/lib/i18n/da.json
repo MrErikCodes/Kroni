@@ -62,6 +62,11 @@
         "newCodeTitle": "Ny kode",
         "expiresLabel": "Udløber %{date}",
         "copyButton": "Kopiér"
+      },
+      "shareLink": {
+        "button": "Del parringslink",
+        "shareTitle": "Parring til %{name}",
+        "shareBody": "Åbn %{url} på din telefon for at logge %{name} ind i Kroni Family. Linket er gyldigt i %{minutes} minutter."
       }
     }
   },

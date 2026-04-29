@@ -293,4 +293,20 @@ export const sv: typeof nb = {
     translationNotice:
       "Den här sidan är översatt från norska. Den norska versionen är juridiskt bindande. Översättningsfel kan förekomma — meddela oss på support@kroni.no om du hittar några.",
   },
+  pair: {
+    metaTitle: "Öppna Kroni Familj",
+    metaDescription:
+      "Öppna Kroni-appen för att slutföra parkopplingen av barnets enhet.",
+    eyebrow: "Parkoppling",
+    title: "Öppna Kroni på barnets telefon",
+    body: "Tryck på knappen för att öppna Kroni-appen och slutföra parkopplingen automatiskt. Om appen öppnades av sig själv när du tryckte på länken kan du stänga den här fliken.",
+    codeLabel: "Parkopplingskod",
+    openButton: "Öppna i Kroni-appen",
+    notInstalled: "Har du inte appen ännu?",
+    appStore: "Ladda ner för iOS",
+    playStore: "Ladda ner för Android",
+    autoOpen:
+      "Vi försöker öppna appen automatiskt om några sekunder. Händer ingenting? Tryck på knappen ovan.",
+    helpLine: "Behöver du hjälp? Skriv till support@kroni.no.",
+  },
 };

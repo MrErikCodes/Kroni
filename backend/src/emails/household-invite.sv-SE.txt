@@ -1,0 +1,48 @@
+[REVIEW] sv-SE email copy
+
+GÅ MED I {{householdName}}
+
+Hej,
+
+{{inviterName}} har bjudit in dig som medförälder i hushållet
+{{householdName}} på Kroni. När du gått med delar ni samma barn,
+uppgifter och kronor.
+
+Använd koden nedan i Kroni-appen, eller öppna länken för att tacka
+ja direkt.
+
+    {{code}}
+
+Tacka ja till inbjudan: {{acceptUrl}}
+
+Koden går ut om 7 dagar. Om du inte väntade dig den här inbjudan
+kan du ignorera mejlet.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Swedish above. Here's the English version for
+our non-Nordic readers.
+
+Hi,
+
+{{inviterName}} invited you to join the {{householdName}} household on
+Kroni as a co-parent. Once you join, you'll share the same kids,
+tasks, and kroner together.
+
+Use the code below in the Kroni app, or open the link to accept
+directly:
+
+    {{code}}
+
+Accept the invite: {{acceptUrl}}
+
+The code expires in 7 days. If you weren't expecting this invitation,
+you can safely ignore this email.
+
+— The Kroni team
+
+Kroni · https://kroni.no

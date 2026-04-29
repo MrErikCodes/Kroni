@@ -1,0 +1,36 @@
+[REVIEW] da-DK email copy
+
+ABONNEMENTET ER UDLØBET
+
+Hej {{name}},
+
+Dit Kroni Family-abonnement er slut. Husstanden er tilbage på
+gratisplanen — børn og data er sikkert gemt, men medforældre og
+flere børn er sat på pause, indtil du fornyer.
+
+Forny Kroni Family: {{renewUrl}}
+
+Brug for hjælp? Svar bare på denne mail — vi læser alle selv.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Danish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+Your Kroni Family subscription has ended. The household is back on
+the free plan — kids and data are safely stored, but co-parents and
+extra kids are paused until you renew.
+
+Renew Kroni Family: {{renewUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

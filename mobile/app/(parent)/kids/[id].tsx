@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -164,6 +165,53 @@ export default function KidDetail() {
     setRegenCopied(false);
   }, []);
 
+  // Share-link flow — mints a fresh pairing code (which invalidates any
+  // prior un-used one for this kid, see backend pairing.service.ts) and
+  // hands the URL to the OS share sheet. Distinct from the regenerate
+  // button: that one shows a modal so the parent can read the code aloud
+  // to the kid; this one assumes the kid has the device and can tap the
+  // shared link to auto-prefill the code in the kid app.
+  //
+  // We always use the canonical .no domain in the URL — kroni.se / kroni.dk
+  // are marketing/legal aliases, while pair-code redemption is a single
+  // backend behind the brand. The universal-link entitlement covers all
+  // three so any of them work, but we don't want a Norwegian user to send
+  // an SE link to their kid's device.
+  const shareMutation = useMutation({
+    mutationFn: async (): Promise<{ code: string; expiresAt: string }> => {
+      return api.regenerateKidPairingCode(id);
+    },
+    onSuccess: async (data) => {
+      const url = `https://kroni.no/pair/${data.code}`;
+      const kidName = kid?.name ?? '';
+      // Compute remaining minutes from expiresAt so the body line is
+      // accurate regardless of the backend TTL constant — current value
+      // is 15 min (see backend/src/services/pairing.service.ts).
+      const minutes = Math.max(
+        1,
+        Math.round((new Date(data.expiresAt).getTime() - Date.now()) / 60000),
+      );
+      try {
+        await Share.share({
+          title: t('parent.kidDetail.shareLink.shareTitle', { name: kidName }),
+          message: t('parent.kidDetail.shareLink.shareBody', {
+            name: kidName,
+            url,
+            minutes,
+          }),
+          url,
+        });
+      } catch {
+        // User cancelled / share sheet failed — code is already minted and
+        // valid for `minutes`. Nothing else to do.
+      }
+    },
+  });
+  const handleSharePress = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    shareMutation.mutate();
+  }, [shareMutation]);
+
   const isLoading = kidLoading || balanceLoading;
 
   return (
@@ -306,6 +354,18 @@ export default function KidDetail() {
             onPress={handleRegeneratePress}
             variant="secondary"
             size="sm"
+          />
+
+          {/* Share login link — mints a fresh pairing code and hands the
+              https://kroni.no/pair/<code> URL to the OS share sheet. The
+              kid app's universal-link / custom-scheme receiver prefills
+              the code automatically. */}
+          <Button
+            label={t('parent.kidDetail.shareLink.button')}
+            onPress={handleSharePress}
+            variant="secondary"
+            size="sm"
+            loading={shareMutation.isPending}
           />
         </ScrollView>
       )}

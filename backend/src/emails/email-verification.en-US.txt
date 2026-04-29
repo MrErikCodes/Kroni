@@ -1,0 +1,16 @@
+[REVIEW] en-US email copy
+
+VERIFY YOUR EMAIL
+
+Hi {{name}},
+
+Enter the code below in the Kroni app to confirm your email address.
+
+    {{code}}
+
+The code expires shortly. If you didn't try to sign in or sign up,
+you can ignore this email.
+
+— The Kroni team
+
+Kroni · https://kroni.no

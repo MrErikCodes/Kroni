@@ -1,0 +1,48 @@
+[REVIEW] da-DK email copy
+
+BLIV EN DEL AF {{householdName}}
+
+Hej,
+
+{{inviterName}} har inviteret dig som medforælder i husstanden
+{{householdName}} på Kroni. Når du er med, deler I de samme børn,
+opgaver og kroner.
+
+Brug koden nedenfor i Kroni-appen, eller åbn linket for at acceptere
+direkte.
+
+    {{code}}
+
+Accepter invitation: {{acceptUrl}}
+
+Koden udløber om 7 dage. Hvis du ikke ventede denne invitation, kan
+du roligt ignorere mailen.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Danish above. Here's the English version for
+our non-Nordic readers.
+
+Hi,
+
+{{inviterName}} invited you to join the {{householdName}} household on
+Kroni as a co-parent. Once you join, you'll share the same kids,
+tasks, and kroner together.
+
+Use the code below in the Kroni app, or open the link to accept
+directly:
+
+    {{code}}
+
+Accept the invite: {{acceptUrl}}
+
+The code expires in 7 days. If you weren't expecting this invitation,
+you can safely ignore this email.
+
+— The Kroni team
+
+Kroni · https://kroni.no

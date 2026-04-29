@@ -1,0 +1,35 @@
+[REVIEW] da-DK email copy
+
+BEKRÆFT DIN MAIL
+
+Hej {{name}},
+
+Indtast koden nedenfor i Kroni-appen for at bekræfte din
+mailadresse.
+
+    {{code}}
+
+Koden udløber snart. Hvis du ikke forsøgte at logge ind eller oprette
+dig, kan du ignorere mailen.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Danish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+Enter the code below in the Kroni app to confirm your email address:
+
+    {{code}}
+
+The code expires shortly. If you didn't try to sign in or sign up,
+you can ignore this email.
+
+— The Kroni team
+
+Kroni · https://kroni.no

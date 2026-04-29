@@ -18,6 +18,18 @@ import {
 } from '../../services/household.service.js';
 import { ForbiddenError, NotFoundError, UnauthorizedError } from '../../lib/errors.js';
 import { serializeHousehold, serializeHouseholdInvite, serializeHouseholdMember } from './_serializers.js';
+import { sendMail, MailpaceError } from '../../lib/mailpace.js';
+import {
+  loadTemplate,
+  isSupportedLocale,
+  type SupportedLocale,
+} from '../../lib/email-templates.js';
+
+// Universal-link landing for an invite. The website strips the
+// `code` param and offers an "Open in Kroni" button that triggers
+// the deep link. [TODO email] swap to the real /invite landing once
+// the website ships it; for now we point at the home page.
+const INVITE_ACCEPT_BASE_URL = 'https://kroni.no/invite';
 
 const CodeParam = z.object({
   code: z.string().regex(/^\d{6}$/),
@@ -63,11 +75,57 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
       if (household.premiumOwnerParentId !== parent.id) {
         throw new ForbiddenError('only the household owner can send invites');
       }
+      const invitedEmail = req.body.invitedEmail ?? null;
       const result = await createHouseholdInvite(
         household.id,
         parent.id,
-        req.body.invitedEmail ?? null,
+        invitedEmail,
       );
+      // If the inviter supplied an email address, also send a branded
+      // invitation through Mailpace. Failure here MUST NOT block the
+      // route response — the code is already valid in the DB and the
+      // mobile app is showing it on the share sheet too. Wrap + log.
+      if (invitedEmail) {
+        try {
+          // Pick the locale of the inviter; the recipient's locale is
+          // unknown until they sign up. Fallback chain in loadTemplate
+          // handles any unknown values.
+          const locale: SupportedLocale = isSupportedLocale(parent.locale)
+            ? parent.locale
+            : 'nb-NO';
+          const inviterName = parent.displayName?.trim() || 'Someone';
+          const householdName = household.name?.trim() || 'Your family';
+          const acceptUrl = `${INVITE_ACCEPT_BASE_URL}/${result.code}`;
+          const tpl = loadTemplate('household-invite', locale, {
+            inviterName,
+            householdName,
+            code: result.code,
+            acceptUrl,
+          });
+          await sendMail({
+            to: invitedEmail,
+            subject: tpl.subject,
+            html: tpl.html,
+            text: tpl.text,
+          });
+          req.log.info(
+            { householdId: household.id, code: result.code, locale },
+            'household invite email sent',
+          );
+        } catch (err) {
+          if (err instanceof MailpaceError) {
+            req.log.error(
+              { err, status: err.status, body: err.body, householdId: household.id },
+              'household invite email failed (mailpace)',
+            );
+          } else {
+            req.log.error(
+              { err, householdId: household.id },
+              'household invite email failed',
+            );
+          }
+        }
+      }
       return {
         code: result.code,
         expiresAt: result.expiresAt.toISOString(),

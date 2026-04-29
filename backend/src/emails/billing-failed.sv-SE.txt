@@ -1,0 +1,36 @@
+[REVIEW] sv-SE email copy
+
+BETALNINGEN MISSLYCKADES
+
+Hej {{name}},
+
+Vi kunde inte förnya din Kroni Family-prenumeration. Tillgången är
+aktiv en kort period medan vi försöker igen, men du behöver
+uppdatera ditt betalsätt för att inte förlora åtkomst.
+
+Uppdatera betalsätt: {{updatePaymentUrl}}
+
+Behöver du hjälp? Svara på det här mejlet — vi läser allt själva.
+
+— Kroni-teamet
+
+----------------------------------------------------------------
+
+IN ENGLISH
+
+We sent this email in Swedish above. Here's the English version for
+our non-Nordic readers.
+
+Hi {{name}},
+
+We couldn't renew your Kroni Family subscription. Your access stays
+active for a short grace period while we retry, but you'll need to
+update your payment method to keep it.
+
+Update your payment method: {{updatePaymentUrl}}
+
+Need help? Just reply to this email — we read every one ourselves.
+
+— The Kroni team
+
+Kroni · https://kroni.no

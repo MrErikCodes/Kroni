@@ -210,6 +210,11 @@
         "newCodeTitle": "New code",
         "expiresLabel": "Expires %{date}",
         "copyButton": "Copy"
+      },
+      "shareLink": {
+        "button": "Share login link",
+        "shareTitle": "Pairing link for %{name}",
+        "shareBody": "Open %{url} on your phone to sign %{name} into Kroni Family. The link is valid for %{minutes} minutes."
       }
     },
     "tasksList": {

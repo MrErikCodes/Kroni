@@ -7,8 +7,11 @@ default emails are disabled at the dashboard so the backend can intercept
 the events and send a branded, localized message instead.
 
 Phase 1 (shipped): scaffolding + welcome-email-on-signup.
-Phase 2+ (pending): password-reset, email-verification, RC billing
-notices, household invites.
+Phase 2 (shipped 2026-04-29): password-reset, email-verification, RC
+billing notices, household invites. 60 new template files (5 events ×
+4 locales × 3 file types) wired through existing helpers.
+Phase 3+ (pending): future receipts, kid-pairing notifications,
+re-engagement.
 
 ## Environment variables
 
@@ -131,3 +134,32 @@ API. Instead:
   and confirm a real email arrives. Test against Gmail web + iOS,
   Outlook desktop + web, Apple Mail (email-client CSS support is
   narrow; the templates are pure table layout + inline styles).
+
+## Phase 2 events (shipped 2026-04-29)
+
+| Event template | Trigger | Vars | URL placeholders |
+|---|---|---|---|
+| `password-reset` | Clerk webhook `email.created` with slug starting with `reset_password` (matches `reset_password_code`, `reset_password_attempt_*`, etc.) | `{{name}}`, `{{code}}` | — |
+| `email-verification` | Clerk webhook `email.created` with slug = `verification_code`, `magic_link_sign_up`, or `magic_link_sign_in` | `{{name}}`, `{{code}}` | — |
+| `billing-failed` | RevenueCat webhook `BILLING_ISSUE` event in `revenuecat.ts` (alongside `notifyOwner` push) | `{{name}}`, `{{updatePaymentUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
+| `subscription-expired` | RevenueCat webhook `EXPIRATION` event for non-lifetime household (alongside `notifyOwner` push) | `{{name}}`, `{{renewUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
+| `household-invite` | `POST /api/parent/household/invites` after invite row inserted, when `invitedEmail` non-null | `{{inviterName}}`, `{{householdName}}`, `{{code}}`, `{{acceptUrl}}` | `https://kroni.no/invite/<code>` (TODO swap to real `/invite` landing) |
+
+In Clerk dashboard → **Webhooks** → also subscribe to `email.created`
+on the same endpoint. Disable Clerk's built-in delivery for the
+matched slugs so we don't double-send.
+
+The Clerk `email.created` payload-shape varies by version. The handler
+extracts the OTP from `data.otp` first, then `data.token`, then nested
+`data.data.{otp,token}`, finally falling back to the raw `data.body`
+string so the template still renders something visible if Clerk
+changes the field name.
+
+Email failures are independent of push notifications: each path is
+wrapped in its own try/catch in the RC webhook, so a Mailpace outage
+does not block the lock-screen push and vice versa.
+
+Recipient locale resolution:
+- For Clerk emails: lookup `parents.locale` by `data.user_id`, fallback `nb-NO`.
+- For RC emails: lookup the household's premium owner via `parents.locale`, fallback `nb-NO`.
+- For invite emails: use the inviter's locale (recipient unknown until signup), fallback `nb-NO`.
