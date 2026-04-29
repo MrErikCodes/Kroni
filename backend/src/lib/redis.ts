@@ -7,7 +7,6 @@ export function getRedis(): Redis {
   if (client) return client;
   const cfg = getConfig();
   client = new Redis(cfg.REDIS_URL, {
-    maxRetriesPerRequest: null, // BullMQ requirement
     enableReadyCheck: true,
   });
   return client;

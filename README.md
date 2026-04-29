@@ -16,7 +16,7 @@ Parents create chore tasks. Kids mark them complete. Parents approve completions
 ## Stack
 
 - **Mobile** — Expo SDK 54, React Native 0.81, TypeScript strict, expo-router, NativeWind v4, react-query v5, Reanimated v4, Clerk auth, expo-secure-store kid JWT
-- **Backend** — Node 22 LTS, Fastify 5, Drizzle ORM, `postgres` driver, ioredis, Clerk JWT, Expo push, BullMQ, PM2 cluster + fork
+- **Backend** — Node 22 LTS, Fastify 5, Drizzle ORM, `postgres` driver, ioredis, Clerk JWT, Expo push, croner (in-process scheduler), PM2 fork
 - **Website** — Next.js 16, Tailwind v4
 - **Infra** — PostgreSQL 17, Redis 7.4, Ubuntu 24.04, Caddy 2
 
