@@ -16,7 +16,7 @@ import {
   listHouseholdMembers,
   revokeInvite,
 } from '../../services/household.service.js';
-import { NotFoundError, UnauthorizedError } from '../../lib/errors.js';
+import { ForbiddenError, NotFoundError, UnauthorizedError } from '../../lib/errors.js';
 import { serializeHousehold, serializeHouseholdInvite, serializeHouseholdMember } from './_serializers.js';
 
 const CodeParam = z.object({
@@ -60,6 +60,9 @@ export async function parentHouseholdRoutes(app: FastifyInstance): Promise<void>
       const parent = req.parent;
       const household = req.household;
       if (!parent || !household) throw new UnauthorizedError('household missing');
+      if (household.premiumOwnerParentId !== parent.id) {
+        throw new ForbiddenError('only the household owner can send invites');
+      }
       const result = await createHouseholdInvite(
         household.id,
         parent.id,

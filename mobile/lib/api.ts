@@ -468,6 +468,19 @@ export function clientFor(getToken: GetToken) {
       });
       return JoinHouseholdResponseSchema.parse(json);
     },
+
+    // ── Devices (push) ──────────────────────────────────────────────────────
+    /** POST /api/parent/devices */
+    async registerParentDevice(
+      deviceId: string,
+      pushToken: string,
+      platform: 'ios' | 'android',
+    ): Promise<void> {
+      await request('/api/parent/devices', {
+        method: 'POST',
+        body: JSON.stringify({ deviceId, pushToken, platform }),
+      });
+    },
   };
 }
 

@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { households } from '../../db/schema/households.js';
 import { parents } from '../../db/schema/parents.js';
@@ -10,6 +10,108 @@ import {
   ForbiddenError,
   NotFoundError,
 } from '../../lib/errors.js';
+import { sendPushToParent } from '../../services/notification.service.js';
+
+// Localized push copy for billing events. The backend has no i18n
+// framework — keep this inline and keyed off `parents.locale`. nb-NO is
+// the default fallback. Mark each entry so a native speaker can polish
+// the wording later (push is one-line on lock screens — keep it short).
+type PushCopy = { title: string; body: string };
+type SupportedLocale = 'nb-NO' | 'sv-SE' | 'da-DK' | 'en-US';
+
+function resolveLocale(locale: string | null | undefined): SupportedLocale {
+  if (locale === 'sv-SE' || locale === 'da-DK' || locale === 'en-US') return locale;
+  if (locale === 'nb-NO') return 'nb-NO';
+  // Anything else (incl. nn-NO, en-GB, …) falls back to en-US.
+  if (locale && locale.startsWith('en')) return 'en-US';
+  return 'nb-NO';
+}
+
+function billingIssueStrings(locale: string | null | undefined): PushCopy {
+  switch (resolveLocale(locale)) {
+    case 'sv-SE':
+      // [REVIEW] sv-SE push copy
+      return {
+        title: 'Betalningen misslyckades',
+        body: 'Vi kunde inte förnya Kroni Family. Uppdatera ditt betalsätt i appen för att inte förlora åtkomst.',
+      };
+    case 'da-DK':
+      // [REVIEW] da-DK push copy
+      return {
+        title: 'Betalingen mislykkedes',
+        body: 'Vi kunne ikke forny Kroni Family. Opdater din betalingsmetode i appen, så du ikke mister adgangen.',
+      };
+    case 'en-US':
+      // [REVIEW] en-US push copy
+      return {
+        title: 'Payment failed',
+        body: "We couldn't renew Kroni Family. Update your payment method in the app to keep your access.",
+      };
+    case 'nb-NO':
+    default:
+      // [REVIEW] nb-NO push copy
+      return {
+        title: 'Betalingen feilet',
+        body: 'Vi fikk ikke fornyet Kroni Family. Oppdater betalingsmåten din i appen for å unngå å miste tilgang.',
+      };
+  }
+}
+
+function expirationStrings(locale: string | null | undefined): PushCopy {
+  switch (resolveLocale(locale)) {
+    case 'sv-SE':
+      // [REVIEW] sv-SE push copy
+      return {
+        title: 'Kroni Family har upphört',
+        body: 'Din prenumeration är slut. Förnya i appen för att få tillbaka co-föräldrar och fler barn.',
+      };
+    case 'da-DK':
+      // [REVIEW] da-DK push copy
+      return {
+        title: 'Kroni Family er udløbet',
+        body: 'Dit abonnement er slut. Forny i appen for at få medforældre og flere børn tilbage.',
+      };
+    case 'en-US':
+      // [REVIEW] en-US push copy
+      return {
+        title: 'Kroni Family has expired',
+        body: 'Your subscription ended. Renew in the app to get co-parents and more kids back.',
+      };
+    case 'nb-NO':
+    default:
+      // [REVIEW] nb-NO push copy
+      return {
+        title: 'Kroni Family er utløpt',
+        body: 'Abonnementet ditt er over. Forny i appen for å få tilbake co-foreldre og flere barn.',
+      };
+  }
+}
+
+async function notifyOwner(
+  req: FastifyRequest,
+  householdId: string,
+  ownerId: string | null,
+  copyFn: (locale: string | null | undefined) => PushCopy,
+  data: Record<string, unknown>,
+): Promise<void> {
+  if (!ownerId) return;
+  const db = getDb();
+  const [owner] = await db
+    .select({ id: parents.id, locale: parents.locale })
+    .from(parents)
+    .where(eq(parents.id, ownerId))
+    .limit(1);
+  if (!owner) return;
+  try {
+    const { title, body } = copyFn(owner.locale);
+    await sendPushToParent(owner.id, title, body, data);
+  } catch (err) {
+    req.log.warn(
+      { err, household_id: householdId, parent_id: ownerId },
+      'failed to send revenuecat push to owner',
+    );
+  }
+}
 
 // RevenueCat sends one event per state transition. We only care about a
 // handful — the rest (TEST, SUBSCRIBER_ALIAS, etc.) we acknowledge and
@@ -96,11 +198,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
     const [parent] = await db
       .select()
       .from(parents)
-      .where(
-        // Use IN over the set; drizzle's inArray is fine here.
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        eq(parents.clerkUserId, [...candidateIds][0]!),
-      )
+      .where(inArray(parents.clerkUserId, [...candidateIds]))
       .limit(1);
     if (!parent || !parent.householdId) {
       // Could be a parent who hasn't completed sign-up yet, or a stale
@@ -153,7 +251,10 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
       // Lifetime can't be revoked by an expiration — those events only
       // fire on subscriptions.
       const [row] = await db
-        .select({ lifetimePaid: households.lifetimePaid })
+        .select({
+          lifetimePaid: households.lifetimePaid,
+          premiumOwnerParentId: households.premiumOwnerParentId,
+        })
         .from(households)
         .where(eq(households.id, householdId))
         .limit(1);
@@ -176,10 +277,43 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
           },
           'revenuecat revoke',
         );
+        // Notify the household's premium owner that their subscription
+        // expired. Skip silently when no owner is set.
+        await notifyOwner(
+          req,
+          householdId,
+          row?.premiumOwnerParentId ?? null,
+          expirationStrings,
+          { kind: 'revenuecat-expiration' },
+        );
       }
+    } else if (ev.type === 'BILLING_ISSUE') {
+      // RC fires BILLING_ISSUE when payment fails — access is still valid
+      // through the grace period, but the owner needs to update their card.
+      // No state change; just push the household's premium owner.
+      const [row] = await db
+        .select({ premiumOwnerParentId: households.premiumOwnerParentId })
+        .from(households)
+        .where(eq(households.id, householdId))
+        .limit(1);
+      req.log.info(
+        {
+          event_type: ev.type,
+          parent_id: parent.id,
+          household_id: householdId,
+        },
+        'revenuecat billing issue',
+      );
+      await notifyOwner(
+        req,
+        householdId,
+        row?.premiumOwnerParentId ?? null,
+        billingIssueStrings,
+        { kind: 'revenuecat-billing-issue' },
+      );
     } else {
-      // CANCELLATION, BILLING_ISSUE, TEST, SUBSCRIPTION_EXTENDED, etc.
-      // Logged for visibility, no state change.
+      // CANCELLATION, TEST, SUBSCRIPTION_EXTENDED, etc. Logged for
+      // visibility, no state change.
       req.log.info(
         { event_type: ev.type, parent_id: parent.id, household_id: householdId },
         'revenuecat event noted',

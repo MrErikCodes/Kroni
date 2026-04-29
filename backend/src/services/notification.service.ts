@@ -1,7 +1,7 @@
 import { Expo, type ExpoPushMessage } from 'expo-server-sdk';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../db/index.js';
-import { kidDevices } from '../db/schema/pairing.js';
+import { kidDevices, parentDevices } from '../db/schema/pairing.js';
 import { getConfig } from '../config.js';
 import { logger } from '../lib/logger.js';
 
@@ -28,6 +28,21 @@ export async function sendPushToKid(
     .select({ pushToken: kidDevices.pushToken })
     .from(kidDevices)
     .where(eq(kidDevices.kidId, kidId));
+  const tokens = devices.map((d) => d.pushToken).filter((t): t is string => !!t);
+  await sendPushToTokens(tokens, title, body, data);
+}
+
+export async function sendPushToParent(
+  parentId: string,
+  title: string,
+  body: string,
+  data: Record<string, unknown> = {},
+): Promise<void> {
+  const db = getDb();
+  const devices = await db
+    .select({ pushToken: parentDevices.pushToken })
+    .from(parentDevices)
+    .where(eq(parentDevices.parentId, parentId));
   const tokens = devices.map((d) => d.pushToken).filter((t): t is string => !!t);
   await sendPushToTokens(tokens, title, body, data);
 }

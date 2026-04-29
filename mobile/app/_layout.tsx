@@ -47,7 +47,9 @@ const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
 import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
 import { ensureInstallId } from '../lib/installInfo';
 import { getKidToken } from '../lib/auth';
-import { kidApi } from '../lib/api';
+import { kidApi, parentApi } from '../lib/api';
+import { Platform } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 
 // Initialize Sentry at module load — before any React tree mounts — so
 // errors during component setup are captured. No-op if SENTRY_DSN isn't
@@ -189,6 +191,83 @@ function RevenueCatIdentityBridge() {
   return null;
 }
 
+/**
+ * Registers the signed-in parent's Expo push token with our backend so
+ * RevenueCat-driven billing notifications (failed payment, expiration)
+ * can be delivered to the household owner. We declined RC's direct APNs
+ * push integration; everything routes through `/api/parent/devices`.
+ *
+ * Idempotency: keyed on (Clerk userId, push token) — never re-sends the
+ * same pair. Permission denial is respected; we don't re-prompt on every
+ * launch. Failures are logged as Sentry breadcrumbs but never thrown so
+ * sign-in is never blocked by push registration.
+ */
+function ParentDevicePushBridge() {
+  const { userId, isLoaded, getToken } = useAuth();
+  const lastRegistered = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    if (!userId) {
+      lastRegistered.current = null;
+      return;
+    }
+
+    void (async () => {
+      // Native push tokens are iOS/Android only. Web doesn't get RC pushes.
+      if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
+
+      // Respect the user's choice: if they've already denied, don't
+      // re-prompt on every launch. Only ask when status is undetermined.
+      const existing = await Notifications.getPermissionsAsync();
+      let status = existing.status;
+      if (status !== 'granted' && existing.canAskAgain) {
+        const requested = await Notifications.requestPermissionsAsync();
+        status = requested.status;
+      }
+      if (status !== 'granted') return;
+
+      const projectId =
+        (Constants.expoConfig?.extra?.['eas'] as { projectId?: string } | undefined)
+          ?.projectId;
+      const tokenResponse = await Notifications.getExpoPushTokenAsync(
+        projectId ? { projectId } : undefined,
+      );
+      const pushToken = tokenResponse.data;
+
+      // Idempotency guard: skip if we've already registered this exact
+      // (userId, pushToken) pair this session.
+      const key = `${userId}:${pushToken}`;
+      if (lastRegistered.current === key) return;
+
+      const deviceId = await ensureInstallId();
+      const platform: 'ios' | 'android' =
+        Platform.OS === 'ios' ? 'ios' : 'android';
+
+      try {
+        await parentApi
+          .clientFor(getToken)
+          .registerParentDevice(deviceId, pushToken, platform);
+        lastRegistered.current = key;
+      } catch (err: unknown) {
+        // Push registration failure must never block sign-in or surface
+        // to the user — we just leave a breadcrumb for triage.
+        Sentry.addBreadcrumb({
+          category: 'push',
+          level: 'warning',
+          message: 'parent device registration failed',
+          data: {
+            platform,
+            error: err instanceof Error ? err.message : String(err),
+          },
+        });
+      }
+    })();
+  }, [userId, isLoaded, getToken]);
+
+  return null;
+}
+
 export default function RootLayout() {
   // Locale-version key — bumped whenever setAppLocale fires. The Stack
   // below uses this as its `key`, so every screen remounts and re-runs
@@ -245,6 +324,7 @@ export default function RootLayout() {
           <NavigationRegistrar />
           <SentryIdentityBridge />
           <RevenueCatIdentityBridge />
+          <ParentDevicePushBridge />
           <Stack key={localeKey} screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>
       </QueryClientProvider>

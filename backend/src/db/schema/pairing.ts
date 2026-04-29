@@ -44,6 +44,27 @@ export const kidDevices = pgTable(
   (t) => [unique('uq_kid_device').on(t.kidId, t.deviceId)],
 );
 
+// Mirror of `kid_devices` for parents. Used so the backend can dispatch
+// Expo push notifications to parents (RevenueCat billing events, etc.)
+// without going through RC's direct push integration.
+export const parentDevices = pgTable(
+  'parent_devices',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    parentId: uuid()
+      .notNull()
+      .references(() => parents.id, { onDelete: 'cascade' }),
+    deviceId: text().notNull(),
+    pushToken: text(),
+    platform: text().notNull(),
+    createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [unique('uq_parent_device').on(t.parentId, t.deviceId)],
+);
+
 export type PairingCodeRow = typeof pairingCodes.$inferSelect;
 export type NewPairingCodeRow = typeof pairingCodes.$inferInsert;
 export type KidDeviceRow = typeof kidDevices.$inferSelect;
+export type ParentDeviceRow = typeof parentDevices.$inferSelect;
+export type NewParentDeviceRow = typeof parentDevices.$inferInsert;

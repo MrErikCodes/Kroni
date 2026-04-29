@@ -25,6 +25,7 @@ import { parentApprovalsRoutes } from './routes/parent/approvals.js';
 import { parentBalanceRoutes } from './routes/parent/balance.js';
 import { parentBillingRoutes } from './routes/parent/billing.js';
 import { parentHouseholdRoutes } from './routes/parent/household.js';
+import { parentDeviceRoutes } from './routes/parent/device.js';
 import { clerkWebhookRoutes } from './routes/webhooks/clerk.js';
 import { revenuecatWebhookRoutes } from './routes/webhooks/revenuecat.js';
 import { kidMeRoutes } from './routes/kid/me.js';
@@ -83,6 +84,7 @@ export async function buildApp(opts: BuildOptions = {}): Promise<FastifyInstance
   await app.register(parentBalanceRoutes);
   await app.register(parentBillingRoutes);
   await app.register(parentHouseholdRoutes);
+  await app.register(parentDeviceRoutes);
 
   await app.register(kidMeRoutes);
   await app.register(kidTodayRoutes);

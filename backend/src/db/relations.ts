@@ -2,7 +2,7 @@ import { relations } from 'drizzle-orm';
 import { households, householdInvites } from './schema/households.js';
 import { parents } from './schema/parents.js';
 import { kids } from './schema/kids.js';
-import { pairingCodes, kidDevices } from './schema/pairing.js';
+import { pairingCodes, kidDevices, parentDevices } from './schema/pairing.js';
 import { tasks, taskCompletions } from './schema/tasks.js';
 import { balanceEntries, kidBalances } from './schema/balance.js';
 import { rewards, rewardRedemptions } from './schema/rewards.js';
@@ -37,6 +37,7 @@ export const parentsRelations = relations(parents, ({ one, many }) => ({
   tasks: many(tasks),
   rewards: many(rewards),
   pairingCodes: many(pairingCodes),
+  devices: many(parentDevices),
 }));
 
 export const kidsRelations = relations(kids, ({ one, many }) => ({
@@ -60,6 +61,10 @@ export const pairingCodesRelations = relations(pairingCodes, ({ one }) => ({
 
 export const kidDevicesRelations = relations(kidDevices, ({ one }) => ({
   kid: one(kids, { fields: [kidDevices.kidId], references: [kids.id] }),
+}));
+
+export const parentDevicesRelations = relations(parentDevices, ({ one }) => ({
+  parent: one(parents, { fields: [parentDevices.parentId], references: [parents.id] }),
 }));
 
 export const tasksRelations = relations(tasks, ({ one, many }) => ({
