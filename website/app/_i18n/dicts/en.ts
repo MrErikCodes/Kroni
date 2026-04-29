@@ -1,9 +1,19 @@
 import type { nb } from "./nb";
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "en");
+const yearlyPrice = formatPrice(prices.yearly, "en");
+const lifetimePrice = formatPrice(prices.lifetime, "en");
 
 export const en: typeof nb = {
   common: {
-    currency: "NOK",
-    save32: "Save 32%",
+    currency: CURRENCY,
+    save32: `Save ${yearlySavingsPercent}%`,
     oneTime: "One-time",
     bestValue: "Best value",
     lifetime: "Lifetime",
@@ -141,24 +151,24 @@ export const en: typeof nb = {
       },
       monthly: {
         label: "Family",
-        price: "49",
+        price: monthlyPrice,
         period: "per month · 7 days free",
         items: ["Unlimited children", "Unlimited chores", "Rewards and goals"],
       },
       yearly: {
         label: "Family yearly",
-        price: "399",
+        price: yearlyPrice,
         period: "per year · 7 days free",
         items: ["Everything in Family", "Priority support", "Early access to new things"],
       },
       lifetime: {
         label: "Lifetime",
-        price: "1,200",
+        price: lifetimePrice,
         period: "pay once, keep forever",
         items: ["Everything in Family", "No renewals", "Future features included"],
       },
       footnote:
-        "Monthly and yearly start with 7 days free. Billing handled by App Store or Google Play. No hidden fees. Cancel any time.",
+        "Monthly and yearly start with 7 days free. Billing handled by App Store or Google Play. No hidden fees. Cancel any time. Prices in NOK; your local currency and tax may vary at checkout.",
     },
     faq: {
       eyebrow: "Questions",
@@ -168,7 +178,7 @@ export const en: typeof nb = {
       items: [
         {
           q: "How much does Kroni cost?",
-          a: "The free plan covers one child and five active chores. Family plans start from 49 NOK per month or 399 NOK per year (save 32%), or a one-time 1,200 NOK for lifetime access. Monthly and yearly include a 7-day free trial.",
+          a: `The free plan covers one child and five active chores. Family plans start from ${monthlyPrice} ${CURRENCY} per month or ${yearlyPrice} ${CURRENCY} per year (save ${yearlySavingsPercent}%), or a one-time ${lifetimePrice} ${CURRENCY} for lifetime access. Monthly and yearly include a 7-day free trial. Prices in ${CURRENCY}; your local currency and tax may vary at checkout.`,
         },
         {
           q: "Why does Kroni cost money?",
@@ -255,7 +265,7 @@ export const en: typeof nb = {
         items: [
           {
             q: "How much does Kroni cost?",
-            a: "The free plan covers one child and five active chores. Family plans start from 49 NOK per month or 399 NOK per year, or a one-time 1,200 NOK for lifetime access. Monthly and yearly come with a 7-day free trial. Current pricing is shown in the App Store or Google Play.",
+            a: `The free plan covers one child and five active chores. Family plans start from ${monthlyPrice} ${CURRENCY} per month or ${yearlyPrice} ${CURRENCY} per year, or a one-time ${lifetimePrice} ${CURRENCY} for lifetime access. Monthly and yearly come with a 7-day free trial. Prices in ${CURRENCY}; your local currency and tax may vary. Current pricing is shown in the App Store or Google Play.`,
           },
           {
             q: "Why does Kroni cost money?",

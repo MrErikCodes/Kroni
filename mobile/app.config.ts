@@ -1,5 +1,27 @@
 import { ExpoConfig, ConfigContext } from 'expo/config';
 
+// EAS Build runs app.config.ts on the cloud worker before Metro bundles
+// the JS. If EXPO_PUBLIC_* vars aren't in the build environment, they get
+// inlined as empty strings and the resulting binary fails silently — the
+// Clerk provider never initialises, the API client points at localhost,
+// etc. Fail loud at config time instead of shipping a broken bundle. Only
+// enforced in EAS Build (EAS_BUILD=true) so local Expo Go without phase
+// run still works.
+const isEasBuild = process.env.EAS_BUILD === 'true';
+const requiredEasEnv = [
+  'EXPO_PUBLIC_API_URL',
+  'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY',
+];
+if (isEasBuild) {
+  const missing = requiredEasEnv.filter((k) => !process.env[k]);
+  if (missing.length) {
+    throw new Error(
+      `Missing required EAS Build environment variables: ${missing.join(', ')}. ` +
+        `Set them via the EAS dashboard or 'eas env:create' and ensure the build profile in eas.json has the matching "environment" key.`,
+    );
+  }
+}
+
 export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   name: 'Kroni',
   slug: 'kroni',

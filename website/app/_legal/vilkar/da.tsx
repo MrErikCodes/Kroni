@@ -1,4 +1,14 @@
 import type { LegalContent } from "../types";
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "da");
+const yearlyPrice = formatPrice(prices.yearly, "da");
+const lifetimePrice = formatPrice(prices.lifetime, "da");
 
 export const vilkarDa: LegalContent = {
   eyebrow: "Vilkår",
@@ -117,9 +127,9 @@ export const vilkarDa: LegalContent = {
           <p>Kroni tilbydes i fire niveauer:</p>
           <ul>
             <li><strong>Gratis</strong> — op til ét barn og maks. fem aktive opgaver. Ingen tidsbegrænsning, ingen betaling.</li>
-            <li><strong>Familie månedlig</strong> — 49 kr om måneden, fornyes automatisk. Ubegrænset antal børn, opgaver, belønninger, mål og lommepenge.</li>
-            <li><strong>Familie årlig</strong> — 399 kr om året, fornyes automatisk (ca. 32 % besparelse vs. månedlig). Samme indhold som månedlig.</li>
-            <li><strong>Livstid</strong> — 1 200 kr som engangskøb. Varig adgang til samme funktioner som Familieabonnementet, uden fornyelse og uden ny betaling. Knyttet til det Apple ID eller den Google-konto der gennemførte købet.</li>
+            <li><strong>Familie månedlig</strong> — {monthlyPrice} {CURRENCY} om måneden, fornyes automatisk. Ubegrænset antal børn, opgaver, belønninger, mål og lommepenge.</li>
+            <li><strong>Familie årlig</strong> — {yearlyPrice} {CURRENCY} om året, fornyes automatisk (ca. {yearlySavingsPercent} % besparelse vs. månedlig). Samme indhold som månedlig.</li>
+            <li><strong>Livstid</strong> — {lifetimePrice} {CURRENCY} som engangskøb. Varig adgang til samme funktioner som Familieabonnementet, uden fornyelse og uden ny betaling. Knyttet til det Apple ID eller den Google-konto der gennemførte købet.</li>
           </ul>
           <p>
             Priserne er vejledende og oplyses i norske kroner inkl. moms. Den pris der faktisk gælder er den der vises i App Store eller Google Play på købstidspunktet og kan variere mellem lande og regioner.

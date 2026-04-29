@@ -1,4 +1,14 @@
 import type { LegalContent } from "../types";
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "sv");
+const yearlyPrice = formatPrice(prices.yearly, "sv");
+const lifetimePrice = formatPrice(prices.lifetime, "sv");
 
 export const vilkarSv: LegalContent = {
   eyebrow: "Villkor",
@@ -117,9 +127,9 @@ export const vilkarSv: LegalContent = {
           <p>Kroni erbjuds i fyra nivåer:</p>
           <ul>
             <li><strong>Gratis</strong> — upp till ett barn och max fem aktiva sysslor. Ingen tidsbegränsning, ingen avgift.</li>
-            <li><strong>Familj månadsvis</strong> — 49 kr per månad, förnyas automatiskt. Obegränsat antal barn, sysslor, belöningar, mål och veckopeng.</li>
-            <li><strong>Familj år</strong> — 399 kr per år, förnyas automatiskt (cirka 32 % besparing vs. månadsvis). Samma innehåll som månadsvis.</li>
-            <li><strong>Livstid</strong> — 1 200 kr som engångsköp. Permanent tillgång till samma funktioner som Familjeabonnemanget, utan förnyelser och utan ny debitering. Knutet till Apple ID eller Google-konto som gjorde köpet.</li>
+            <li><strong>Familj månadsvis</strong> — {monthlyPrice} {CURRENCY} per månad, förnyas automatiskt. Obegränsat antal barn, sysslor, belöningar, mål och veckopeng.</li>
+            <li><strong>Familj år</strong> — {yearlyPrice} {CURRENCY} per år, förnyas automatiskt (cirka {yearlySavingsPercent} % besparing vs. månadsvis). Samma innehåll som månadsvis.</li>
+            <li><strong>Livstid</strong> — {lifetimePrice} {CURRENCY} som engångsköp. Permanent tillgång till samma funktioner som Familjeabonnemanget, utan förnyelser och utan ny debitering. Knutet till Apple ID eller Google-konto som gjorde köpet.</li>
           </ul>
           <p>
             Priserna är vägledande och anges i norska kronor inklusive moms. Det pris som faktiskt gäller är det som visas i App Store eller Google Play vid köpet och kan variera mellan länder och regioner.

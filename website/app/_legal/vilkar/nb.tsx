@@ -1,4 +1,14 @@
 import type { LegalContent } from "../types";
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "nb");
+const yearlyPrice = formatPrice(prices.yearly, "nb");
+const lifetimePrice = formatPrice(prices.lifetime, "nb");
 
 export const vilkarNb: LegalContent = {
   eyebrow: "Vilkår",
@@ -117,9 +127,9 @@ export const vilkarNb: LegalContent = {
           <p>Kroni tilbys i fire nivåer:</p>
           <ul>
             <li><strong>Gratis</strong> — opptil ett barn og maksimalt fem aktive oppgaver. Ingen tidsbegrensning, ingen belastning.</li>
-            <li><strong>Familie månedlig</strong> — 49 kr per måned, fornyes automatisk. Ubegrenset antall barn, ubegrensede oppgaver, belønninger, mål og ukepenger.</li>
-            <li><strong>Familie årlig</strong> — 399 kr per år, fornyes automatisk (ca. 32 % besparelse vs. månedlig). Samme innhold som månedlig.</li>
-            <li><strong>Livstid</strong> — 1 200 kr som engangskjøp. Gir varig tilgang til samme funksjoner som Familieabonnementet, uten fornying og uten ny belastning. Knyttet til den Apple ID-en eller Google-kontoen som gjennomførte kjøpet.</li>
+            <li><strong>Familie månedlig</strong> — {monthlyPrice} {CURRENCY} per måned, fornyes automatisk. Ubegrenset antall barn, ubegrensede oppgaver, belønninger, mål og ukepenger.</li>
+            <li><strong>Familie årlig</strong> — {yearlyPrice} {CURRENCY} per år, fornyes automatisk (ca. {yearlySavingsPercent} % besparelse vs. månedlig). Samme innhold som månedlig.</li>
+            <li><strong>Livstid</strong> — {lifetimePrice} {CURRENCY} som engangskjøp. Gir varig tilgang til samme funksjoner som Familieabonnementet, uten fornying og uten ny belastning. Knyttet til den Apple ID-en eller Google-kontoen som gjennomførte kjøpet.</li>
           </ul>
           <p>
             Prisene som er oppgitt er veiledende og vises i norske kroner inkludert merverdiavgift. Den prisen som faktisk gjelder for ditt kjøp, er den som vises i App Store eller Google Play på kjøpstidspunktet, og kan variere mellom land og regioner.

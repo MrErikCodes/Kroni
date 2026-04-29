@@ -68,7 +68,7 @@ Most permissions are inferred from native modules. The ones that need explicit P
 ### One-time products (lifetime)
 
 - Monetize → **In-app products** (NOT subscriptions) → create:
-  - Product ID: `kroni_lifetime`, type Managed, 1200 NOK.
+  - Product ID: `kroni_lifetime`, type Managed, 1199 NOK.
 - Localized titles in nb-NO + en-US.
 
 ### Service account for RevenueCat
@@ -92,6 +92,66 @@ Most permissions are inferred from native modules. The ones that need explicit P
 - Personal info: email (Clerk).
 - Financial info: in-app purchases.
 - All of these need a YES + a description before Play will publish.
+
+---
+
+## Introductory offers (7-day free trial)
+
+The trial is **NOT** a field on the subscription itself — it's a separate sub-record (an "introductory offer" on iOS, a "subscription offer" on Android) attached to each subscription. Both platforms treat trials as time-bounded promotions on top of the base subscription, so they live in their own UI section.
+
+Once configured, RC reads the trial info from each store's API and the paywall renders "7 dager gratis" / "7-day free trial" automatically — no client-side trial logic in our code.
+
+### iOS — App Store Connect
+
+1. **App Store Connect → your app → Subscriptions** (sidebar).
+2. Click into **Kroni Family Monthly** (then repeat for **Yearly**).
+3. Scroll past Subscription Prices and Localization to find **"Introductory Offers"** (or click **"View All Subscription Pricing"** → look for the introductory offers tab).
+4. Click **+** → **Create Introductory Offer**.
+5. Fill in:
+   - **Type:** Free
+   - **Eligibility:** New Subscribers (so each Apple ID gets one trial only)
+   - **Duration:** 1 Week
+   - **Countries or regions:** All available territories (or restrict to NO/SE/DK)
+   - **Start Date:** Today
+   - **End Date:** No End Date
+6. Save — repeats for Yearly.
+
+Apple enforces the 24-hour-before-renewal cancellation rule automatically. RC fires `INITIAL_PURCHASE` with `period_type: "TRIAL"` when the trial begins, then `RENEWAL` when it converts (or `EXPIRATION` if the user cancels in time).
+
+### Android — Play Console
+
+1. **Monetize → Products → Subscriptions** → click into the subscription.
+2. Scroll to the **base plan** (e.g., `monthly-autorenewing`).
+3. Under the base plan, find the **Offers** section.
+4. Click **+ Add → Free trial**.
+5. Fill in:
+   - **Duration:** 7 days
+   - **Eligibility:** Developer determined → **New customer acquisition**
+   - **Countries:** all
+6. **Activate** the offer (Draft offers don't reach the paywall).
+
+Repeat for `kroni_family_yearly`. Google enforces the same 24-hour cancellation rule. Trial events fire identically through RTDN → RC → our webhook.
+
+### Verification
+
+After creating the offer (either platform):
+
+1. Wait 5–15 min for the store to propagate.
+2. RC → **Products → kroni_family_monthly** → click in.
+3. Should show "Has introductory offer: 1 week free" or similar metadata.
+4. If RC doesn't pick it up, click **Refresh metadata** on the product.
+5. Sandbox/license-tester purchase on a real device should display "7 dager gratis" in the paywall.
+
+If the badge still doesn't show after 30 min, the offer is likely in **Draft** state — confirm it's **Active**.
+
+### Why we apply the trial to monthly *and* yearly
+
+Both subscriptions belong to the `kroni_family` entitlement and are sold side-by-side on the paywall. Applying the trial to both:
+- Lets the user pick monthly OR yearly with the same risk-free entry point.
+- Apple/Google enforce per-Apple-ID / per-Google-account eligibility, so a user can't double-dip across the two.
+- Removes a friction point — without a yearly trial, the yearly tier reads as "pay 399 kr now or get a free monthly first" which kills conversions.
+
+The lifetime IAP gets no trial — Apple/Google don't allow free trials on non-consumable IAPs.
 
 ---
 
@@ -129,3 +189,273 @@ The parent app generates `https://kroni.{no,dk,se}/pair/<code>` and shares via t
 
 - iOS: install via TestFlight, tap a `kroni.no/pair/test` link from Notes → must open the kid app, not Safari. Check `swcutil_show.log` if it doesn't.
 - Android: `adb shell pm get-app-links no.nilsenkonsult.kroni` should report `verified` for all three hosts after install.
+
+---
+
+## Store listing copy
+
+Drop these straight into App Store Connect ("App Information" + each localization) and Play Console ("Main store listing" + each translation). Limits: Promotional Text 170, Description 4 000, Keywords 100 (App Store only, comma-separated, no spaces between commas to save chars). Version + Copyright are global on App Store Connect; Play Store reads version from the AAB. Marketing/Support URLs can be the locale-specific marketing site since each Nordic country has its own ccTLD.
+
+> Kept short on purpose — a tight 1 500–2 000-char description outperforms a 4 000-char wall on conversion. Edit before submission, don't pad.
+
+### Norwegian — nb-NO (default, kroni.no)
+
+**Promotional Text** (155 / 170)
+
+```
+Lommepenger som lærer barn å mestre, ikke å forvente. Sett oppgaver, godkjenn med ett trykk — kronene tikker inn. Uten reklame, uten ekte penger, uten mas.
+```
+
+**Description** (~1 950 / 4 000)
+
+```
+Kroni er den lille familieappen for ukepenger, oppgaver og belønninger som faktisk passer hverdagen. Laget i Norge, for kjøkkenbordet ditt.
+
+Lommepenger som lærer barn å mestre, ikke å forvente.
+
+DETTE FÅR DU
+• Lag oppgaver på sekunder — gjentakende eller engangs
+• Sett ukentlig beløp og pause når familien er på ferie
+• Godkjenn med ett trykk når oppgaven er gjort
+• Se historikk og fremgang per barn, samlet på ett sted
+• Egen, enkel app for barnet — ingen forvirrende menyer
+
+SLIK FUNGERER DET
+1. Du lager oppgavene. «Rydd rommet», «ta ut søppel», «øv 20 min på piano». Sett beløp og hyppighet én gang — Kroni gjentar resten.
+2. Barnet hukar av. Når oppgaven er gjort, trykker barnet på sin enkle «I dag»-liste. Du får et stille varsel — ingen mas, ingen sirener.
+3. Du godkjenner — og kronene tikker inn. Ett trykk, saldoen vokser, og helgen blir litt roligere.
+
+UKEPENGER SOM ER PEDAGOGISKE
+Du bestemmer beløpet. Mandag morgen lander det på barnets balanse — uten påminnelser, uten krangling. Pause når familien er på ferie, juster når lønna går opp.
+
+BELØNNINGER SOM GIR MENING
+Skjermtid, kinokvelder, en helg uten oppvask — du bestemmer hva som er verdt noe i deres hjem. Barna sparer mot et mål de selv valgte.
+
+TRYGT FOR HELE FAMILIEN
+Ingen ekte penger flyter. Ingen reklame. Ingen kjøp inne i barnets app. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.
+
+PRISER
+• Gratis for alltid: 1 barn, 5 aktive oppgaver, ukepenger
+• Familie: 49 kr/måned med 7 dager gratis prøve
+• Familie årlig: 399 kr/år (spar 32 %) med 7 dager gratis prøve
+• Livstid: 1 200 kr som engangskjøp — ingen fornying
+
+FOR HVEM
+Bygd for familier med barn mellom 6 og 14 år. Yngre barn klarer seg fint med foreldrenes hjelp.
+
+PERSONVERN PÅ ALVOR
+Ingen reklame, ingen sporing for markedsføring, ingen salg av data. GDPR-vennlig og bygd i Norge. Familiene som bruker appen betaler for utviklingen — aldri annonsører.
+
+Spørsmål? Skriv til support@kroni.no — et ekte menneske svarer, vanligvis samme dag.
+```
+
+**Keywords** (87 / 100)
+
+```
+lommepenger,ukepenger,oppgaver,barn,familie,belønning,sparing,gjøremål,foreldre,ansvar
+```
+
+| Field         | Value                              |
+| ------------- | ---------------------------------- |
+| Support URL   | `https://kroni.no/nb/support`      |
+| Marketing URL | `https://kroni.no/nb`              |
+| Version       | `1.0.0`                            |
+| Copyright     | `© 2026 Nilsen Konsult`            |
+
+---
+
+### English — en (catch-all, kroni.no/en)
+
+**Promotional Text** (152 / 170)
+
+```
+Pocket money that teaches kids to master, not to expect. Set chores, approve with one tap, watch the kroner roll in. No ads, no real money, no nagging.
+```
+
+**Description** (~1 950 / 4 000)
+
+```
+Kroni is the small family app for allowance, chores and rewards that actually fits real life. Built in Norway, for your kitchen table.
+
+Pocket money that teaches kids to master, not to expect.
+
+WHAT YOU GET
+• Create chores in seconds — recurring or one-off
+• Set a weekly allowance and pause whenever you need
+• Approve with a single tap when work is done
+• See history and progress per child in one place
+• A simple, separate app for your kid — no confusing menus
+
+HOW IT WORKS
+1. You create the chores. "Tidy the room", "take out the trash", "practice piano 20 min". Set the amount and frequency once — Kroni repeats the rest.
+2. Your kid checks them off. When a chore is done, they tap their simple Today list. You get a quiet notification — no nagging, no sirens.
+3. You approve — and the kroner roll in. One tap, the balance grows, and Sundays get a little quieter.
+
+ALLOWANCE THAT TEACHES
+You set the amount. Monday morning it lands in your child's balance — no reminders, no arguments. Pause for holidays, adjust when life changes.
+
+REWARDS THAT MEAN SOMETHING
+Screen time, movie nights, a weekend off dishes — you decide what's worth saving for. Kids work toward a goal they chose themselves.
+
+SAFE FOR THE WHOLE FAMILY
+No real money moves. No ads. No in-app purchases inside the kid app. The kid profile only sees what it should. You stay in control, always.
+
+PRICING
+• Free forever: 1 child, 5 active chores, weekly allowance
+• Family: 49 NOK/month with a 7-day free trial
+• Family yearly: 399 NOK/year (save 32 %) with a 7-day free trial
+• Lifetime: 1,200 NOK one-time — no renewals
+
+WHO IT'S FOR
+Built for families with kids aged 6 to 14. Younger children manage fine with parental help.
+
+PRIVACY THAT MEANS IT
+No ads, no marketing tracking, no data sales. GDPR-friendly and built in Norway. The families who use the app pay for it being built — never advertisers.
+
+Questions? Email support@kroni.no — a real person replies, usually the same day.
+```
+
+**Keywords** (88 / 100)
+
+```
+allowance,chores,kids,family,rewards,savings,parenting,pocket money,tasks,responsibility
+```
+
+| Field         | Value                              |
+| ------------- | ---------------------------------- |
+| Support URL   | `https://kroni.no/en/support`      |
+| Marketing URL | `https://kroni.no/en`              |
+| Version       | `1.0.0`                            |
+| Copyright     | `© 2026 Nilsen Konsult`            |
+
+---
+
+### Swedish — sv-SE (kroni.se)
+
+**Promotional Text** (152 / 170)
+
+```
+Veckopeng som lär barn att bemästra, inte att förvänta. Skapa sysslor, godkänn med ett tryck, se kronorna trilla in. Ingen reklam, inga riktiga pengar.
+```
+
+**Description** (~1 950 / 4 000)
+
+```
+Kroni är den lilla familjeappen för veckopeng, sysslor och belöningar som faktiskt passar vardagen. Byggd i Norge, för ditt köksbord.
+
+Veckopeng som lär barn att bemästra, inte att förvänta.
+
+DET HÄR FÅR DU
+• Skapa sysslor på sekunder — återkommande eller engångs
+• Sätt veckobelopp och pausa när familjen är på semester
+• Godkänn med ett tryck när jobbet är gjort
+• Se historik och utveckling per barn, samlat på ett ställe
+• En egen, enkel app för barnet — inga förvirrande menyer
+
+SÅ FUNGERAR DET
+1. Du skapar sysslorna. «Städa rummet», «ta ut soporna», «öva 20 min på piano». Sätt belopp och frekvens en gång — Kroni upprepar resten.
+2. Barnet bockar av. När en syssla är klar trycker barnet på sin enkla «Idag»-lista. Du får en tyst notis — inget tjat, inga sirener.
+3. Du godkänner — och kronorna trillar in. Ett tryck, saldot växer, och helgen blir lite lugnare.
+
+VECKOPENG SOM ÄR PEDAGOGISK
+Du bestämmer beloppet. Måndag morgon landar det på barnets saldo — utan påminnelser, utan bråk. Pausa under semestern, justera när lönen ändras.
+
+BELÖNINGAR SOM BETYDER NÅGOT
+Skärmtid, biokvällar, en helg utan disk — du bestämmer vad som är värt något i ert hem. Barnen sparar mot ett mål de själva valt.
+
+TRYGGT FÖR HELA FAMILJEN
+Inga riktiga pengar flödar. Ingen reklam. Inga köp inne i barnets app. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.
+
+PRISER
+• Gratis för alltid: 1 barn, 5 aktiva sysslor, veckopeng
+• Familj: 49 kr/månad med 7 dagar gratis prov
+• Familj årligen: 399 kr/år (spara 32 %) med 7 dagar gratis prov
+• Livstid: 1 200 kr som engångsköp — ingen förnyelse
+
+FÖR VEM
+Byggd för familjer med barn mellan 6 och 14 år. Yngre barn klarar sig fint med föräldrarnas hjälp.
+
+INTEGRITET PÅ RIKTIGT
+Ingen reklam, ingen marknadsföringsspårning, ingen försäljning av data. GDPR-vänlig och byggd i Norge. Familjerna som använder appen betalar för utvecklingen — aldrig annonsörer.
+
+Frågor? Skriv till support@kroni.no — en riktig människa svarar, oftast samma dag.
+```
+
+**Keywords** (82 / 100)
+
+```
+veckopeng,sysslor,barn,familj,belöning,sparande,föräldrar,ansvar,uppgifter,hushåll
+```
+
+| Field         | Value                              |
+| ------------- | ---------------------------------- |
+| Support URL   | `https://kroni.se/sv/support`      |
+| Marketing URL | `https://kroni.se/sv`              |
+| Version       | `1.0.0`                            |
+| Copyright     | `© 2026 Nilsen Konsult`            |
+
+---
+
+### Danish — da-DK (kroni.dk)
+
+**Promotional Text** (152 / 170)
+
+```
+Lommepenge der lærer børn at mestre, ikke at forvente. Lav opgaver, godkend med ét tryk, og se kronerne tikke ind. Ingen reklamer, ingen rigtige penge.
+```
+
+**Description** (~1 950 / 4 000)
+
+```
+Kroni er den lille familieapp til lommepenge, opgaver og belønninger, der faktisk passer til hverdagen. Bygget i Norge, til dit køkkenbord.
+
+Lommepenge der lærer børn at mestre, ikke at forvente.
+
+DET HER FÅR DU
+• Lav opgaver på sekunder — tilbagevendende eller engangs
+• Sæt ugentligt beløb og pause når familien er på ferie
+• Godkend med ét tryk når opgaven er klar
+• Se historik og fremgang per barn, samlet ét sted
+• En egen, enkel app til barnet — ingen forvirrende menuer
+
+SÅDAN FUNGERER DET
+1. Du laver opgaverne. «Ryd værelset», «smid skraldet ud», «øv 20 min på klaver». Sæt beløb og hyppighed én gang — Kroni gentager resten.
+2. Barnet sætter flueben. Når en opgave er klar, trykker barnet på sin enkle «I dag»-liste. Du får en stille notifikation — ingen brokken, ingen sirener.
+3. Du godkender — og kronerne tikker ind. Et tryk, saldoen vokser, og weekenden bliver lidt roligere.
+
+LOMMEPENGE DER ER PÆDAGOGISKE
+Du bestemmer beløbet. Mandag morgen lander det på barnets saldo — uden påmindelser, uden skænderier. Pause når familien er på ferie, juster når lønnen ændres.
+
+BELØNNINGER DER BETYDER NOGET
+Skærmtid, biografaftener, en weekend uden opvask — du bestemmer hvad der er værd noget i jeres hjem. Børnene sparer mod et mål, de selv har valgt.
+
+TRYGT FOR HELE FAMILIEN
+Ingen rigtige penge flyder. Ingen reklamer. Ingen køb inde i barnets app. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.
+
+PRISER
+• Gratis for altid: 1 barn, 5 aktive opgaver, lommepenge
+• Familie: 49 kr/måned med 7 dages gratis prøve
+• Familie årlig: 399 kr/år (spar 32 %) med 7 dages gratis prøve
+• Livstid: 1 200 kr som engangskøb — ingen fornyelse
+
+FOR HVEM
+Bygget til familier med børn mellem 6 og 14 år. Yngre børn klarer sig fint med forældrenes hjælp.
+
+PRIVATLIV DER MENER DET
+Ingen reklamer, ingen sporing til markedsføring, intet salg af data. GDPR-venlig og bygget i Norge. Familierne der bruger appen betaler for udviklingen — aldrig annoncører.
+
+Spørgsmål? Skriv til support@kroni.no — et rigtigt menneske svarer, oftest samme dag.
+```
+
+**Keywords** (87 / 100)
+
+```
+lommepenge,opgaver,børn,familie,belønning,opsparing,forældre,ansvar,husarbejde,gøremål
+```
+
+| Field         | Value                              |
+| ------------- | ---------------------------------- |
+| Support URL   | `https://kroni.dk/da/support`      |
+| Marketing URL | `https://kroni.dk/da`              |
+| Version       | `1.0.0`                            |
+| Copyright     | `© 2026 Nilsen Konsult`            |

@@ -11,7 +11,7 @@ The mobile + backend integration is fully wired. You only need to configure RC +
 | Concept | Where it lives | What you must match |
 |---|---|---|
 | Public SDK keys | `EXPO_PUBLIC_RC_IOS_KEY` / `EXPO_PUBLIC_RC_ANDROID_KEY` (Phase + EAS) | Pull these from RC → API keys → Public app-specific |
-| Entitlement ID | `mobile/lib/billing.ts:5` → `'Kroni Family'` | Create entitlement with EXACT id `Kroni Family` (case-sensitive, space included) |
+| Entitlement ID | `mobile/lib/billing.ts:5` → `'kroni_family'` | Create entitlement with EXACT id `kroni_family` (lowercase, underscore). Display name in RC stays `Kroni Family` (brand-facing label only). |
 | `app_user_id` | `mobile/app/_layout.tsx → RevenueCatIdentityBridge` calls `Purchases.logIn(clerkUserId)` | Backend webhook resolves the parent by `parents.clerk_user_id` = RC `app_user_id` |
 | Webhook URL | `POST /webhooks/revenuecat` | Configure in RC → Integrations → Webhooks |
 | Webhook auth | `REVENUECAT_WEBHOOK_AUTH` (Phase backend) | Same string in RC's webhook "Authorization" field |
@@ -57,13 +57,13 @@ Create three products in RC → Products. The IDs MUST match what's in App Store
 |---|---|---|---|
 | `kroni_family_monthly` | Auto-renewing subscription | iOS + Android | 49 NOK / month |
 | `kroni_family_yearly`  | Auto-renewing subscription | iOS + Android | 399 NOK / year |
-| `kroni_lifetime`       | Non-consumable (iOS) / Managed product (Android) | iOS + Android | 1200 NOK one-time |
+| `kroni_lifetime`       | Non-consumable (iOS) / Managed product (Android) | iOS + Android | 1199 NOK one-time |
 
 Give each product a **Display Name** in nb-NO + en-US. The localized name shown in the paywall comes from this.
 
 ## 4. Entitlement
 
-- RC → Entitlements → "+" → identifier **`Kroni Family`** (exactly — capital K, capital F, space).
+- RC → Entitlements → "+" → identifier **`kroni_family`** (lowercase, underscore — matches `mobile/lib/billing.ts:5`). Display Name: `Kroni Family` (this is just the dashboard label, not user-visible).
 - Attach all three products to it.
 - Description (internal): "Unlocks unlimited kids, tasks, history, notifications. Granted by any of: monthly, yearly, lifetime."
 
@@ -137,7 +137,7 @@ Run through this on both platforms before submitting for review:
 3. Webhook URL pointing at production API.
 4. EAS build with production keys.
 5. Internal test track / TestFlight build → run the sandbox checklist with real testers.
-6. Submit for review with reviewer notes containing the sandbox tester credentials AND a reminder that the entitlement is `Kroni Family` so they can verify in RC if they email support.
+6. Submit for review with reviewer notes containing the sandbox tester credentials AND a reminder that the entitlement is `kroni_family` so they can verify in RC if they email support.
 7. Once reviewed + live: switch the RC webhook URL to production if you were testing against ngrok, and confirm one real purchase end-to-end.
 
 ---

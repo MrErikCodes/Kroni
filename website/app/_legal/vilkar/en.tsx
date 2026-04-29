@@ -1,4 +1,14 @@
 import type { LegalContent } from "../types";
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "en");
+const yearlyPrice = formatPrice(prices.yearly, "en");
+const lifetimePrice = formatPrice(prices.lifetime, "en");
 
 export const vilkarEn: LegalContent = {
   eyebrow: "Terms",
@@ -117,9 +127,9 @@ export const vilkarEn: LegalContent = {
           <p>Kroni is offered in four tiers:</p>
           <ul>
             <li><strong>Free</strong> — up to one child and a maximum of five active chores. No time limit, no charge.</li>
-            <li><strong>Family monthly</strong> — 49 NOK per month, renews automatically. Unlimited children, unlimited chores, rewards, goals and allowance.</li>
-            <li><strong>Family yearly</strong> — 399 NOK per year, renews automatically (about 32% savings vs. monthly). Same content as monthly.</li>
-            <li><strong>Lifetime</strong> — 1,200 NOK as a one-time purchase. Permanent access to the same features as the Family subscription, with no renewals and no re-billing. Tied to the Apple ID or Google account that made the purchase.</li>
+            <li><strong>Family monthly</strong> — {monthlyPrice} {CURRENCY} per month, renews automatically. Unlimited children, unlimited chores, rewards, goals and allowance.</li>
+            <li><strong>Family yearly</strong> — {yearlyPrice} {CURRENCY} per year, renews automatically (about {yearlySavingsPercent}% savings vs. monthly). Same content as monthly.</li>
+            <li><strong>Lifetime</strong> — {lifetimePrice} {CURRENCY} as a one-time purchase. Permanent access to the same features as the Family subscription, with no renewals and no re-billing. Tied to the Apple ID or Google account that made the purchase.</li>
           </ul>
           <p>
             Prices shown are guidance and are stated in Norwegian kroner including VAT. The price that actually applies is the one shown in the App Store or Google Play at the time of purchase, and may vary by country and region.

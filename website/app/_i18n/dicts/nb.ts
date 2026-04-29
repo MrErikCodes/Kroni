@@ -1,7 +1,18 @@
+import {
+  CURRENCY,
+  prices,
+  formatPrice,
+  yearlySavingsPercent,
+} from "../../_config/pricing";
+
+const monthlyPrice = formatPrice(prices.monthly, "nb");
+const yearlyPrice = formatPrice(prices.yearly, "nb");
+const lifetimePrice = formatPrice(prices.lifetime, "nb");
+
 export const nb = {
   common: {
-    currency: "kr",
-    save32: "Spar 32%",
+    currency: CURRENCY,
+    save32: `Spar ${yearlySavingsPercent}%`,
     oneTime: "Engangskjøp",
     bestValue: "Beste verdi",
     lifetime: "Livstid",
@@ -139,24 +150,24 @@ export const nb = {
       },
       monthly: {
         label: "Familie",
-        price: "49",
+        price: monthlyPrice,
         period: "per måned · 7 dager gratis",
         items: ["Ubegrenset antall barn", "Ubegrenset oppgaver", "Belønninger og mål"],
       },
       yearly: {
         label: "Familie årlig",
-        price: "399",
+        price: yearlyPrice,
         period: "per år · 7 dager gratis",
         items: ["Alt i Familie", "Prioritert support", "Tidlig tilgang til nytt"],
       },
       lifetime: {
         label: "Livstid",
-        price: "1 200",
+        price: lifetimePrice,
         period: "én gang, for alltid",
         items: ["Alt i Familie", "Ingen fornying", "Følger med fremtidige funksjoner"],
       },
       footnote:
-        "Månedlig og årlig starter med 7 dager gratis. Betaling håndteres av App Store eller Google Play. Ingen skjulte gebyrer. Avbestill når du vil.",
+        "Månedlig og årlig starter med 7 dager gratis. Betaling håndteres av App Store eller Google Play. Ingen skjulte gebyrer. Avbestill når du vil. Priser i NOK; din lokale valuta og skatt kan variere ved kjøp.",
     },
     faq: {
       eyebrow: "Spørsmål",
@@ -166,7 +177,7 @@ export const nb = {
       items: [
         {
           q: "Hvor mye koster Kroni?",
-          a: "Gratisplanen dekker ett barn og fem aktive oppgaver. Familieplanen starter på 49 kr i måneden eller 399 kr per år (du sparer 32%), eller 1 200 kr som engangskjøp for livstid. Månedlig og årlig kommer med 7 dager gratis prøveperiode.",
+          a: `Gratisplanen dekker ett barn og fem aktive oppgaver. Familieplanen starter på ${monthlyPrice} ${CURRENCY} i måneden eller ${yearlyPrice} ${CURRENCY} per år (du sparer ${yearlySavingsPercent}%), eller ${lifetimePrice} ${CURRENCY} som engangskjøp for livstid. Månedlig og årlig kommer med 7 dager gratis prøveperiode. Priser i ${CURRENCY}; din lokale valuta og skatt kan variere ved kjøp.`,
         },
         {
           q: "Hvorfor koster Kroni penger?",
@@ -253,7 +264,7 @@ export const nb = {
         items: [
           {
             q: "Hvor mye koster Kroni?",
-            a: "Gratisplanen dekker ett barn og fem aktive oppgaver. Familieplanen starter på 49 kr i måneden eller 399 kr per år, eller 1 200 kr som engangskjøp for livstid. Månedlig og årlig kommer med 7 dager gratis prøveperiode. Gjeldende priser vises i App Store eller Google Play.",
+            a: `Gratisplanen dekker ett barn og fem aktive oppgaver. Familieplanen starter på ${monthlyPrice} ${CURRENCY} i måneden eller ${yearlyPrice} ${CURRENCY} per år, eller ${lifetimePrice} ${CURRENCY} som engangskjøp for livstid. Månedlig og årlig kommer med 7 dager gratis prøveperiode. Priser i ${CURRENCY}; din lokale valuta og skatt kan variere. Gjeldende priser vises i App Store eller Google Play.`,
           },
           {
             q: "Hvorfor koster Kroni penger?",
