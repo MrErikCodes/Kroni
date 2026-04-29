@@ -34,7 +34,7 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
   android: {
     package: 'no.nilsenkonsult.kroni',
     adaptiveIcon: {
-      backgroundColor: '#FBFAF6',
+      backgroundColor: '#0E1116',
       foregroundImage: './assets/images/android-icon-foreground.png',
     },
     edgeToEdgeEnabled: true,

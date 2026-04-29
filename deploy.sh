@@ -2,7 +2,7 @@
 # Pull, build, migrate, reload. Idempotent. Run on the production server.
 set -euo pipefail
 
-cd /root/kroni
+cd /root/Kroni
 
 echo "==> fetching latest"
 git fetch origin

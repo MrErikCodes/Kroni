@@ -205,10 +205,10 @@ export const da: typeof nb = {
     cardResponse: "Svartid",
     cardResponseValue: "Vi svarer inden for 24 timer",
     cardLanguage: "Sprog",
-    cardLanguageValue: "Dansk og engelsk",
+    cardLanguageValue: "Norsk og engelsk",
     tocLabel: "Emne",
     ctaTitle: "Fandt du ikke det du ledte efter?",
-    ctaBody: "Skriv til os — så hjælper vi så hurtigt vi kan. Helst på dansk, men engelsk går også fint.",
+    ctaBody: "Skriv til os — så hjælper vi så hurtigt vi kan. Helst på norsk, men engelsk går også fint.",
     ctaButton: "Send e-mail",
     sectionAria: "Ofte stillede spørgsmål",
     groups: [

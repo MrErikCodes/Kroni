@@ -24,12 +24,20 @@ export default function Reveal({
   delay = 0,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null);
-  // Lazy initializer reads media-query once at mount; no setState-in-effect.
-  const [visible, setVisible] = useState<boolean>(() => prefersReducedMotion());
+  // Must start `false` on both server and client to avoid hydration mismatch:
+  // `prefersReducedMotion()` returns `false` on the server (no window) but can
+  // return `true` on the client, which would diverge the first client render
+  // from the SSR HTML. The effect below resolves the real value post-mount.
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    if (visible) return;
+    if (prefersReducedMotion()) {
+      setVisible(true);
+      return;
+    }
     const node = ref.current;
-    if (!node || visible) return;
+    if (!node) return;
 
     const observer = new IntersectionObserver(
       (entries) => {

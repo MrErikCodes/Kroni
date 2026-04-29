@@ -205,10 +205,10 @@ export const sv: typeof nb = {
     cardResponse: "Svarstid",
     cardResponseValue: "Vi svarar inom 24 timmar",
     cardLanguage: "Språk",
-    cardLanguageValue: "Svenska och engelska",
+    cardLanguageValue: "Norska och engelska",
     tocLabel: "Tema",
     ctaTitle: "Hittade du inte det du letade efter?",
-    ctaBody: "Skriv till oss — så hjälper vi dig så snabbt vi kan. Helst på svenska, men engelska går också bra.",
+    ctaBody: "Skriv till oss — så hjälper vi dig så snabbt vi kan. Helst på norska, men engelska går också bra.",
     ctaButton: "Skicka e-post",
     sectionAria: "Vanliga frågor",
     groups: [
