@@ -80,6 +80,9 @@ export const vilkarNb: LegalContent = {
           <p>
             Hvis Forelderen mistenker uautorisert bruk av Kontoen, skal Kroni varsles uten ugrunnet opphold på <a href="mailto:support@kroni.no">support@kroni.no</a>.
           </p>
+          <p>
+            Ved å opprette en konto samtykker du til å motta drifts- og transaksjonelle e-poster (konto, sikkerhet, fakturering og familiehusholdnings-administrasjon) på den e-postadressen som ble brukt ved registrering. Dette omfatter blant annet bekreftelse av registrering, tilbakestilling av passord, e-postverifisering, varsler om mislykket betaling eller utløp av abonnement, og invitasjonslenker til familiehusholdning. Slike meldinger er <strong>nødvendige tjeneste-meldinger</strong> og kan ikke reserveres mot så lenge kontoen er aktiv. Vi sender <strong>ikke markedsførings-e-poster</strong> som del av tjenesten. E-poster sendes fra <code>noreply@kroni.no</code> via vår e-postunderleverandør Mailpace; svar-til-adresse er <a href="mailto:support@kroni.no">support@kroni.no</a>.
+          </p>
         </>
       ),
     },

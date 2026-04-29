@@ -59,7 +59,7 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [x] Update marketing-site pricing to mention "from 49 kr/mo, 399 kr/yr, 1200 kr lifetime, 7 days free" — pricing cards (NO + EN), homepage FAQ, support FAQ. Added "Hvorfor koster Kroni penger?" / "Why does Kroni cost money?" FAQ on both locales.
 - [x] Privacy + Terms updates: lifetime purchase terms (vilkår §02 def, §06 priser, §08 betaling, §09 oppsigelse), Sentry crash reporting disclosure (personvern §02, §09, §13). Bumped "updated" to 29. april 2026.
 - [ ] **Multi-domain + multi-language site** — kroni.no (nb default), kroni.se (sv default), kroni.dk (da default). Each domain serves its market's language for privacy + terms. Expose `/en` on each domain as the catch-all English fallback for non-Nordic visitors. DNS / Caddy routing per host; Next.js locale segments under `app/[lang]/`.
-- [ ] **Localized legal pages** — translate Personvern + Vilkår to sv, da, en. Keep §-numbering aligned across locales so the mobile app can deep-link to a specific clause regardless of language.
+- [ ] **Localized legal pages** — translate Personvern + Vilkår to sv, da, en. Keep §-numbering aligned across locales so the mobile app can deep-link to a specific clause regardless of language. progress 2026-04-29: privacy + terms updated to disclose Mailpace transactional email pipeline across all four locales (extended existing §07 sub-processor list in personvern, extended §04 account section in vilkar; no §-numbers shifted).
 - [ ] **Universal-link `/pair/<code>` route** — landing page on kroni.no/.dk/.se that triggers the deep link into the kid app on iOS/Android (with App Store / Play fallback if not installed). Backs the "share kid login link" feature.
 
 ## Nice-to-have

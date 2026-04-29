@@ -80,6 +80,9 @@ export const vilkarSv: LegalContent = {
           <p>
             Misstänker Föräldern obehörig användning av Kontot ska Kroni utan oskäligt dröjsmål meddelas på <a href="mailto:support@kroni.no">support@kroni.no</a>.
           </p>
+          <p>
+            Genom att skapa ett konto samtycker du till att ta emot drifts- och transaktionella e-postmeddelanden (konto, säkerhet, fakturering och familjehushålls-hantering) på den e-postadress som användes vid registreringen. Det omfattar bland annat registreringsbekräftelse, lösenordsåterställning, e-postverifiering, aviseringar om misslyckad betalning eller abonnemangets utgång, och inbjudningslänkar till familjehushåll. Sådana meddelanden är <strong>nödvändiga tjänstemeddelanden</strong> och kan inte avregistreras så länge kontot är aktivt. Vi skickar <strong>inga marknadsförings-mejl</strong> som del av tjänsten. Mejlen skickas från <code>noreply@kroni.no</code> via vår e-postunderleverantör Mailpace; svarsadress är <a href="mailto:support@kroni.no">support@kroni.no</a>.
+          </p>
         </>
       ),
     },

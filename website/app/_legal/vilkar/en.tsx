@@ -80,6 +80,9 @@ export const vilkarEn: LegalContent = {
           <p>
             If the Parent suspects unauthorised use of the Account, contact <a href="mailto:support@kroni.no">support@kroni.no</a> without undue delay.
           </p>
+          <p>
+            By creating an account you consent to receiving operational and transactional emails (account, security, billing and household-management) at the email address used during sign-up. This includes sign-up confirmation, password reset, email verification, notices of failed payment or subscription expiration, and household invitation links. These are <strong>essential service messages</strong> and cannot be opted out of while the account is active. We do <strong>not send marketing emails</strong> as part of the standard service. Emails are sent from <code>noreply@kroni.no</code> via our email sub-processor Mailpace; the reply-to address is <a href="mailto:support@kroni.no">support@kroni.no</a>.
+          </p>
         </>
       ),
     },
