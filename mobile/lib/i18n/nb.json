@@ -514,6 +514,10 @@
       "signOut": "Koble fra",
       "signOutConfirm": "Er du sikker på at du vil koble fra denne enheten?",
       "avatarChange": "Endre avatar",
+      "avatar": {
+        "editTitle": "Endre figur",
+        "pickerTitle": "Velg figur"
+      },
       "noEarnings": "Ingen inntjening ennå",
       "eyebrow": "Profil",
       "appInfo": {

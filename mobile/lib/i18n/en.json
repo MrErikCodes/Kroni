@@ -514,6 +514,10 @@
       "signOut": "Disconnect",
       "signOutConfirm": "Are you sure you want to disconnect this device?",
       "avatarChange": "Change avatar",
+      "avatar": {
+        "editTitle": "Change avatar",
+        "pickerTitle": "Pick an avatar"
+      },
       "noEarnings": "No earnings yet",
       "eyebrow": "Profile",
       "appInfo": {

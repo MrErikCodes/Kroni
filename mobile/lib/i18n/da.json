@@ -74,6 +74,12 @@
       "title": "Sprog",
       "subtitle": "Vælg appens sprog"
     },
+    "profileScreen": {
+      "avatar": {
+        "editTitle": "Skift figur",
+        "pickerTitle": "Vælg figur"
+      }
+    },
     "celebrate": "Great job!",
     "errors": {
       "loadFailedTitle": "Kunne ikke indlæse",

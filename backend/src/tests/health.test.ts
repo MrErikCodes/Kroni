@@ -1,20 +1,18 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-// Health route doesn't depend on DB or Redis, so this test only needs valid env.
-// Provide minimal config before importing the app.
-// Load .env first so backend/.env values populate process.env before any module reads config.
-await import('dotenv/config');
-process.env.NODE_ENV = 'test';
-// Provide non-secret placeholders only for vars not already set by .env.
-process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
-process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
-process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
-process.env.KID_JWT_SECRET ??= '0'.repeat(64);
+// Env (DATABASE_URL → TEST_DATABASE_URL, Clerk/JWT placeholders) is set up
+// in src/tests/_env.ts via tsx --import. Health doesn't hit DB but we still
+// wire setup/teardown so this file can run alongside DB-bound suites.
+import { setupTestDb, teardownTestDb } from './helpers/db.js';
 
 const { buildApp } = await import('../app.js');
 const { closeRedis } = await import('../lib/redis.js');
 const { closeDb } = await import('../db/index.js');
+
+test.before(async () => {
+  await setupTestDb();
+});
 
 test('GET /api/public/health returns 200 ok', async () => {
   const app = await buildApp();
@@ -33,4 +31,5 @@ test('GET /api/public/health returns 200 ok', async () => {
 test.after(async () => {
   await closeRedis();
   await closeDb();
+  await teardownTestDb();
 });

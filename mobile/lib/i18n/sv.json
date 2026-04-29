@@ -74,6 +74,12 @@
       "title": "Språk",
       "subtitle": "Välj appens språk"
     },
+    "profileScreen": {
+      "avatar": {
+        "editTitle": "Byt figur",
+        "pickerTitle": "Välj figur"
+      }
+    },
     "celebrate": "Great job!",
     "errors": {
       "loadFailedTitle": "Kunde inte ladda",

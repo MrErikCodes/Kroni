@@ -32,6 +32,7 @@ import type {
   CreateHouseholdInviteInput,
   CreateHouseholdInviteResponse,
   JoinHouseholdResponse,
+  AvatarKey,
 } from '@kroni/shared';
 import { getKidToken, setKidToken, clearKidToken } from './auth';
 import { getDiagnosticHeaders } from './installInfo';
@@ -529,6 +530,15 @@ export const kidApi = {
   /** GET /api/kid/me */
   async getMe(): Promise<z.infer<typeof KidMeSchema>> {
     const json = await kidRequest('/api/kid/me');
+    return KidMeSchema.parse(json);
+  },
+
+  /** PATCH /api/kid/me — kid updates their own avatar from the kid app. */
+  async updateMyAvatar(avatarKey: AvatarKey): Promise<z.infer<typeof KidMeSchema>> {
+    const json = await kidRequest('/api/kid/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatarKey }),
+    });
     return KidMeSchema.parse(json);
   },
 

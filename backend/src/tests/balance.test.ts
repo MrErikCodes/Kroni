@@ -1,12 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-await import('dotenv/config');
-process.env.NODE_ENV = 'test';
-process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
-process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
-process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
-process.env.KID_JWT_SECRET ??= '0'.repeat(64);
+// Env bootstrap lives in src/tests/_env.ts (loaded via tsx --import).
+import { setupTestDb, truncateAll, teardownTestDb } from './helpers/db.js';
 
 const { getDb } = await import('../db/index.js');
 const { parents } = await import('../db/schema/parents.js');
@@ -20,9 +16,17 @@ const { todayInAppTz } = await import('../lib/time.js');
 const { randomUUID } = await import('node:crypto');
 const { closeRedis } = await import('../lib/redis.js');
 const { closeDb } = await import('../db/index.js');
+
+test.before(async () => {
+  await setupTestDb();
+});
+test.beforeEach(async () => {
+  await truncateAll();
+});
 test.after(async () => {
   await closeRedis();
   await closeDb();
+  await teardownTestDb();
 });
 
 async function seed(): Promise<{ parentId: string; kidId: string; householdId: string }> {

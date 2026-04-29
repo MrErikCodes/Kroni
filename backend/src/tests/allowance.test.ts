@@ -1,13 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-await import('dotenv/config');
-process.env.NODE_ENV = 'test';
-process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
-process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
-process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
-process.env.KID_JWT_SECRET ??= '0'.repeat(64);
-process.env.APP_TIMEZONE ??= 'Europe/Oslo';
+// Env bootstrap (DATABASE_URL → TEST_DATABASE_URL, placeholders) lives in
+// src/tests/_env.ts. This suite is pure logic — no DB — so we don't call
+// setupTestDb(); the import is here only to ensure config validation passes
+// when sibling modules transitively pull config.ts.
 
 const { lastDayOfMonth, isAllowancePayday, nextPaymentDate } = await import('../lib/time.js');
 

@@ -7,6 +7,14 @@ const Env = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
 
   DATABASE_URL: z.string().url(),
+  // Separate Postgres database used by `npm test` so suite runs never mutate
+  // dev data. Defaults to a sibling `kroni_test` DB on the same instance; the
+  // local `_env.ts` test bootstrap copies this onto DATABASE_URL before any
+  // module reads config so the singleton in `db/index.ts` connects to it.
+  TEST_DATABASE_URL: z
+    .string()
+    .url()
+    .default('postgres://kroni:kroni@localhost:5432/kroni_test'),
   REDIS_URL: z.string().url(),
 
   CLERK_SECRET_KEY: z.string().min(1),

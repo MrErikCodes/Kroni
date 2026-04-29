@@ -9,11 +9,11 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
 import * as Application from 'expo-application';
-import { Check, ClipboardCopy, LogOut, User } from 'lucide-react-native';
+import { Check, ClipboardCopy, LogOut } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { clearKidToken, setKidLocale } from '../../../lib/auth';
@@ -32,7 +32,7 @@ import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Modal as InAppModal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { getInstallInfo } from '../../../lib/installInfo';
-import type { BalanceEntry } from '@kroni/shared';
+import type { AvatarKey, BalanceEntry, Kid } from '@kroni/shared';
 
 const formatNok = (ore: number) =>
   new Intl.NumberFormat('nb-NO', {
@@ -40,6 +40,13 @@ const formatNok = (ore: number) =>
     currency: 'NOK',
     maximumFractionDigits: 0,
   }).format(ore / 100);
+
+// Mirror the parent picker's order in `(parent)/kids/new.tsx`. Kept in
+// lockstep with the shared `AvatarKey` zod enum.
+const AVATAR_KEYS: readonly AvatarKey[] = [
+  'fox', 'bear', 'rabbit', 'owl', 'penguin', 'lion',
+  'panda', 'cat', 'dog', 'unicorn', 'dragon', 'astronaut',
+];
 
 // Mini bar chart — last 7 days earnings
 function MiniBarChart({ entries }: { entries: BalanceEntry[] }) {
@@ -107,6 +114,7 @@ const chartStyles = StyleSheet.create({
 export default function KidProfileScreen() {
   const theme = useTheme();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
 
@@ -114,6 +122,46 @@ export default function KidProfileScreen() {
     queryKey: ['kid', 'me'],
     queryFn: () => kidApi.getMe(),
   });
+
+  // Avatar picker — kid can change their own avatar from the kid app. The
+  // parent's create flow uses the same grid layout in `(parent)/kids/new.tsx`;
+  // we mirror it here (selection ring, gold[500] accent, emoji-on-disc) so the
+  // visual language is consistent between the two pickers.
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
+  const avatarMutation = useMutation({
+    mutationFn: (avatarKey: AvatarKey) => kidApi.updateMyAvatar(avatarKey),
+    onMutate: async (avatarKey) => {
+      // Optimistic update so the new avatar appears immediately.
+      await queryClient.cancelQueries({ queryKey: ['kid', 'me'] });
+      const previous = queryClient.getQueryData<Kid>(['kid', 'me']);
+      if (previous) {
+        queryClient.setQueryData<Kid>(['kid', 'me'], { ...previous, avatarKey });
+      }
+      return { previous };
+    },
+    onError: async (_err, _key, ctx) => {
+      if (ctx?.previous) {
+        queryClient.setQueryData(['kid', 'me'], ctx.previous);
+      }
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    },
+    onSuccess: async () => {
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void queryClient.invalidateQueries({ queryKey: ['kid', 'me'] });
+    },
+  });
+  const handleOpenAvatarPicker = useCallback(() => {
+    void Haptics.selectionAsync();
+    setAvatarPickerOpen(true);
+  }, []);
+  const handlePickAvatar = useCallback(
+    (key: AvatarKey) => {
+      void Haptics.selectionAsync();
+      avatarMutation.mutate(key);
+      setAvatarPickerOpen(false);
+    },
+    [avatarMutation],
+  );
 
   const { data: history } = useQuery({
     queryKey: ['kid', 'history'],
@@ -200,9 +248,18 @@ export default function KidProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {/* Editorial profile block — italic name as the visual signature. */}
+        {/* Editorial profile block — italic name as the visual signature.
+            Avatar is tappable; opens the picker modal so the kid can change
+            their figure from the kid app. */}
         <View style={styles.profileSection}>
-          <Avatar avatarKey={me?.avatarKey ?? 'bear'} size={88} />
+          <TouchableOpacity
+            onPress={handleOpenAvatarPicker}
+            accessibilityRole="button"
+            accessibilityLabel={t('kid.profileScreen.avatar.editTitle')}
+            activeOpacity={0.8}
+          >
+            <Avatar avatarKey={me?.avatarKey ?? 'bear'} size={88} />
+          </TouchableOpacity>
           <KroniText
             variant="displayItalic"
             tone="primary"
@@ -303,6 +360,45 @@ export default function KidProfileScreen() {
         </TouchableOpacity>
       </ScrollView>
 
+      {/* Avatar picker — same emoji-on-disc grid the parent uses, with the
+          gold[500] selection ring. Tapping a tile saves and closes. */}
+      <InAppModal visible={avatarPickerOpen} onClose={() => setAvatarPickerOpen(false)}>
+        <Text style={[styles.pickerTitle, { color: tx.primary }]}>
+          {t('kid.profileScreen.avatar.pickerTitle')}
+        </Text>
+        <View style={styles.avatarGrid}>
+          {AVATAR_KEYS.map((key) => {
+            const selected = (me?.avatarKey ?? null) === key;
+            return (
+              <TouchableOpacity
+                key={key}
+                onPress={() => handlePickAvatar(key)}
+                style={[
+                  styles.avatarTile,
+                  {
+                    backgroundColor: selected ? theme.colors.gold[100] : s.card,
+                    borderColor: selected ? theme.colors.gold[500] : s.border,
+                  },
+                ]}
+                accessibilityRole="radio"
+                accessibilityLabel={key}
+                accessibilityState={{ selected }}
+              >
+                <Avatar avatarKey={key} size={56} />
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <View style={styles.pickerActions}>
+          <Button
+            label={t('common.cancel')}
+            variant="ghost"
+            size="sm"
+            onPress={() => setAvatarPickerOpen(false)}
+          />
+        </View>
+      </InAppModal>
+
       <InAppModal visible={diagOpen} onClose={() => setDiagOpen(false)}>
         <Text style={[styles.diagModalTitle, { color: tx.primary }]}>
           {t('kid.profileScreen.appInfo.copiedTitle')}
@@ -401,6 +497,22 @@ const styles = StyleSheet.create({
     marginTop: 8,
     marginBottom: 4,
   },
+  pickerTitle: { fontSize: 18, fontWeight: '700', marginBottom: 16 },
+  avatarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'center',
+  },
+  avatarTile: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pickerActions: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
   langSection: { overflow: 'hidden' },
   langRow: {
     flexDirection: 'row',

@@ -48,7 +48,7 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 - [x] Owner-only invite enforcement — done 2026-04-29. `POST /api/parent/household/invites` rejects with 403 when the requesting parent isn't `households.premiumOwnerParentId`. Mirrors mobile UI's `isOwner` check.
 - [x] **`/api/parent/billing/verify-receipt`** — removed dead client method 2026-04-29; RC webhook is authoritative.
-- [ ] **Pairing tests — local test DB hygiene** — backend test suite currently runs against the dev DB and mutates real data. Wire a separate `kroni_test` database (or per-suite schema isolation) so `npm test` is safe to run repeatedly without trashing dev state. **No CI work** — Kroni has no CI/CD; this is a local-dev hygiene fix only.
+- [x] **Pairing tests — local test DB hygiene** — shipped 2026-04-29 — TEST_DATABASE_URL config + truncate-between-tests setup. Run `createdb kroni_test` once to bootstrap the local DB. See `testing.md`.
 - [x] Drizzle snapshot baseline rebuild — done 2026-04-29. Introspected live DB, replaced `drizzle/meta/0007_snapshot.json` with full 15-table state, normalized `_journal.json` `when` values + `__drizzle_migrations.created_at` to monotonic 1700000000000 + idx*1000. `npm run db:generate` now reports `No schema changes, nothing to migrate`. Root cause was: legacy migrations 0002–0004 had hand-edited future-dated `when` (e.g. 1798820000000) and drizzle's migrator at `pg-core/dialect.js:62` uses `lastDbMigration.created_at < migration.folderMillis` to decide what to apply (purely timestamp comparison, ignores hash), so 0005–0007 were silently skipped on every `db:migrate` run.
 - [ ] **`background-jobs/runner.ts`** is started separately (`npm run start:jobs`); make sure prod has it as its own service / container.
 - [ ] **Webhook signing** — RevenueCat webhook uses a shared bearer token (`REVENUECAT_WEBHOOK_AUTH`). Consider switching to an HMAC of the body once RC supports it self-hosted, or whitelist their source IPs at the load balancer.
@@ -66,7 +66,7 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 
 - [x] Localized day names in the kid task-detail sheet for languages beyond nb (`formatRecurrence` hard-codes Norwegian `og`). <!-- localized 2026-04-29 via i18n -->
 - [x] Reset password flow on the parent app (currently Clerk handles via email, but no UI link). <!-- added forgot-password flow on parent sign-in 2026-04-29 via Clerk reset_password_email_code -->
-- [ ] Avatar tweaking after pairing (kid can't currently change their avatar from the kid app).
+- [x] Avatar tweaking after pairing (kid can't currently change their avatar from the kid app). <!-- shipped 2026-04-29 -->
 - [x] Per-kid pairing-code regeneration UI on the kid detail screen (today the parent has to delete + re-add the kid). <!-- shipped 2026-04-29 -->
 - [ ] `sentry-expo` source-map upload for OTA updates — only matters once we use EAS Update.
 

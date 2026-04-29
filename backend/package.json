@@ -17,7 +17,7 @@
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc --noEmit",
     "ngrok": "ngrok http http://localhost:3000 --domain=square-logically-shark.ngrok-free.app",
-    "test": "phase run \"tsx --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts\""
+    "test": "phase run \"tsx --import ./src/tests/_env.ts --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts\""
   },
   "dependencies": {
     "@clerk/backend": "^1.21.4",

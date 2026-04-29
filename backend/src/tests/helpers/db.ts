@@ -7,39 +7,75 @@ import { sql } from 'drizzle-orm';
 import * as schema from '../../db/schema/index.js';
 import * as relations from '../../db/relations.js';
 
-// Spawn a fresh per-test schema so suites can run in parallel without cross-talk.
-// Uses the connection from process.env.DATABASE_URL — must be a writable Postgres
-// the test process owns. CI provisions this via docker-compose.test.yml.
+// Test-DB lifecycle helpers. The whole suite shares one Postgres connection
+// (separate from production's `db/index.ts` singleton, but pointing at the
+// same TEST_DATABASE_URL so they see the same data). Migrations run once at
+// suite start; `truncateAll()` wipes every table between tests so cases stay
+// independent. The `_env.ts` bootstrap copies TEST_DATABASE_URL onto
+// DATABASE_URL, so the production singleton is always pinned to the test DB
+// during `npm test`.
 
-export interface TestDbHandle {
-  db: ReturnType<typeof drizzle<typeof schema & typeof relations>>;
-  schemaName: string;
-  cleanup: () => Promise<void>;
+type TestDb = ReturnType<typeof drizzle<typeof schema & typeof relations>>;
+
+let pgClient: ReturnType<typeof postgres> | undefined;
+let dbInstance: TestDb | undefined;
+let migratedFor: string | undefined;
+
+function resolveTestUrl(): string {
+  // _env.ts already mirrored TEST_DATABASE_URL onto DATABASE_URL; both are
+  // checked so this still works if a caller imports the helper directly.
+  return (
+    process.env.TEST_DATABASE_URL ??
+    process.env.DATABASE_URL ??
+    'postgres://kroni:kroni@localhost:5432/kroni_test'
+  );
 }
 
-export async function createTestDb(): Promise<TestDbHandle> {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL must be set for tests');
+export async function setupTestDb(): Promise<TestDb> {
+  const url = resolveTestUrl();
+  if (dbInstance && migratedFor === url) return dbInstance;
 
-  const schemaName = `t_${Math.random().toString(36).slice(2, 10)}`;
-  const client = postgres(url, { max: 2, prepare: false });
-  await client`CREATE SCHEMA IF NOT EXISTS ${client(schemaName)}`;
-  await client`SET search_path TO ${client(schemaName)}`;
+  pgClient = postgres(url, { max: 4, prepare: false });
+  dbInstance = drizzle(pgClient, {
+    schema: { ...schema, ...relations },
+    casing: 'snake_case',
+  });
 
   const here = dirname(fileURLToPath(import.meta.url));
+  // helpers/ → tests/ → src/ → backend/ → drizzle/
   const migrationsFolder = join(here, '..', '..', '..', 'drizzle');
+  await migrate(dbInstance, { migrationsFolder });
+  migratedFor = url;
 
-  const db = drizzle(client, { schema: { ...schema, ...relations }, casing: 'snake_case' });
-  await migrate(db, { migrationsFolder });
+  return dbInstance;
+}
 
-  return {
-    db,
-    schemaName,
-    cleanup: async () => {
-      await client`DROP SCHEMA IF EXISTS ${client(schemaName)} CASCADE`;
-      await client.end();
-    },
-  };
+export async function truncateAll(db?: TestDb): Promise<void> {
+  const target = db ?? dbInstance;
+  if (!target) throw new Error('truncateAll() called before setupTestDb()');
+
+  // Pull every public.* table and TRUNCATE in one statement with CASCADE so
+  // FK ordering is irrelevant. drizzle's __drizzle_migrations metadata table
+  // lives in its own schema (drizzle), so we never touch it here.
+  const rows = await target.execute<{ table_name: string }>(sql`
+    SELECT table_name
+    FROM information_schema.tables
+    WHERE table_schema = 'public'
+      AND table_type = 'BASE TABLE'
+  `);
+  const names = rows.map((r) => r.table_name).filter((n) => n !== '__drizzle_migrations');
+  if (names.length === 0) return;
+
+  const list = names.map((n) => `"public"."${n}"`).join(', ');
+  await target.execute(sql.raw(`TRUNCATE ${list} RESTART IDENTITY CASCADE`));
+}
+
+export async function teardownTestDb(): Promise<void> {
+  if (!pgClient) return;
+  await pgClient.end({ timeout: 5 });
+  pgClient = undefined;
+  dbInstance = undefined;
+  migratedFor = undefined;
 }
 
 export { sql };

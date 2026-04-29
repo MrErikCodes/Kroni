@@ -1,12 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-await import('dotenv/config');
-process.env.NODE_ENV = 'test';
-process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
-process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
-process.env.CLERK_WEBHOOK_SECRET ??= 'whsec_placeholder';
-process.env.KID_JWT_SECRET ??= '0'.repeat(64);
+// Env bootstrap (DATABASE_URL → TEST_DATABASE_URL, placeholders) lives in
+// src/tests/_env.ts and is loaded via `tsx --import` before this module.
+import { setupTestDb, truncateAll, teardownTestDb } from './helpers/db.js';
 
 const { buildApp } = await import('../app.js');
 const { getDb } = await import('../db/index.js');
@@ -60,9 +57,18 @@ async function clearRedisRateLimits(): Promise<void> {
 
 const { closeRedis } = await import('../lib/redis.js');
 const { closeDb } = await import('../db/index.js');
+
+test.before(async () => {
+  await setupTestDb();
+});
+test.beforeEach(async () => {
+  await truncateAll();
+  await clearRedisRateLimits();
+});
 test.after(async () => {
   await closeRedis();
   await closeDb();
+  await teardownTestDb();
 });
 
 test('pairing — code redemption attaches device to existing kid', async () => {
