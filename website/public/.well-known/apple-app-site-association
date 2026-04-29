@@ -2,7 +2,7 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["<TEAM_ID>.no.nilsenkonsult.kroni"],
+        "appIDs": ["V992VUTLR2.no.nilsenkonsult.kroni"],
         "components": [
           { "/": "/pair/*", "comment": "kid pairing deep link" }
         ]
