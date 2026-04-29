@@ -26,6 +26,7 @@ npm --workspace=website run build
 echo "==> reload PM2"
 pm2 reload kroni-api --update-env
 pm2 reload kroni-jobs --update-env
+pm2 reload kroni-website --update-env
 
 REV=$(git rev-parse --short HEAD)
 echo "✓ Deployed ${REV}"
