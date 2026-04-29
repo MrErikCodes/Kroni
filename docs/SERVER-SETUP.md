@@ -80,36 +80,59 @@ curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
 sudo apt update && sudo apt -y install caddy
 
 # Replace default Caddyfile
-sudo cp /srv/kroni/Caddyfile.example /etc/caddy/Caddyfile
+sudo cp /root/kroni/Caddyfile.example /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```
 
-## 7. Application user + checkout
+## 7. Checkout + first run
+
+> **Note:** running as `root` out of `/root/kroni` for now. Not best practice (a dedicated unprivileged service user is the proper move) but acceptable while bootstrapping. Migrate to a `kroni` user under `/srv/kroni` later — change the `cwd` paths in `backend/ecosystem.config.js`, the path in `deploy.sh`, and re-run `pm2 startup` against the new user.
 
 ```bash
-sudo useradd -m -s /bin/bash kroni
-sudo -u kroni mkdir -p /home/kroni/.ssh
-# add SSH deploy key for the repo
-sudo -u kroni git clone git@github.com:nilsenkonsult/kroni.git /srv/kroni
-sudo chown -R kroni:kroni /srv/kroni
+# As root
+git clone git@github.com:nilsenkonsult/kroni.git /root/kroni
+cd /root/kroni
 
-# Production .env
-sudo -u kroni cp /srv/kroni/backend/.env.example /srv/kroni/backend/.env
-sudo -u kroni $EDITOR /srv/kroni/backend/.env   # fill DATABASE_URL, REDIS_URL, CLERK_*, KID_JWT_SECRET, EXPO_ACCESS_TOKEN
+# Phase secrets are fetched at runtime — see step 7a below before building.
 
 # First build + migrate + boot
-sudo -u kroni bash -lc 'cd /srv/kroni && npm ci'
-sudo -u kroni bash -lc 'cd /srv/kroni && npm --workspace=@kroni/shared run build'
-sudo -u kroni bash -lc 'cd /srv/kroni && npm --workspace=@kroni/backend run build'
-sudo -u kroni bash -lc 'cd /srv/kroni && npm --workspace=@kroni/backend run db:migrate'
-sudo -u kroni bash -lc 'cd /srv/kroni && npm --workspace=website run build'
+npm ci
+npm --workspace=@kroni/shared run build
+npm --workspace=@kroni/backend run build
+npm --workspace=@kroni/backend run db:migrate
+npm --workspace=website run build
 
 # Start under PM2 + persist across reboot
-sudo -u kroni bash -lc 'cd /srv/kroni/backend && pm2 start ecosystem.config.js'
-sudo -u kroni pm2 save
-sudo env PATH=$PATH:/usr/bin pm2 startup systemd -u kroni --hp /home/kroni
-sudo systemctl enable pm2-kroni
+cd /root/kroni/backend
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup systemd
+# Run the command pm2 prints at the end of the previous line — it pins
+# the PM2 daemon to systemd for the current user.
 ```
+
+## 7a. Phase secrets
+
+Every npm script wraps `phase run`, so the runtime needs a Phase service token. Generate one in the Phase dashboard scoped to the backend + website apps, then:
+
+```bash
+echo 'export PHASE_SERVICE_TOKEN="pss_service:v2:..."' >> /root/.bashrc
+source /root/.bashrc
+phase --version    # confirm CLI is on PATH
+
+# Required backend secrets (push to Phase, not local .env):
+phase secrets update DATABASE_URL --value 'postgres://kroni:<password>@localhost:5432/kroni_prod'
+phase secrets update REDIS_URL --value 'redis://:<password>@localhost:6379'
+phase secrets update CLERK_SECRET_KEY --value 'sk_live_...'
+phase secrets update CLERK_WEBHOOK_SECRET --value 'whsec_...'
+phase secrets update KID_JWT_SECRET --value "$(openssl rand -hex 32)"
+phase secrets update EXPO_ACCESS_TOKEN --value '...'
+phase secrets update MAILPACE_API_TOKEN --value '...'
+phase secrets update REVENUECAT_WEBHOOK_AUTH --value "$(openssl rand -hex 32)"
+phase secrets update SENTRY_DSN --value 'https://...'
+```
+
+If you change `PHASE_SERVICE_TOKEN` after PM2 has booted, run `pm2 reload all --update-env` so the apps pick up the new token.
 
 ## 8. Backups
 
@@ -128,5 +151,7 @@ Wrap in `/etc/cron.daily/kroni-pgdump` and ship to off-host storage.
 ## 10. Subsequent deploys
 
 ```bash
-sudo -u kroni /srv/kroni/deploy.sh
+/root/kroni/deploy.sh
 ```
+
+Idempotent — fetches main, builds, migrates, reloads all 3 PM2 apps.

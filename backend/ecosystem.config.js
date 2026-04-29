@@ -14,7 +14,7 @@ module.exports = {
     {
       name: 'kroni-api',
       script: 'dist/server.js',
-      cwd: '/srv/kroni/backend',
+      cwd: '/root/kroni/backend',
       instances: 'max',
       exec_mode: 'cluster',
       node_args: '--enable-source-maps',
@@ -27,7 +27,7 @@ module.exports = {
     {
       name: 'kroni-jobs',
       script: 'dist/jobs/runner.js',
-      cwd: '/srv/kroni/backend',
+      cwd: '/root/kroni/backend',
       instances: 1,
       exec_mode: 'fork',
       node_args: '--enable-source-maps',
@@ -42,7 +42,7 @@ module.exports = {
       // injected into Next at boot — same pattern as backend.
       script: 'npm',
       args: 'start',
-      cwd: '/srv/kroni/website',
+      cwd: '/root/kroni/website',
       instances: 1,
       exec_mode: 'fork',
       env: { NODE_ENV: 'production', PORT: '3001' },
