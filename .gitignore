@@ -23,4 +23,4 @@ coverage/
 .pm2/
 .omc/
 **/.omc/
-./keys/
+./keys/keys/revenuecat-key.json
