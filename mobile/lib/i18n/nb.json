@@ -390,7 +390,7 @@
       "members": {
         "title": "Medlemmer",
         "emptyState": "Ingen forelder lagt til ennå",
-        "premiumOwnerLabel": "Premium-eier",
+        "mainOwnerLabel": "Hoved-eier",
         "currentUserLabel": "(deg)",
         "invitedLabel": "Invitert"
       },
@@ -589,8 +589,8 @@
     "lifetimePrice": "1 199 kr én gang",
     "lifetimeNote": "Betal en gang, behold tilgang for alltid.",
     "trial": "7 dager gratis",
-    "trialNote": "Cancel i App Store senest 24 timer før prøveperioden er over for å ikke bli belastet.",
-    "choosePlan": "Velg plan",
+    "trialNote": "Avbestill i App Store senest 24 timer før prøveperioden er over for å ikke bli belastet.",
+    "choosePlan": "Velg abonnement",
     "perMonth": "/ mnd",
     "perYear": "/ år",
     "startTrial": "Start 7 dager gratis",

@@ -390,7 +390,7 @@
       "members": {
         "title": "Members",
         "emptyState": "No parents added yet",
-        "premiumOwnerLabel": "Premium owner",
+        "mainOwnerLabel": "Main owner",
         "currentUserLabel": "(you)",
         "invitedLabel": "Invited"
       },

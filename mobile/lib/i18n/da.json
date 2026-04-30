@@ -390,7 +390,7 @@
       "members": {
         "title": "Medlemmer",
         "emptyState": "Ingen forælder tilføjet endnu",
-        "premiumOwnerLabel": "Premium-ejer",
+        "mainOwnerLabel": "Hovedejer",
         "currentUserLabel": "(dig)",
         "invitedLabel": "Inviteret"
       },

@@ -120,7 +120,7 @@ function MemberRow({
         </Text>
       </View>
       {isPremiumOwner ? (
-        <Badge label={t('parent.household.members.premiumOwnerLabel')} variant="gold" />
+        <Badge label={t('parent.household.members.mainOwnerLabel')} variant="gold" />
       ) : null}
     </View>
   );
@@ -593,7 +593,7 @@ export function HouseholdSection({ api, currentParentId }: HouseholdSectionProps
 
       {/* Inviting + revoking is owner-only. A co-parent who joined via a
           code shouldn't be able to invite a third party — that's a
-          billing / capacity decision for the Premium-eier. */}
+          billing / capacity decision for the household's main owner. */}
       {isOwner ? (
         <>
           <View style={styles.inviteButtonWrap}>

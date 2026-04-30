@@ -390,7 +390,7 @@
       "members": {
         "title": "Medlemmar",
         "emptyState": "Ingen förälder tillagd ännu",
-        "premiumOwnerLabel": "Premiumägare",
+        "mainOwnerLabel": "Huvudägare",
         "currentUserLabel": "(du)",
         "invitedLabel": "Inbjuden"
       },
