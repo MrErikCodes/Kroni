@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
-import { Plus, Users, ChevronRight } from 'lucide-react-native';
+import { Settings as SettingsIcon, Users, ChevronRight } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
@@ -82,6 +82,11 @@ export default function KidsTab() {
     router.push('/(parent)/kids/new');
   }, [router]);
 
+  const handleSettings = useCallback(() => {
+    void Haptics.selectionAsync();
+    router.push('/(parent)/settings');
+  }, [router]);
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       {/* Editorial header — serif headline with italic emphasis on "din". */}
@@ -107,13 +112,13 @@ export default function KidsTab() {
           </View>
         </View>
         <TouchableOpacity
-          onPress={handleAdd}
+          onPress={handleSettings}
           accessibilityRole="button"
-          accessibilityLabel={t('parent.kidsList.addKid')}
-          style={[styles.addBtn, { backgroundColor: theme.colors.gold[500] }]}
+          accessibilityLabel={t('parent.settings.title')}
+          style={[styles.iconBtn, { borderColor: theme.surface.border }]}
           activeOpacity={0.85}
         >
-          <Plus size={20} color={theme.colors.sand[900]} strokeWidth={2} />
+          <SettingsIcon size={20} color={theme.text.primary} strokeWidth={1.75} />
         </TouchableOpacity>
       </View>
 
@@ -184,10 +189,11 @@ const styles = StyleSheet.create({
     lineHeight: 36,
     letterSpacing: -0.7,
   },
-  addBtn: {
+  iconBtn: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
