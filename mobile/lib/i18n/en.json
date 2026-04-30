@@ -360,8 +360,7 @@
       },
       "householdSection": "Household",
       "addKid": "Add child",
-      "inviteParent": "Invite parent",
-      "inviteParentSoon": "Coming soon"
+      "inviteParent": "Invite parent"
     },
     "account": {
       "title": "Account",

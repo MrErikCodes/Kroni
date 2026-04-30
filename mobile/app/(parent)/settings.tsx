@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy, UserPlus, Users } from 'lucide-react-native';
+import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy, UserPlus } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -228,20 +228,6 @@ export default function SettingsTab() {
             label={t('parent.settings.addKid')}
             onPress={() => router.push('/(parent)/kids/new')}
           />
-          <View style={[styles.divider, { backgroundColor: s.border }]} />
-          <View style={[styles.row, { opacity: 0.55 }]}>
-            <View style={styles.rowLeft}>
-              <Users size={18} color={tx.secondary} strokeWidth={2} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowLabel, { color: tx.primary }]}>
-                  {t('parent.settings.inviteParent')}
-                </Text>
-                <KroniText variant="caption" tone="tertiary">
-                  {t('parent.settings.inviteParentSoon')}
-                </KroniText>
-              </View>
-            </View>
-          </View>
         </Card>
 
         {/* Household — members + invite a co-parent */}
