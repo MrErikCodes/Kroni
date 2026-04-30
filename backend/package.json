@@ -14,7 +14,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "phase run \"tsx src/db/migrate.ts\"",
     "db:studio": "phase run \"drizzle-kit studio\"",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "ngrok": "ngrok http http://localhost:3000 --domain=square-logically-shark.ngrok-free.app",
     "test": "phase run \"tsx --import ./src/tests/_env.ts --test src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts src/tests/log-completion.test.ts\""
@@ -41,13 +41,16 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@sentry/cli": "^2.55.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.10.0",
     "dotenv": "^16.4.7",
     "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.4",
     "pino-pretty": "^13.0.0",
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.59.1"
   }
 }
