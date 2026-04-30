@@ -25,6 +25,8 @@ import {
   HouseholdInviteSchema,
   CreateHouseholdInviteResponseSchema,
   JoinHouseholdResponseSchema,
+  LoggableTasksResponseSchema,
+  LogTaskCompletionResponseSchema,
 } from '@kroni/shared';
 import type {
   HouseholdSummary,
@@ -33,6 +35,9 @@ import type {
   CreateHouseholdInviteResponse,
   JoinHouseholdResponse,
   AvatarKey,
+  LoggableTask,
+  LogTaskCompletionRequest,
+  LogTaskCompletionResponse,
 } from '@kroni/shared';
 import { getKidToken, setKidToken, clearKidToken } from './auth';
 import { getDiagnosticHeaders } from './installInfo';
@@ -335,6 +340,22 @@ export function clientFor(getToken: GetToken) {
 
     async deleteTask(id: string): Promise<void> {
       await request(`/parent/tasks/${id}`, { method: 'DELETE' });
+    },
+
+    async getLoggableTasks(): Promise<LoggableTask[]> {
+      const json = await request('/parent/tasks/loggable');
+      return LoggableTasksResponseSchema.parse(json);
+    },
+
+    async logTaskCompletion(
+      taskId: string,
+      body: LogTaskCompletionRequest,
+    ): Promise<LogTaskCompletionResponse> {
+      const json = await request(`/parent/tasks/${taskId}/log-completion`, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+      return LogTaskCompletionResponseSchema.parse(json);
     },
 
     // ── Approvals ────────────────────────────────────────────────────────────
