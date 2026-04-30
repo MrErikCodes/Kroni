@@ -203,7 +203,7 @@ Drop these straight into App Store Connect ("App Information" + each localizatio
 **Promotional Text** (155 / 170)
 
 ```
-Lommepenger som lærer barn å mestre, ikke å forvente. Sett oppgaver, godkjenn med ett trykk — kronene tikker inn. Uten reklame, uten ekte penger, uten mas.
+Lommepenger som lærer barn å mestre, ikke å forvente. Sett oppgaver, godkjenn med ett trykk — kronene tikker inn. Uten ekte penger og uten mas.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -232,7 +232,7 @@ BELØNNINGER SOM GIR MENING
 Skjermtid, kinokvelder, en helg uten oppvask — du bestemmer hva som er verdt noe i deres hjem. Barna sparer mot et mål de selv valgte.
 
 TRYGT FOR HELE FAMILIEN
-Ingen ekte penger flyter. Ingen reklame. Ingen kjøp inne i barnets app. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.
+Ingen ekte penger flyter. Ingen kjøp inne i barnets app. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.
 
 PRISER
 • Gratis for alltid: 1 barn, 5 aktive oppgaver, ukepenger
@@ -244,7 +244,7 @@ FOR HVEM
 Bygd for familier med barn mellom 6 og 14 år. Yngre barn klarer seg fint med foreldrenes hjelp.
 
 PERSONVERN PÅ ALVOR
-Ingen reklame, ingen sporing for markedsføring, ingen salg av data. GDPR-vennlig og bygd i Norge. Familiene som bruker appen betaler for utviklingen — aldri annonsører.
+Ingen sporing for markedsføring, ingen salg av data. GDPR-vennlig og bygd i Norge. Familiene som bruker appen betaler for utviklingen.
 
 Spørsmål? Skriv til support@kroni.no — et ekte menneske svarer, vanligvis samme dag.
 ```
@@ -269,7 +269,7 @@ lommepenger,ukepenger,oppgaver,barn,familie,belønning,sparing,gjøremål,foreld
 **Promotional Text** (152 / 170)
 
 ```
-Pocket money that teaches kids to master, not to expect. Set chores, approve with one tap, watch the kroner roll in. No ads, no real money, no nagging.
+Pocket money that teaches kids to master, not to expect. Set chores, approve with one tap, watch the kroner roll in. No real money, no nagging.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -298,7 +298,7 @@ REWARDS THAT MEAN SOMETHING
 Screen time, movie nights, a weekend off dishes — you decide what's worth saving for. Kids work toward a goal they chose themselves.
 
 SAFE FOR THE WHOLE FAMILY
-No real money moves. No ads. No in-app purchases inside the kid app. The kid profile only sees what it should. You stay in control, always.
+No real money moves. No in-app purchases inside the kid app. The kid profile only sees what it should. You stay in control, always.
 
 PRICING
 • Free forever: 1 child, 5 active chores, weekly allowance
@@ -310,7 +310,7 @@ WHO IT'S FOR
 Built for families with kids aged 6 to 14. Younger children manage fine with parental help.
 
 PRIVACY THAT MEANS IT
-No ads, no marketing tracking, no data sales. GDPR-friendly and built in Norway. The families who use the app pay for it being built — never advertisers.
+No marketing tracking, no data sales. GDPR-friendly and built in Norway. The families who use the app pay for it being built.
 
 Questions? Email support@kroni.no — a real person replies, usually the same day.
 ```
@@ -335,7 +335,7 @@ allowance,chores,kids,family,rewards,savings,parenting,pocket money,tasks,respon
 **Promotional Text** (152 / 170)
 
 ```
-Veckopeng som lär barn att bemästra, inte att förvänta. Skapa sysslor, godkänn med ett tryck, se kronorna trilla in. Ingen reklam, inga riktiga pengar.
+Veckopeng som lär barn att bemästra, inte att förvänta. Skapa sysslor, godkänn med ett tryck, se kronorna trilla in. Inga riktiga pengar, inget tjat.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -364,7 +364,7 @@ BELÖNINGAR SOM BETYDER NÅGOT
 Skärmtid, biokvällar, en helg utan disk — du bestämmer vad som är värt något i ert hem. Barnen sparar mot ett mål de själva valt.
 
 TRYGGT FÖR HELA FAMILJEN
-Inga riktiga pengar flödar. Ingen reklam. Inga köp inne i barnets app. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.
+Inga riktiga pengar flödar. Inga köp inne i barnets app. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.
 
 PRISER
 • Gratis för alltid: 1 barn, 5 aktiva sysslor, veckopeng
@@ -376,7 +376,7 @@ FÖR VEM
 Byggd för familjer med barn mellan 6 och 14 år. Yngre barn klarar sig fint med föräldrarnas hjälp.
 
 INTEGRITET PÅ RIKTIGT
-Ingen reklam, ingen marknadsföringsspårning, ingen försäljning av data. GDPR-vänlig och byggd i Norge. Familjerna som använder appen betalar för utvecklingen — aldrig annonsörer.
+Ingen marknadsföringsspårning, ingen försäljning av data. GDPR-vänlig och byggd i Norge. Familjerna som använder appen betalar för utvecklingen.
 
 Frågor? Skriv till support@kroni.no — en riktig människa svarar, oftast samma dag.
 ```
@@ -401,7 +401,7 @@ veckopeng,sysslor,barn,familj,belöning,sparande,föräldrar,ansvar,uppgifter,hu
 **Promotional Text** (152 / 170)
 
 ```
-Lommepenge der lærer børn at mestre, ikke at forvente. Lav opgaver, godkend med ét tryk, og se kronerne tikke ind. Ingen reklamer, ingen rigtige penge.
+Lommepenge der lærer børn at mestre, ikke at forvente. Lav opgaver, godkend med ét tryk, og se kronerne tikke ind. Ingen rigtige penge, intet pjat.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -430,7 +430,7 @@ BELØNNINGER DER BETYDER NOGET
 Skærmtid, biografaftener, en weekend uden opvask — du bestemmer hvad der er værd noget i jeres hjem. Børnene sparer mod et mål, de selv har valgt.
 
 TRYGT FOR HELE FAMILIEN
-Ingen rigtige penge flyder. Ingen reklamer. Ingen køb inde i barnets app. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.
+Ingen rigtige penge flyder. Ingen køb inde i barnets app. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.
 
 PRISER
 • Gratis for altid: 1 barn, 5 aktive opgaver, lommepenge
@@ -442,7 +442,7 @@ FOR HVEM
 Bygget til familier med børn mellem 6 og 14 år. Yngre børn klarer sig fint med forældrenes hjælp.
 
 PRIVATLIV DER MENER DET
-Ingen reklamer, ingen sporing til markedsføring, intet salg af data. GDPR-venlig og bygget i Norge. Familierne der bruger appen betaler for udviklingen — aldrig annoncører.
+Ingen sporing til markedsføring, intet salg af data. GDPR-venlig og bygget i Norge. Familierne der bruger appen betaler for udviklingen.
 
 Spørgsmål? Skriv til support@kroni.no — et rigtigt menneske svarer, oftest samme dag.
 ```

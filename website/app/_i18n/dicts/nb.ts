@@ -54,7 +54,7 @@ export const nb = {
   },
   footer: {
     tagline: "Lommepenger som lærer barn å mestre, ikke å forvente.",
-    blurb: "Bygd for familier. Ingen ekte penger, ingen reklame, full kontroll.",
+    blurb: "Bygd for familier. Ingen ekte penger, full kontroll.",
     productHeading: "Produkt",
     companyHeading: "Selskap",
     home: "Hjem",
@@ -62,7 +62,6 @@ export const nb = {
     privacy: "Personvern",
     terms: "Vilkår",
     copyright: "© 2026 Nilsen Konsult. Alle rettigheter forbeholdt.",
-    madeIn: "Laget i Oslo med kaffe og to barn under bordet.",
   },
   home: {
     badge: "Lansert i Norge · våren 2026",
@@ -75,8 +74,8 @@ export const nb = {
     ctaAndroid: "Last ned for Android",
     ctaIosAria: "Last ned Kroni for iOS",
     ctaAndroidAria: "Last ned Kroni for Android",
-    heroFinePrint: "Gratis å starte · Ingen reklame · Aldri ekte penger på kontoen",
-    phoneCaption: "Slik ser barnets app ut. Ingen reklame, ingen krimskrams.",
+    heroFinePrint: "Gratis å starte · Aldri ekte penger på kontoen · Full kontroll for foreldre",
+    phoneCaption: "Slik ser barnets app ut. Ingen krimskrams, bare det viktige.",
     trust: ["Bygd i Norge", "GDPR-vennlig", "Ingen virkelige penger", "For barn 6–14 år"],
     howWorks: {
       eyebrow: "Slik fungerer det",
@@ -115,7 +114,7 @@ export const nb = {
       {
         eyebrow: "Trygt",
         title: "Trygt for hele familien.",
-        body: "Ingen ekte penger flyter. Ingen reklame. Ingen kjøp i appen. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.",
+        body: "Ingen ekte penger flyter. Ingen kjøp i appen. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.",
         side: "right",
       },
     ],
@@ -136,7 +135,7 @@ export const nb = {
         "En enkel «I dag»-liste — ingen forvirrende menyer.",
         "Saldoen vokser når du gjør jobben.",
         "Velg belønninger du faktisk vil ha.",
-        "Aldri reklame. Aldri kjøp i appen.",
+        "Ingen kjøp i appen. Ingen overraskelser.",
       ],
     },
     pricing: {
@@ -181,7 +180,7 @@ export const nb = {
         },
         {
           q: "Hvorfor koster Kroni penger?",
-          a: "Fordi vi aldri kommer til å selge reklame, spore barnet ditt eller selge data videre — det er hele poenget. Det betyr at familiene som bruker appen, og ikke annonsører, betaler for utviklingen. Pengene går til drift, sikkerhet, personvern, native-språk og videre utvikling. En liten, ærlig app som du kan stole på, koster litt — men aldri barnets oppmerksomhet.",
+          a: "Fordi vi aldri kommer til å spore barnet ditt eller selge data videre — det er hele poenget. Det betyr at familiene som bruker appen betaler for utviklingen. Pengene går til drift, sikkerhet, personvern, native-språk og videre utvikling. En liten, ærlig app som du kan stole på, koster litt — men aldri barnets oppmerksomhet.",
         },
         {
           q: "Er det ekte penger involvert?",
@@ -268,7 +267,7 @@ export const nb = {
           },
           {
             q: "Hvorfor koster Kroni penger?",
-            a: "Vi har bestemt oss for å aldri vise reklame, spore barnet ditt eller selge data — derfor må familiene betale for utviklingen i stedet for annonsører. Pengene går til drift, sikkerhet, personvern, native-språk og videre utvikling.",
+            a: "Vi har bestemt oss for å aldri spore barnet ditt eller selge data — derfor betaler familiene for utviklingen. Pengene går til drift, sikkerhet, personvern, native-språk og videre utvikling.",
           },
           {
             q: "Kan jeg endre ukepenger?",
@@ -289,7 +288,7 @@ export const nb = {
           },
           {
             q: "Selger dere data om barna våre?",
-            a: "Aldri. Kroni har ingen reklame, ingen sporing for markedsføring, og vi selger ikke data til tredjepart. Det er ikke en del av forretningsmodellen og blir det aldri.",
+            a: "Aldri. Kroni har ingen sporing for markedsføring, og vi selger ikke data til tredjepart. Det er ikke en del av forretningsmodellen og blir det aldri.",
           },
         ],
       },

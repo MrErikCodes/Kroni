@@ -58,7 +58,7 @@ Kroni er to apper på samme konto: én for forelder, én for barn. Begge er bygd
 - **Belønninger familien definerer selv.** Skjermtid, kinokveld, helg uten oppvask, reise til mormor. Det er ikke vår jobb å bestemme hva som er verdt noe i deres hjem.
 
 ### 3.2 For barnet
-- **«I dag»-listen.** Én skjerm. Dagens oppgaver, krysset av etter hvert. Ingen forvirrende menyer, ingen sidebar, ingen reklame.
+- **«I dag»-listen.** Én skjerm. Dagens oppgaver, krysset av etter hvert. Ingen forvirrende menyer, ingen sidebar, ingen distraksjoner.
 - **Saldoen vokser synlig.** Når forelderen godkjenner, lander beløpet med en liten feiring. Pedagogisk forsterkning, ikke dopamin-feller.
 - **Belønninger som ekte mål.** Barnet ser hva de sparer mot, hvor langt unna de er, og kan løse inn når de har råd.
 - **Egen avatar og fornavn — ingenting mer.** Ingen e-post, ingen telefonnummer, ingen sosiale funksjoner. Profilen tilhører familien.
@@ -82,7 +82,6 @@ Den enkle sløyfen — *innsats → godkjenning → saldo → mål* — er anerk
 Investeringen som kreves for å begynne er to minutter. Den daglige bruken er sekunder. Det er forskjellen på noe som blir liggende i appdrawer-en og noe som faktisk endrer hverdagen.
 
 ### 4.3 Trygghet i hver eneste valg
-- Ingen reklame.
 - Ingen tredjepartssporing for markedsføring.
 - Ingen kjøp i appen for barn.
 - Ingen ekte penger.
@@ -102,7 +101,7 @@ Norske, svenske og danske familier har en bestemt kultur rundt likeverd, ansvar,
 Lansering i Norge, Sverige og Danmark våren 2026, av tre grunner:
 
 1. **Høy mobilpenetrasjon og betalingsvillighet.** Skandinaviske familier er vant til å betale for kvalitetsverktøy som gir reell hverdagsverdi (DNB Spare, Vipps, Bambora, BankID). Marginalkostnaden av et abonnement på 49 kr er lav nok til å være impulsiv.
-2. **Sterk personverntradisjon.** Kronis «ingen reklame, ingen datasalg»-modell resonnerer kraftigere her enn i mange andre markeder. Foreldre i Skandinavia leter aktivt etter alternativer til amerikanske annonsedrevne apper.
+2. **Sterk personverntradisjon.** Kronis «ingen sporing, ingen datasalg»-modell resonnerer kraftigere her enn i mange andre markeder. Foreldre i Skandinavia leter aktivt etter alternativer til amerikanske annonsedrevne apper.
 3. **Liten kulturell avstand.** Én produktopplevelse, én støttefunksjon, ett lite team kan dekke alle tre markedene. Norsk, svensk og dansk er nær nok i terminologi rundt familie og økonomi til at oversettelse er enkel og lokalisering grunn.
 
 ### 5.2 Markedsstørrelse
@@ -154,7 +153,6 @@ Livstidsabonnementet er for foreldre som vet at de vil bruke Kroni i mange år, 
 
 Disse linjene er ikke markedsføring — de er forretningsmodellen vår.
 
-- **Ingen reklame.** Aldri. I noen plan. På noen flate.
 - **Ingen sporing av barn for markedsføring.**
 - **Ingen salg av data til tredjepart.**
 - **Ingen kobling til ekte bankkontoer ved lansering.** Saldoen er virtuell. På lang sikt vurderer vi automatisk overføring til barnets konto via banksamarbeid (se roadmap), men det blir aldri noe vi sleper inn uten riktige lisenser og avtaler.

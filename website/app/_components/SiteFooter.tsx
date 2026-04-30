@@ -91,7 +91,6 @@ export default function SiteFooter({
 
         <div className="flex flex-col gap-3 border-t border-sand-200 py-6 text-[12px] text-sand-500 sm:flex-row sm:items-center sm:justify-between">
           <p>{dict.footer.copyright}</p>
-          <p className="font-display italic">{dict.footer.madeIn}</p>
         </div>
       </div>
     </footer>

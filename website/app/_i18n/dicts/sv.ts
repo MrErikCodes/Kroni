@@ -55,7 +55,7 @@ export const sv: typeof nb = {
   },
   footer: {
     tagline: "Veckopeng som lär barn att bemästra, inte att förvänta.",
-    blurb: "Byggd för familjer. Inga riktiga pengar, ingen reklam, full kontroll.",
+    blurb: "Byggd för familjer. Inga riktiga pengar, full kontroll.",
     productHeading: "Produkt",
     companyHeading: "Företag",
     home: "Hem",
@@ -63,7 +63,6 @@ export const sv: typeof nb = {
     privacy: "Integritet",
     terms: "Villkor",
     copyright: "© 2026 Nilsen Konsult. Alla rättigheter förbehållna.",
-    madeIn: "Byggd i Oslo med kaffe och två barn under bordet.",
   },
   home: {
     badge: "Lanserad i Norden · våren 2026",
@@ -76,8 +75,8 @@ export const sv: typeof nb = {
     ctaAndroid: "Ladda ner till Android",
     ctaIosAria: "Ladda ner Kroni för iOS",
     ctaAndroidAria: "Ladda ner Kroni för Android",
-    heroFinePrint: "Gratis att börja · Ingen reklam · Aldrig några riktiga pengar på kontot",
-    phoneCaption: "Så här ser barnets app ut. Ingen reklam, inget krimskrams.",
+    heroFinePrint: "Gratis att börja · Aldrig några riktiga pengar på kontot · Full kontroll för föräldrar",
+    phoneCaption: "Så här ser barnets app ut. Inget krimskrams, bara det viktiga.",
     trust: ["Byggd i Norge", "GDPR-vänlig", "Inga riktiga pengar", "För barn 6–14 år"],
     howWorks: {
       eyebrow: "Så fungerar det",
@@ -116,7 +115,7 @@ export const sv: typeof nb = {
       {
         eyebrow: "Tryggt",
         title: "Tryggt för hela familjen.",
-        body: "Inga riktiga pengar flödar. Ingen reklam. Inga köp i appen. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.",
+        body: "Inga riktiga pengar flödar. Inga köp i appen. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.",
         side: "right",
       },
     ],
@@ -137,7 +136,7 @@ export const sv: typeof nb = {
         "En enkel «Idag»-lista — inga förvirrande menyer.",
         "Saldot växer när du gör jobbet.",
         "Välj belöningar du faktiskt vill ha.",
-        "Aldrig reklam. Aldrig köp i appen.",
+        "Inga köp i appen. Inga överraskningar.",
       ],
     },
     pricing: {
@@ -182,7 +181,7 @@ export const sv: typeof nb = {
         },
         {
           q: "Varför kostar Kroni pengar?",
-          a: "För att vi aldrig kommer att sälja reklam, spåra ditt barn eller sälja vidare data — det är hela poängen. Det betyder att familjerna som använder appen, inte annonsörer, betalar för utvecklingen. Pengarna går till drift, säkerhet, integritet, modersmålsöversättning och fortsatt utveckling. En liten, ärlig app som du kan lita på kostar lite — men aldrig ditt barns uppmärksamhet.",
+          a: "För att vi aldrig kommer att spåra ditt barn eller sälja vidare data — det är hela poängen. Det betyder att familjerna som använder appen betalar för utvecklingen. Pengarna går till drift, säkerhet, integritet, modersmålsöversättning och fortsatt utveckling. En liten, ärlig app som du kan lita på kostar lite — men aldrig ditt barns uppmärksamhet.",
         },
         {
           q: "Är riktiga pengar inblandade?",
@@ -269,7 +268,7 @@ export const sv: typeof nb = {
           },
           {
             q: "Varför kostar Kroni pengar?",
-            a: "Vi har bestämt oss för att aldrig visa reklam, spåra ditt barn eller sälja data — därför betalar familjerna för utvecklingen i stället för annonsörer. Pengarna går till drift, säkerhet, integritet, modersmålsöversättning och fortsatt utveckling.",
+            a: "Vi har bestämt oss för att aldrig spåra ditt barn eller sälja data — därför betalar familjerna för utvecklingen. Pengarna går till drift, säkerhet, integritet, modersmålsöversättning och fortsatt utveckling.",
           },
           {
             q: "Kan jag ändra veckopeng?",
@@ -290,7 +289,7 @@ export const sv: typeof nb = {
           },
           {
             q: "Säljer ni data om våra barn?",
-            a: "Aldrig. Kroni har ingen reklam, ingen spårning för marknadsföring och vi säljer inga data till tredje part. Det är inte en del av affärsmodellen och kommer aldrig att bli det.",
+            a: "Aldrig. Kroni har ingen spårning för marknadsföring och vi säljer inga data till tredje part. Det är inte en del av affärsmodellen och kommer aldrig att bli det.",
           },
         ],
       },

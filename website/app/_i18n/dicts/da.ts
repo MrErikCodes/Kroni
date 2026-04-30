@@ -55,7 +55,7 @@ export const da: typeof nb = {
   },
   footer: {
     tagline: "Lommepenge der lærer børn at mestre, ikke at forvente.",
-    blurb: "Bygget til familier. Ingen rigtige penge, ingen reklamer, fuld kontrol.",
+    blurb: "Bygget til familier. Ingen rigtige penge, fuld kontrol.",
     productHeading: "Produkt",
     companyHeading: "Selskab",
     home: "Hjem",
@@ -63,7 +63,6 @@ export const da: typeof nb = {
     privacy: "Privatliv",
     terms: "Vilkår",
     copyright: "© 2026 Nilsen Konsult. Alle rettigheder forbeholdes.",
-    madeIn: "Lavet i Oslo med kaffe og to børn under bordet.",
   },
   home: {
     badge: "Lanceret i Norden · foråret 2026",
@@ -76,8 +75,8 @@ export const da: typeof nb = {
     ctaAndroid: "Hent til Android",
     ctaIosAria: "Hent Kroni til iOS",
     ctaAndroidAria: "Hent Kroni til Android",
-    heroFinePrint: "Gratis at starte · Ingen reklamer · Aldrig rigtige penge på kontoen",
-    phoneCaption: "Sådan ser barnets app ud. Ingen reklamer, intet pjat.",
+    heroFinePrint: "Gratis at starte · Aldrig rigtige penge på kontoen · Fuld kontrol til forældre",
+    phoneCaption: "Sådan ser barnets app ud. Intet pjat, kun det vigtige.",
     trust: ["Bygget i Norge", "GDPR-venlig", "Ingen rigtige penge", "Til børn 6–14 år"],
     howWorks: {
       eyebrow: "Sådan fungerer det",
@@ -116,7 +115,7 @@ export const da: typeof nb = {
       {
         eyebrow: "Trygt",
         title: "Trygt for hele familien.",
-        body: "Ingen rigtige penge flyder. Ingen reklamer. Ingen køb i appen. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.",
+        body: "Ingen rigtige penge flyder. Ingen køb i appen. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.",
         side: "right",
       },
     ],
@@ -137,7 +136,7 @@ export const da: typeof nb = {
         "En enkel «I dag»-liste — ingen forvirrende menuer.",
         "Saldoen vokser når du gør arbejdet.",
         "Vælg belønninger du faktisk vil have.",
-        "Aldrig reklamer. Aldrig køb i appen.",
+        "Ingen køb i appen. Ingen overraskelser.",
       ],
     },
     pricing: {
@@ -182,7 +181,7 @@ export const da: typeof nb = {
         },
         {
           q: "Hvorfor koster Kroni penge?",
-          a: "Fordi vi aldrig kommer til at sælge reklamer, spore dit barn eller sælge data videre — det er hele pointen. Det betyder at familierne der bruger appen, ikke annoncører, betaler for udviklingen. Pengene går til drift, sikkerhed, privatliv, modersmålsoversættelse og fortsat udvikling. En lille, ærlig app du kan stole på, koster lidt — men aldrig dit barns opmærksomhed.",
+          a: "Fordi vi aldrig kommer til at spore dit barn eller sælge data videre — det er hele pointen. Det betyder at familierne der bruger appen, betaler for udviklingen. Pengene går til drift, sikkerhed, privatliv, modersmålsoversættelse og fortsat udvikling. En lille, ærlig app du kan stole på, koster lidt — men aldrig dit barns opmærksomhed.",
         },
         {
           q: "Er der rigtige penge involveret?",
@@ -269,7 +268,7 @@ export const da: typeof nb = {
           },
           {
             q: "Hvorfor koster Kroni penge?",
-            a: "Vi har besluttet aldrig at vise reklamer, spore dit barn eller sælge data — derfor må familierne betale for udviklingen i stedet for annoncører. Pengene går til drift, sikkerhed, privatliv, modersmålsoversættelse og fortsat udvikling.",
+            a: "Vi har besluttet aldrig at spore dit barn eller sælge data — derfor betaler familierne for udviklingen. Pengene går til drift, sikkerhed, privatliv, modersmålsoversættelse og fortsat udvikling.",
           },
           {
             q: "Kan jeg ændre lommepengene?",
@@ -290,7 +289,7 @@ export const da: typeof nb = {
           },
           {
             q: "Sælger I data om vores børn?",
-            a: "Aldrig. Kroni har ingen reklamer, ingen sporing til markedsføring, og vi sælger ikke data til tredjepart. Det er ikke en del af forretningsmodellen og bliver det aldrig.",
+            a: "Aldrig. Kroni har ingen sporing til markedsføring, og vi sælger ikke data til tredjepart. Det er ikke en del af forretningsmodellen og bliver det aldrig.",
           },
         ],
       },

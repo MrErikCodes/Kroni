@@ -55,7 +55,7 @@ export const en: typeof nb = {
   },
   footer: {
     tagline: "Pocket money that teaches kids to master, not to expect.",
-    blurb: "Built for families. No real money, no ads, full control.",
+    blurb: "Built for families. No real money, full control.",
     productHeading: "Product",
     companyHeading: "Company",
     home: "Home",
@@ -63,7 +63,6 @@ export const en: typeof nb = {
     privacy: "Privacy",
     terms: "Terms",
     copyright: "© 2026 Nilsen Konsult. All rights reserved.",
-    madeIn: "Made in Oslo with coffee and two kids under the table.",
   },
   home: {
     badge: "Launched in Norway · spring 2026",
@@ -76,8 +75,8 @@ export const en: typeof nb = {
     ctaAndroid: "Download for Android",
     ctaIosAria: "Download Kroni for iOS",
     ctaAndroidAria: "Download Kroni for Android",
-    heroFinePrint: "Free to start · No ads · Never any real money in the account",
-    phoneCaption: "The kid app, exactly as built. No ads, no clutter.",
+    heroFinePrint: "Free to start · Never any real money in the account · Full parental control",
+    phoneCaption: "The kid app, exactly as built. No clutter, just the essentials.",
     trust: ["Built in Norway", "GDPR-friendly", "No real money", "For ages 6–14"],
     howWorks: {
       eyebrow: "How it works",
@@ -116,7 +115,7 @@ export const en: typeof nb = {
       {
         eyebrow: "Safe",
         title: "Safe for the whole family.",
-        body: "No real money moves. No ads. No in-app purchases. The kid profile only sees what it should. You stay in control, all the time.",
+        body: "No real money moves. No in-app purchases. The kid profile only sees what it should. You stay in control, all the time.",
         side: "right",
       },
     ],
@@ -137,7 +136,7 @@ export const en: typeof nb = {
         "A simple \"Today\" list — no confusing menus.",
         "Your balance grows when you do the work.",
         "Pick rewards you actually want.",
-        "Never any ads. Never any in-app purchases.",
+        "No in-app purchases. No surprises.",
       ],
     },
     pricing: {
@@ -182,7 +181,7 @@ export const en: typeof nb = {
         },
         {
           q: "Why does Kroni cost money?",
-          a: "Because we will never run ads, track your child or sell data on — that's the whole point. So the families who use the app, not advertisers, pay for it being built. The money goes to hosting, security, privacy, native-language work and continued development. A small, honest app you can trust costs a little — but it will never cost your child's attention.",
+          a: "Because we will never track your child or sell data on — that's the whole point. So the families who use the app pay for it being built. The money goes to hosting, security, privacy, native-language work and continued development. A small, honest app you can trust costs a little — but it will never cost your child's attention.",
         },
         {
           q: "Is real money involved?",
@@ -269,7 +268,7 @@ export const en: typeof nb = {
           },
           {
             q: "Why does Kroni cost money?",
-            a: "We've decided we'll never show ads, track your child or sell data — so the families who use it, not advertisers, fund development. Money goes to hosting, security, privacy, native-language work and continued development.",
+            a: "We've decided we'll never track your child or sell data — so the families who use Kroni fund development. Money goes to hosting, security, privacy, native-language work and continued development.",
           },
           {
             q: "Can I change the allowance amount?",
@@ -290,7 +289,7 @@ export const en: typeof nb = {
           },
           {
             q: "Do you sell data about our children?",
-            a: "Never. Kroni runs no ads, no marketing tracking, and we do not sell data to third parties. It's not part of the business model and never will be.",
+            a: "Never. Kroni runs no marketing tracking, and we do not sell data to third parties. It's not part of the business model and never will be.",
           },
         ],
       },
