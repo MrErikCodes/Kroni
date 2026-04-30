@@ -2,7 +2,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 // Env bootstrap lives in src/tests/_env.ts (loaded via tsx --import).
-import { setupTestDb, truncateAll, teardownTestDb } from './helpers/db.js';
+import {
+  setupTestDb,
+  snapshotDb,
+  cleanupSinceSnapshot,
+  teardownTestDb,
+  type DbSnapshot,
+} from './helpers/db.js';
 
 const { getDb } = await import('../db/index.js');
 const { parents } = await import('../db/schema/parents.js');
@@ -17,11 +23,14 @@ const { randomUUID } = await import('node:crypto');
 const { closeRedis } = await import('../lib/redis.js');
 const { closeDb } = await import('../db/index.js');
 
+let snapshot: DbSnapshot;
+
 test.before(async () => {
   await setupTestDb();
+  snapshot = await snapshotDb();
 });
-test.beforeEach(async () => {
-  await truncateAll();
+test.afterEach(async () => {
+  await cleanupSinceSnapshot(snapshot);
 });
 test.after(async () => {
   await closeRedis();

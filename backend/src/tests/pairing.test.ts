@@ -3,7 +3,13 @@ import assert from 'node:assert/strict';
 
 // Env bootstrap (DATABASE_URL → TEST_DATABASE_URL, placeholders) lives in
 // src/tests/_env.ts and is loaded via `tsx --import` before this module.
-import { setupTestDb, truncateAll, teardownTestDb } from './helpers/db.js';
+import {
+  setupTestDb,
+  snapshotDb,
+  cleanupSinceSnapshot,
+  teardownTestDb,
+  type DbSnapshot,
+} from './helpers/db.js';
 
 const { buildApp } = await import('../app.js');
 const { getDb } = await import('../db/index.js');
@@ -58,12 +64,17 @@ async function clearRedisRateLimits(): Promise<void> {
 const { closeRedis } = await import('../lib/redis.js');
 const { closeDb } = await import('../db/index.js');
 
+let snapshot: DbSnapshot;
+
 test.before(async () => {
   await setupTestDb();
+  snapshot = await snapshotDb();
 });
 test.beforeEach(async () => {
-  await truncateAll();
   await clearRedisRateLimits();
+});
+test.afterEach(async () => {
+  await cleanupSinceSnapshot(snapshot);
 });
 test.after(async () => {
   await closeRedis();
