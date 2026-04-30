@@ -61,9 +61,9 @@ export default function KidPair() {
 
   // Deep-link receiver — accepts:
   //   • https://kroni.no/pair/<code>  (universal link, after AASA verifies)
-  //   • https://kroni.se/pair/<code>  (same)
-  //   • https://kroni.dk/pair/<code>  (same)
   //   • kroni://pair?code=<code>      (custom-scheme fallback)
+  // kroni.se / kroni.dk are NOT wired as deep-link hosts — only the
+  // canonical .no domain is used so we have a single share surface.
   // Returns the 6-digit code if the URL matches, else null. We deliberately
   // *prefill* and require the kid to tap "pair" rather than auto-submitting
   // — the URL might've been opened accidentally and an unintended pair

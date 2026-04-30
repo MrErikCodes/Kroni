@@ -5,8 +5,8 @@
       "namespace": "android_app",
       "package_name": "no.nilsenkonsult.kroni",
       "sha256_cert_fingerprints": [
-        "<UPLOAD_SHA256>",
-        "<PLAY_APP_SIGNING_SHA256>"
+        "33:BB:72:B1:81:BF:5F:C5:01:B2:07:6D:EA:AD:2A:F4:EB:E5:FD:E0:A9:74:D7:C6:3E:68:3C:69:B6:3C:3C:50",
+        "DD:20:38:12:F0:E0:08:B9:A7:35:55:4E:BB:56:31:37:47:25:8D:82:18:C7:72:CC:E8:8D:B0:1F:3C:97:FD:63"
       ]
     }
   }

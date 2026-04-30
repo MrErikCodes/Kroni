@@ -41,16 +41,16 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
       ITSAppUsesNonExemptEncryption: false,
     },
     // Universal links for the "share kid login link" feature. iOS verifies
-    // these against `<domain>/.well-known/apple-app-site-association`. The
-    // AASA file is served by the marketing site (kroni.no/.se/.dk) and
-    // **must contain the production Team ID + bundle id** before TestFlight
-    // — until then, taps on https://kroni.no/pair/<code> open Safari
-    // instead of deep-linking into the app. The custom-scheme fallback
-    // (`kroni://pair?code=…`) works without AASA.
+    // this against `https://kroni.no/.well-known/apple-app-site-association`.
+    // The AASA file is served by the marketing site and **must contain the
+    // production Team ID + bundle id** before TestFlight — until then, taps
+    // on https://kroni.no/pair/<code> open Safari instead of deep-linking
+    // into the app. The custom-scheme fallback (`kroni://pair?code=…`)
+    // works without AASA. kroni.no is the canonical brand domain — kroni.se
+    // and kroni.dk are marketing/legal aliases and are intentionally NOT
+    // wired for universal links to keep the share-link surface single-domain.
     associatedDomains: [
       'applinks:kroni.no',
-      'applinks:kroni.se',
-      'applinks:kroni.dk',
     ],
   },
   android: {
@@ -62,20 +62,19 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
     // App Links for the "share kid login link" feature. Android verifies
-    // these against `<domain>/.well-known/assetlinks.json`. The
-    // assetlinks.json file is served by the marketing site (kroni.no/.se/
-    // .dk) and **must contain the release SHA-256 fingerprint** before Play
-    // release — until then, taps on https://kroni.no/pair/<code> open the
-    // chooser instead of deep-linking into the app. The custom-scheme
-    // fallback (`kroni://pair?code=…`) works without verified app links.
+    // this against `https://kroni.no/.well-known/assetlinks.json`. The file
+    // is served by the marketing site and **must contain the upload key +
+    // Play App Signing SHA-256 fingerprints** before Play release — until
+    // then, taps on https://kroni.no/pair/<code> open the chooser instead
+    // of deep-linking into the app. The custom-scheme fallback
+    // (`kroni://pair?code=…`) works without verified app links. kroni.se
+    // and kroni.dk are marketing aliases and intentionally NOT wired here.
     intentFilters: [
       {
         action: 'VIEW',
         autoVerify: true,
         data: [
           { scheme: 'https', host: 'kroni.no', pathPrefix: '/pair/' },
-          { scheme: 'https', host: 'kroni.se', pathPrefix: '/pair/' },
-          { scheme: 'https', host: 'kroni.dk', pathPrefix: '/pair/' },
         ],
         category: ['BROWSABLE', 'DEFAULT'],
       },
