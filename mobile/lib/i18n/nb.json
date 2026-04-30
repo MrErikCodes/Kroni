@@ -644,5 +644,16 @@
     "trustAge": "For barn 6–14 år",
     "parentAccessibility": "Forelder",
     "kidAccessibility": "Barn"
+  },
+  "pair": {
+    "parentDevice": {
+      "eyebrow": "Feil enhet",
+      "headlineA": "Åpne lenken på",
+      "headlineB": "barnets enhet",
+      "body": "Du er logget inn som forelder på denne telefonen. Innlogging-lenken må åpnes på telefonen barnet skal bruke.",
+      "tipEyebrow": "Slik gjør du",
+      "tipBody": "Del lenken igjen med barnet ditt — for eksempel via melding eller e-post — og åpne den på deres telefon. Lenken er gyldig i noen minutter til.",
+      "backCta": "Tilbake"
+    }
   }
 }

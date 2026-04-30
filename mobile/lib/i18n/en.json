@@ -644,5 +644,16 @@
     "trustAge": "For kids 6–14",
     "parentAccessibility": "Parent",
     "kidAccessibility": "Kid"
+  },
+  "pair": {
+    "parentDevice": {
+      "eyebrow": "Wrong device",
+      "headlineA": "Open this link on",
+      "headlineB": "your kid's device",
+      "body": "You're signed in as a parent on this phone. The login link needs to open on the phone the kid is going to use.",
+      "tipEyebrow": "What to do",
+      "tipBody": "Share the link with your kid — for example over message or email — and open it on their phone. The link is valid for a few more minutes.",
+      "backCta": "Back"
+    }
   }
 }

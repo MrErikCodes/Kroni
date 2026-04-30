@@ -644,5 +644,16 @@
     "trustAge": "For børn 6–14 år",
     "parentAccessibility": "Forælder",
     "kidAccessibility": "Barn"
+  },
+  "pair": {
+    "parentDevice": {
+      "eyebrow": "Forkert enhed",
+      "headlineA": "Åbn linket på",
+      "headlineB": "barnets enhed",
+      "body": "Du er logget ind som forælder på denne telefon. Login-linket skal åbnes på telefonen, som barnet skal bruge.",
+      "tipEyebrow": "Sådan gør du",
+      "tipBody": "Del linket igen med dit barn — for eksempel via besked eller e-mail — og åbn det på deres telefon. Linket er gyldigt i nogle minutter mere.",
+      "backCta": "Tilbage"
+    }
   }
 }
