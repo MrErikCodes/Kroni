@@ -90,9 +90,16 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
       'expo-splash-screen',
       {
         image: './assets/images/splash-icon.png',
-        imageWidth: 96,
+        // The splash asset is the full "Kroni." wordmark on the brand-dark
+        // sand-900 surface — it's a single canonical brand image, not a
+        // theme-switched icon. Match the image's own background so there's
+        // no visible seam between the splash plate and the logo, and bump
+        // imageWidth so the wordmark is readable instead of rendering as a
+        // tiny gold dot at 96pt. 280pt fits safely on the smallest device
+        // (iPhone SE 320pt width) with margin.
+        imageWidth: 280,
         resizeMode: 'contain',
-        backgroundColor: '#FBFAF6',
+        backgroundColor: '#0E1116',
         dark: {
           backgroundColor: '#0E1116',
         },
