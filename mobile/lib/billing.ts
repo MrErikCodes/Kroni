@@ -60,10 +60,47 @@ export async function checkTrialEligibility(productId: string): Promise<TrialEli
   }
 }
 
+// Stable error categories the paywall maps to localized copy. The raw
+// RevenueCat error message is always English and verbose ("Test Store:
+// Purchase failure simulated"), so we deliberately drop it and render
+// our own per-locale string instead.
+export type PurchaseErrorCode =
+  | 'network'
+  | 'alreadyPurchased'
+  | 'storeProblem'
+  | 'notAllowed'
+  | 'entitlementNotGranted'
+  | 'generic';
+
 export type PurchaseResult =
   | { kind: 'purchased' }
   | { kind: 'cancelled' }
-  | { kind: 'error'; message: string };
+  | { kind: 'error'; code: PurchaseErrorCode };
+
+function mapPurchaseError(code: string | undefined): PurchaseErrorCode {
+  switch (code) {
+    case PURCHASES_ERROR_CODE.NETWORK_ERROR:
+    case PURCHASES_ERROR_CODE.OFFLINE_CONNECTION_ERROR:
+    case PURCHASES_ERROR_CODE.API_ENDPOINT_BLOCKED:
+      return 'network';
+    case PURCHASES_ERROR_CODE.PRODUCT_ALREADY_PURCHASED_ERROR:
+    case PURCHASES_ERROR_CODE.RECEIPT_ALREADY_IN_USE_ERROR:
+    case PURCHASES_ERROR_CODE.RECEIPT_IN_USE_BY_OTHER_SUBSCRIBER_ERROR:
+      return 'alreadyPurchased';
+    case PURCHASES_ERROR_CODE.STORE_PROBLEM_ERROR:
+    case PURCHASES_ERROR_CODE.PRODUCT_NOT_AVAILABLE_FOR_PURCHASE_ERROR:
+    case PURCHASES_ERROR_CODE.UNKNOWN_BACKEND_ERROR:
+    case PURCHASES_ERROR_CODE.UNEXPECTED_BACKEND_RESPONSE_ERROR:
+    case PURCHASES_ERROR_CODE.INVALID_RECEIPT_ERROR:
+    case PURCHASES_ERROR_CODE.PURCHASE_INVALID_ERROR:
+    case PURCHASES_ERROR_CODE.TEST_STORE_SIMULATED_PURCHASE_ERROR:
+      return 'storeProblem';
+    case PURCHASES_ERROR_CODE.PURCHASE_NOT_ALLOWED_ERROR:
+      return 'notAllowed';
+    default:
+      return 'generic';
+  }
+}
 
 export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseResult> {
   try {
@@ -73,13 +110,13 @@ export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseRe
     }
     // Edge case — store reported success but entitlement didn't propagate.
     // Treat as error so caller can prompt a manual restore.
-    return { kind: 'error', message: 'Entitlement not granted' };
+    return { kind: 'error', code: 'entitlementNotGranted' };
   } catch (e) {
-    const err = e as { code?: string; message?: string } | undefined;
+    const err = e as { code?: string } | undefined;
     if (err?.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
       return { kind: 'cancelled' };
     }
-    return { kind: 'error', message: err?.message ?? 'Unknown error' };
+    return { kind: 'error', code: mapPurchaseError(err?.code) };
   }
 }
 

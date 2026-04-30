@@ -597,7 +597,15 @@
     "buyLifetime": "Køb livstidsadgang",
     "errorTitle": "Kunne ikke indlæse plandetaljer",
     "errorBody": "Tjek internetforbindelsen og prøv igen.",
-    "errorRetry": "Prøv igen"
+    "errorRetry": "Prøv igen",
+    "purchaseErrors": {
+      "network": "Forbindelsen blev afbrudt. Tjek internettet og prøv igen.",
+      "alreadyPurchased": "Denne konto har allerede et aktivt abonnement. Tryk på \"Gendan køb\" for at hente det.",
+      "storeProblem": "App Store/Google Play svarede ikke som forventet. Prøv igen om nogle minutter.",
+      "notAllowed": "Køb er ikke tilladt på denne enhed. Tjek indstillingerne for køb i App Store eller Google Play.",
+      "entitlementNotGranted": "Købet blev registreret, men adgangen blev ikke aktiveret. Tryk på \"Gendan køb\" for at prøve igen.",
+      "generic": "Købet kunne ikke gennemføres. Prøv igen, eller tryk på \"Gendan køb\" hvis du allerede har betalt."
+    }
   },
   "subscriptionDetail": {
     "title": "Abonnement",

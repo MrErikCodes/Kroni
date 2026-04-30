@@ -25,6 +25,7 @@ import {
   restorePurchases,
   checkTrialEligibility,
   type TrialEligibility,
+  type PurchaseErrorCode,
 } from '../../lib/billing';
 import { Button } from '../../components/ui/Button';
 import { Spinner } from '../../components/ui/Spinner';
@@ -131,7 +132,7 @@ export default function PaywallScreen() {
         void queryClient.invalidateQueries({ queryKey: ['billing'] });
         router.back();
       } else if (result.kind === 'error') {
-        setErrorMessage(result.message);
+        setErrorMessage(t(`paywall.purchaseErrors.${result.code}` satisfies `paywall.purchaseErrors.${PurchaseErrorCode}`));
       }
       // 'cancelled' → silent
     } finally {

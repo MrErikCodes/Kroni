@@ -597,7 +597,15 @@
     "buyLifetime": "Get lifetime access",
     "errorTitle": "Couldn't load plans",
     "errorBody": "Check your connection and try again.",
-    "errorRetry": "Try again"
+    "errorRetry": "Try again",
+    "purchaseErrors": {
+      "network": "Connection dropped. Check your internet and try again.",
+      "alreadyPurchased": "This account already has an active subscription. Tap \"Restore purchases\" to bring it back.",
+      "storeProblem": "The App Store / Google Play returned an unexpected response. Try again in a few minutes.",
+      "notAllowed": "Purchases aren't allowed on this device. Check the purchase settings in the App Store or Google Play.",
+      "entitlementNotGranted": "The purchase went through, but access didn't activate. Tap \"Restore purchases\" to try again.",
+      "generic": "Couldn't complete the purchase. Try again, or tap \"Restore purchases\" if you've already paid."
+    }
   },
   "subscriptionDetail": {
     "title": "Subscription",

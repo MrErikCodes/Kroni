@@ -597,7 +597,15 @@
     "buyLifetime": "Köp livstidstillgång",
     "errorTitle": "Kunde inte ladda planinformation",
     "errorBody": "Kontrollera internetanslutningen och försök igen.",
-    "errorRetry": "Försök igen"
+    "errorRetry": "Försök igen",
+    "purchaseErrors": {
+      "network": "Anslutningen bröts. Kontrollera internet och försök igen.",
+      "alreadyPurchased": "Det här kontot har redan ett aktivt abonnemang. Tryck på \"Återställ köp\" för att hämta det.",
+      "storeProblem": "App Store/Google Play svarade inte som väntat. Försök igen om några minuter.",
+      "notAllowed": "Köp är inte tillåtna på den här enheten. Kontrollera inställningarna för köp i App Store eller Google Play.",
+      "entitlementNotGranted": "Köpet registrerades, men tillgången aktiverades inte. Tryck på \"Återställ köp\" för att försöka igen.",
+      "generic": "Köpet kunde inte slutföras. Försök igen, eller tryck på \"Återställ köp\" om du redan har betalat."
+    }
   },
   "subscriptionDetail": {
     "title": "Prenumeration",

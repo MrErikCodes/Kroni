@@ -597,7 +597,15 @@
     "buyLifetime": "Kjøp livstidstilgang",
     "errorTitle": "Kunne ikke laste plandetaljer",
     "errorBody": "Sjekk internett-tilkoblingen og prøv igjen.",
-    "errorRetry": "Prøv igjen"
+    "errorRetry": "Prøv igjen",
+    "purchaseErrors": {
+      "network": "Tilkoblingen ble brutt. Sjekk internett og prøv igjen.",
+      "alreadyPurchased": "Denne kontoen har allerede et aktivt abonnement. Bruk \"Gjenopprett kjøp\" for å hente det inn.",
+      "storeProblem": "App Store/Google Play svarte ikke som forventet. Prøv igjen om noen minutter.",
+      "notAllowed": "Kjøp er ikke tillatt på denne enheten. Sjekk innstillingene for kjøp i App Store eller Google Play.",
+      "entitlementNotGranted": "Kjøpet ble registrert, men tilgangen ble ikke aktivert. Trykk \"Gjenopprett kjøp\" for å forsøke på nytt.",
+      "generic": "Kjøpet kunne ikke fullføres. Prøv igjen, eller bruk \"Gjenopprett kjøp\" hvis du allerede har betalt."
+    }
   },
   "subscriptionDetail": {
     "title": "Abonnement",
