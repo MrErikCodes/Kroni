@@ -33,6 +33,7 @@ export default function Reveal({
   useEffect(() => {
     if (visible) return;
     if (prefersReducedMotion()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Reduced-motion shortcut: cannot read matchMedia until after mount, must surface visibility post-render to keep SSR/CSR aligned.
       setVisible(true);
       return;
     }
