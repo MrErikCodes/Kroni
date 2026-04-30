@@ -1,22 +1,20 @@
 // Test-suite env bootstrap. Loaded via `tsx --import` before any test module
-// runs so the production `getDb()` singleton in `src/db/index.ts` reads the
-// test DB instead of the dev DB. Without this, anything that calls
-// `getDb()` (services, routes, app builder) would talk to whatever
-// DATABASE_URL is set to — which during local dev is the real dev DB.
+// runs so the production `getDb()` singleton in `src/db/index.ts` reads
+// whatever DATABASE_URL phase injects. Set TEST_DATABASE_URL in phase if you
+// want to point tests at a separate database; otherwise the dev DB is used.
 //
-// We pin every Clerk + JWT secret to placeholders too so config.zod's
-// `.min(1)` / `.min(32)` validation passes without a populated .env.
+// Clerk + JWT + Mailpace secrets are pinned to placeholders so config.zod's
+// `.min(1)` / `.min(32)` validation passes without populated secret values.
 
 import 'dotenv/config';
 
-const TEST_DB_DEFAULT = 'postgres://kroni:kroni@localhost:5432/kroni_test';
-
 process.env.NODE_ENV = 'test';
-process.env.TEST_DATABASE_URL ??= TEST_DB_DEFAULT;
 
-// Force DATABASE_URL onto the test DB regardless of what dev .env had set.
-// This is the entire point of the test-isolation fix.
-process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+// If TEST_DATABASE_URL is set, use it; otherwise fall back to phase's
+// DATABASE_URL (the dev DB).
+if (process.env.TEST_DATABASE_URL) {
+  process.env.DATABASE_URL = process.env.TEST_DATABASE_URL;
+}
 
 process.env.CLERK_SECRET_KEY ??= 'sk_test_placeholder';
 process.env.CLERK_PUBLISHABLE_KEY ??= 'pk_test_placeholder';
