@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
   RefreshControl,
   ScrollView,
+  Share,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
-import { ArrowLeft, Copy, RefreshCw } from 'lucide-react-native';
+import { ArrowLeft, Copy, RefreshCw, Share2 } from 'lucide-react-native';
 import { useTheme } from '../../lib/theme';
 import { useParentApi } from '../../lib/useParentApi';
 import { t } from '../../lib/i18n';
@@ -116,6 +117,25 @@ export default function PairingCode() {
     setTimeout(() => setCopied(false), 2000);
   }, [code]);
 
+  // Share-link flow — uses the code already on screen so the body's countdown
+  // and the kid's redemption window stay aligned. Canonical .no domain; the
+  // universal-link entitlement covers .se / .dk too but we send the local one.
+  const handleShare = useCallback(async () => {
+    if (!code) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const url = `https://kroni.no/pair/${code}`;
+    const minutes = Math.max(1, Math.ceil(secondsLeft / 60));
+    try {
+      await Share.share({
+        title: t('parent.pairingCode.shareTitle'),
+        message: t('parent.pairingCode.shareBody', { url, minutes }),
+        url,
+      });
+    } catch {
+      // User cancelled / share sheet failed — code is still valid on screen.
+    }
+  }, [code, secondsLeft]);
+
   const isExpired = secondsLeft === 0;
 
   return (
@@ -197,6 +217,22 @@ export default function PairingCode() {
                   <Copy size={18} color={tx.primary} strokeWidth={2} />
                   <Text style={[styles.copyLabel, { color: tx.primary }]}>
                     {copied ? t('parent.pairingCode.copied') : t('parent.pairingCode.copy')}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+
+              {code && !isExpired ? (
+                <TouchableOpacity
+                  onPress={() => {
+                    void handleShare();
+                  }}
+                  style={[styles.copyBtn, { backgroundColor: s.card, borderColor: s.border }]}
+                  accessibilityRole="button"
+                  accessibilityLabel={t('parent.pairingCode.share')}
+                >
+                  <Share2 size={18} color={tx.primary} strokeWidth={2} />
+                  <Text style={[styles.copyLabel, { color: tx.primary }]}>
+                    {t('parent.pairingCode.share')}
                   </Text>
                 </TouchableOpacity>
               ) : null}

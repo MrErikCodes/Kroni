@@ -12,7 +12,7 @@ export async function parentPairingRoutes(app: FastifyInstance): Promise<void> {
     '/parent/pairing-code',
     {
       preHandler: app.requireParent,
-      config: { rateLimit: { max: 10, timeWindow: '1 hour' } },
+      config: { rateLimit: { max: 60, timeWindow: '1 hour' } },
       schema: {
         body: GeneratePairingCodeRequestSchema,
         response: { 200: GeneratePairingCodeResponseSchema },

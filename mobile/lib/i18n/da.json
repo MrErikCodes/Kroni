@@ -202,20 +202,7 @@
         "monthly": "Månedligt"
       },
       "nextPayment": "Næste udbetaling: %{date}",
-      "nextPaymentNone": "Næste udbetaling: —",
-      "pairingCode": {
-        "regenerateButton": "Generer ny parringskode",
-        "confirmTitle": "Generer ny kode?",
-        "confirmBody": "Den gamle kode holder op med at virke.",
-        "newCodeTitle": "Ny kode",
-        "expiresLabel": "Udløber %{date}",
-        "copyButton": "Kopiér"
-      },
-      "shareLink": {
-        "button": "Del parringslink",
-        "shareTitle": "Parring til %{name}",
-        "shareBody": "Åbn %{url} på din telefon for at logge %{name} ind i Kroni Family. Linket er gyldigt i %{minutes} minutter."
-      }
+      "nextPaymentNone": "Næste udbetaling: —"
     },
     "tasksList": {
       "title": "Opgaver",
@@ -316,7 +303,10 @@
       "regenerate": "Generer ny kode",
       "copy": "Kopiér kode",
       "copied": "Kopieret!",
-      "generating": "Genererer..."
+      "generating": "Genererer...",
+      "share": "Del link",
+      "shareTitle": "Parring til Kroni",
+      "shareBody": "Åbn %{url} på barnets telefon for at logge ind i Kroni. Linket er gyldigt i %{minutes} minutter."
     },
     "settings": {
       "title": "Indstillinger",
