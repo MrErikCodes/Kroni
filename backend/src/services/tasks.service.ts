@@ -1,5 +1,4 @@
 import { and, eq, isNull, or, asc, inArray } from 'drizzle-orm';
-import { sql } from 'drizzle-orm';
 import { getDb } from '../db/index.js';
 import { tasks, taskCompletions, type TaskCompletionRow } from '../db/schema/tasks.js';
 import { kids } from '../db/schema/kids.js';
@@ -117,8 +116,6 @@ export async function listTodayTasks(kidId: string): Promise<TodayTaskShape[]> {
     completedAt: r.completion.completedAt ? r.completion.completedAt.toISOString() : null,
   }));
 }
-
-void sql; // suppress unused-import in some toolchains
 
 /**
  * Returns today-eligible tasks for the household, each enriched with the
