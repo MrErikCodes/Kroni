@@ -36,7 +36,7 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 ## Mobile app
 
 - [x] **Subscription detail trial banner** — plumbed periodType through webhook + API + mobile 2026-04-29; banner now shows only when RC reports `period_type: TRIAL`.
-- [ ] **Paywall lifetime row** — the i18n strings (`paywall.lifetime` / `lifetimeBadge` / `lifetimeNote`) are added but not yet rendered in `(parent)/paywall.tsx`. RevenueCat's hosted paywall picks up the offering automatically; if/when we replace it with a custom paywall, render those keys.
+- [x] **Paywall lifetime row** — done 2026-04-30. Replaced RC hosted paywall with custom paywall in `(parent)/paywall.tsx`: stacked monthly / yearly (default selected, "Spar 32%" badge) / lifetime ("Mest verdi" gold badge + lifetimeNote) cards, single CTA reflects selection ("Start 7 dager gratis" / "Abonner nå" / "Kjøp livstidstilgang"), trial badge shown when RC reports `eligible` or `unknown` (Android always reports unknown), retry on empty offering, RC priceString used for live store prices. `lib/billing.ts` exports `getCurrentOffering`, `purchasePackage`, `checkTrialEligibility`. Dropped `react-native-purchases-ui` dependency + dead `useEnsurePro` hook. Run `npm install && cd ios && pod install` to refresh native deps before next build.
 - [x] **Sentry.wrap(RootLayout)** — wrapped 2026-04-29.
 - [x] **Error surfaces** — kid screens (today, balance, profile) now show inline error banners + retry on read failures and inline mutation errors 2026-04-29; matches rewards modal pattern.
 - [ ] **Norwegian copy review** — every i18n string is currently AI-generated. Native speaker pass before launch (look for `// [REVIEW] Norwegian copy` file headers).

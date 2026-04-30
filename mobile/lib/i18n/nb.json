@@ -589,7 +589,15 @@
     "lifetimePrice": "1 199 kr én gang",
     "lifetimeNote": "Tre års årsabonnement i én sum — aldri betal igjen.",
     "trial": "7 dager gratis",
-    "trialNote": "Cancel i App Store senest 24 timer før prøveperioden er over for å ikke bli belastet."
+    "trialNote": "Cancel i App Store senest 24 timer før prøveperioden er over for å ikke bli belastet.",
+    "choosePlan": "Velg plan",
+    "perMonth": "/ mnd",
+    "perYear": "/ år",
+    "startTrial": "Start 7 dager gratis",
+    "buyLifetime": "Kjøp livstidstilgang",
+    "errorTitle": "Kunne ikke laste plandetaljer",
+    "errorBody": "Sjekk internett-tilkoblingen og prøv igjen.",
+    "errorRetry": "Prøv igjen"
   },
   "subscriptionDetail": {
     "title": "Abonnement",

@@ -1,5 +1,10 @@
-import Purchases, { LOG_LEVEL } from 'react-native-purchases';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
+import Purchases, {
+  LOG_LEVEL,
+  PURCHASES_ERROR_CODE,
+  INTRO_ELIGIBILITY_STATUS,
+  PurchasesPackage,
+  PurchasesOffering,
+} from 'react-native-purchases';
 import { Platform } from 'react-native';
 
 const ENTITLEMENT_ID = 'kroni_family';
@@ -28,9 +33,54 @@ export async function isProActive(): Promise<boolean> {
   }
 }
 
-export async function presentPaywall(): Promise<boolean> {
-  const result = await RevenueCatUI.presentPaywall();
-  return result === PAYWALL_RESULT.PURCHASED || result === PAYWALL_RESULT.RESTORED;
+export async function getCurrentOffering(): Promise<PurchasesOffering | null> {
+  try {
+    const offerings = await Purchases.getOfferings();
+    return offerings.current ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export type TrialEligibility = 'eligible' | 'ineligible' | 'unknown';
+
+// Android always reports UNKNOWN (Play Billing exposes eligibility only once
+// the purchase sheet is opened), so callers should treat 'unknown' as
+// "show the badge" — the user will see the actual eligibility on the store
+// sheet itself.
+export async function checkTrialEligibility(productId: string): Promise<TrialEligibility> {
+  try {
+    const map = await Purchases.checkTrialOrIntroductoryPriceEligibility([productId]);
+    const status = map[productId]?.status;
+    if (status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_ELIGIBLE) return 'eligible';
+    if (status === INTRO_ELIGIBILITY_STATUS.INTRO_ELIGIBILITY_STATUS_INELIGIBLE) return 'ineligible';
+    return 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
+export type PurchaseResult =
+  | { kind: 'purchased' }
+  | { kind: 'cancelled' }
+  | { kind: 'error'; message: string };
+
+export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseResult> {
+  try {
+    const { customerInfo } = await Purchases.purchasePackage(pkg);
+    if (typeof customerInfo.entitlements.active[ENTITLEMENT_ID] !== 'undefined') {
+      return { kind: 'purchased' };
+    }
+    // Edge case — store reported success but entitlement didn't propagate.
+    // Treat as error so caller can prompt a manual restore.
+    return { kind: 'error', message: 'Entitlement not granted' };
+  } catch (e) {
+    const err = e as { code?: string; message?: string } | undefined;
+    if (err?.code === PURCHASES_ERROR_CODE.PURCHASE_CANCELLED_ERROR) {
+      return { kind: 'cancelled' };
+    }
+    return { kind: 'error', message: err?.message ?? 'Unknown error' };
+  }
 }
 
 export async function identifyUser(userId: string): Promise<void> {

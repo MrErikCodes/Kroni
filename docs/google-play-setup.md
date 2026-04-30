@@ -257,7 +257,7 @@ First-time review takes 3–7 days. After that, expect 1–2 hours per update.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| RC service account badge red | Permissions in Play Console didn't propagate | Wait 5 min, refresh service accounts in Play Console, retry |
+| RC service account badge red / "Credentials need attention: subscriptions / inappproducts / monetization API" | Play Console permissions not granted on the service account, OR granted but not yet propagated | (1) Play Console → Setup → API access → service account row → Grant access → toggle all three: "View app information…", "View financial data…", "Manage orders and subscriptions" → Apply. (2) Propagation can take up to 36 hours per Google. Force-refresh trick: Play Console → Monetize → any product → edit description → save → revert → save (kicks Google's cache so credentials activate "right away or very shortly") |
 | Paywall blank on Android | Products inactive in Play Console, or RC SDK key missing | Activate products; verify `EXPO_PUBLIC_RC_ANDROID_KEY` is in EAS env list |
 | `INITIAL_PURCHASE` doesn't fire | RTDN not configured, or product not linked in RC | Re-test RTDN; check both store badges on RC product |
 | "This version of the app is not configured for billing" on test purchase | License tester not added, OR test build not on a track the tester can install | Add to License testing AND Internal testing track |

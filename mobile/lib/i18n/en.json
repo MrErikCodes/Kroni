@@ -589,7 +589,15 @@
     "lifetimePrice": "1,199 NOK one-time",
     "lifetimeNote": "Three years of yearly up front — never pay again.",
     "trial": "7 days free",
-    "trialNote": "Cancel in the App Store at least 24 hours before the trial ends to avoid being charged."
+    "trialNote": "Cancel in the App Store at least 24 hours before the trial ends to avoid being charged.",
+    "choosePlan": "Choose your plan",
+    "perMonth": "/ mo",
+    "perYear": "/ yr",
+    "startTrial": "Start 7-day free trial",
+    "buyLifetime": "Get lifetime access",
+    "errorTitle": "Couldn't load plans",
+    "errorBody": "Check your connection and try again.",
+    "errorRetry": "Try again"
   },
   "subscriptionDetail": {
     "title": "Subscription",

@@ -79,15 +79,17 @@ Give each product a **Display Name** in nb-NO + en-US. The localized name shown 
 
 ## 6. Paywall
 
-You're using `RevenueCatUI.presentPaywall()`. Configure:
+The app renders its own custom paywall in `mobile/app/(parent)/paywall.tsx`. RC's hosted paywall (`RevenueCatUI.presentPaywall()` / the `react-native-purchases-ui` SDK) is **not used** — the dependency was dropped 2026-04-30.
 
-- RC → Paywalls → "+ New paywall" → pick a template that matches the editorial sand-50 / gold style.
-- For each package, set:
-  - Localized title (nb / en).
-  - Optional badge (e.g. on the lifetime row: "Mest verdi" / "Best value" — `paywall.lifetimeBadge` in i18n).
-  - Trial copy on monthly/yearly: "7 dager gratis" / "7 days free" (`paywall.trial`). Apple/Google insert their own legal text under it; this is just the marketing line.
-- Footer note about cancellation 24h before trial: use `paywall.trialNote`.
-- Publish.
+What this means for the dashboard:
+
+- **RC → Paywalls** — nothing to configure. The custom paywall reads packages directly from `Purchases.getOfferings()`. You can leave any old hosted-paywall config in place (it's just ignored) or delete it for hygiene.
+- **Localized titles / prices** — driven by the App Store Connect / Play Console product Display Names + the store's locale-formatted `priceString`. RC product Display Name (§ 3) is still useful for dashboard and email-receipt rendering.
+- **Badges + trial copy + cancellation footnote** — all in `mobile/lib/i18n/{nb,en}.json` under the `paywall` namespace (`save`, `lifetimeBadge`, `trial`, `trialNote`, `lifetimeNote`, etc.). Edit the JSON, ship a JS update — no dashboard round-trip required.
+- **Trial badge logic** — paywall calls `Purchases.checkTrialOrIntroductoryPriceEligibility([productId])` per recurring SKU. `ELIGIBLE` or `UNKNOWN` (Android always reports unknown) → "7 dager gratis" badge shown. `INELIGIBLE` → hidden so a user who already burned the trial doesn't see misleading copy.
+- **CTA copy switches by selection**: `startTrial` / `subscribe` / `buyLifetime` (i18n keys).
+
+Tradeoff: A/B-testing the paywall is now a code deploy, not a dashboard toggle. We pay this for full design control + lifetime row layout + Norwegian-first i18n that RC's templates didn't fit.
 
 ## 7. Free trial
 
