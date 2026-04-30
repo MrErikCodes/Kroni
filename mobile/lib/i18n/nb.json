@@ -219,7 +219,20 @@
       "recurrenceWeekly": "Ukentlig",
       "recurrenceOnce": "Én gang",
       "inactive": "Inaktiv",
-      "approval": "Godkjenning"
+      "approval": "Godkjenning",
+      "logMode": "Logg",
+      "logModeHeadlineA": "Hva er",
+      "logModeHeadlineB": "gjort",
+      "logModeExit": "Avslutt",
+      "logModeEmpty": "Ingen oppgaver å logge i dag.",
+      "kidPickerEyebrow": "Marker fullført",
+      "kidPickerTitleA": "Hvem gjorde",
+      "kidPickerNote": "Saldoen krediteres umiddelbart — ingen godkjenning nødvendig.",
+      "kidPickerCta": "Marker som fullført (%{count})",
+      "alreadyDone": "Ferdig",
+      "creditedFor": "Ferdig for %{names}",
+      "logErrorGeneric": "Kunne ikke logge. Prøv igjen.",
+      "logErrorAlreadyDone": "%{name} har allerede fått kreditt for denne i dag."
     },
     "taskNew": {
       "title": "Ny oppgave",
@@ -344,7 +357,11 @@
           "kid": "Rolle: barn"
         },
         "platformLine": "Plattform: %{platform} %{osVersion}"
-      }
+      },
+      "householdSection": "Husstand",
+      "addKid": "Legg til barn",
+      "inviteParent": "Inviter forelder",
+      "inviteParentSoon": "Kommer snart"
     },
     "account": {
       "title": "Konto",

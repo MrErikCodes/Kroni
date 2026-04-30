@@ -219,7 +219,20 @@
       "recurrenceWeekly": "Weekly",
       "recurrenceOnce": "Once",
       "inactive": "Inactive",
-      "approval": "Approval"
+      "approval": "Approval",
+      "logMode": "Log",
+      "logModeHeadlineA": "What's",
+      "logModeHeadlineB": "done",
+      "logModeExit": "Exit",
+      "logModeEmpty": "No tasks to log today.",
+      "kidPickerEyebrow": "Mark complete",
+      "kidPickerTitleA": "Who did",
+      "kidPickerNote": "Balance is credited immediately — no approval needed.",
+      "kidPickerCta": "Mark complete (%{count})",
+      "alreadyDone": "Done",
+      "creditedFor": "Done for %{names}",
+      "logErrorGeneric": "Couldn't log. Try again.",
+      "logErrorAlreadyDone": "%{name} has already been credited for this today."
     },
     "taskNew": {
       "title": "New task",
@@ -344,7 +357,11 @@
           "kid": "Role: kid"
         },
         "platformLine": "Platform: %{platform} %{osVersion}"
-      }
+      },
+      "householdSection": "Household",
+      "addKid": "Add child",
+      "inviteParent": "Invite parent",
+      "inviteParentSoon": "Coming soon"
     },
     "account": {
       "title": "Account",

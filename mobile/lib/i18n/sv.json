@@ -219,7 +219,20 @@
       "recurrenceWeekly": "Varje vecka",
       "recurrenceOnce": "En gång",
       "inactive": "Inaktiv",
-      "approval": "Godkännande"
+      "approval": "Godkännande",
+      "logMode": "Logga",
+      "logModeHeadlineA": "Vad är",
+      "logModeHeadlineB": "klart",
+      "logModeExit": "Avsluta",
+      "logModeEmpty": "Inga uppgifter att logga idag.",
+      "kidPickerEyebrow": "Markera klart",
+      "kidPickerTitleA": "Vem gjorde",
+      "kidPickerNote": "Saldot krediteras direkt — ingen godkännande behövs.",
+      "kidPickerCta": "Markera som klart (%{count})",
+      "alreadyDone": "Klart",
+      "creditedFor": "Klart för %{names}",
+      "logErrorGeneric": "Kunde inte logga. Försök igen.",
+      "logErrorAlreadyDone": "%{name} har redan fått kredit för detta idag."
     },
     "taskNew": {
       "title": "Ny uppgift",
@@ -344,7 +357,11 @@
           "kid": "Roll: barn"
         },
         "platformLine": "Plattform: %{platform} %{osVersion}"
-      }
+      },
+      "householdSection": "Hushåll",
+      "addKid": "Lägg till barn",
+      "inviteParent": "Bjud in förälder",
+      "inviteParentSoon": "Kommer snart"
     },
     "account": {
       "title": "Konto",
