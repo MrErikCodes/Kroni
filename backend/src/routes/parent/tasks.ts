@@ -2,12 +2,20 @@ import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import { and, eq } from 'drizzle-orm';
-import { CreateTaskSchema, UpdateTaskSchema, TaskSchema } from '@kroni/shared';
+import {
+  CreateTaskSchema,
+  UpdateTaskSchema,
+  TaskSchema,
+  LoggableTasksResponseSchema,
+  LogTaskCompletionRequestSchema,
+  LogTaskCompletionResponseSchema,
+} from '@kroni/shared';
 import { getDb } from '../../db/index.js';
 import { tasks } from '../../db/schema/tasks.js';
 import { kids } from '../../db/schema/kids.js';
 import { NotFoundError, UnauthorizedError, BadRequestError } from '../../lib/errors.js';
 import { assertCanAddActiveTask } from '../../services/billing.service.js';
+import { listLoggableTasks, logTaskCompletion } from '../../services/tasks.service.js';
 import { serializeTask } from './_serializers.js';
 
 const IdParam = z.object({ id: z.string().uuid() });
@@ -137,6 +145,47 @@ export async function parentTasksRoutes(app: FastifyInstance): Promise<void> {
       if (deleted.length === 0) throw new NotFoundError('task not found');
       void reply.code(204);
       return null;
+    },
+  );
+
+  r.get(
+    '/parent/tasks/loggable',
+    {
+      preHandler: app.requireParent,
+      schema: { response: { 200: LoggableTasksResponseSchema } },
+    },
+    async (req) => {
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
+      const list = await listLoggableTasks(household.id);
+      return list as never;
+    },
+  );
+
+  const LogParams = z.object({ taskId: z.string().uuid() });
+
+  r.post(
+    '/parent/tasks/:taskId/log-completion',
+    {
+      preHandler: app.requireParent,
+      schema: {
+        params: LogParams,
+        body: LogTaskCompletionRequestSchema,
+        response: { 200: LogTaskCompletionResponseSchema },
+      },
+    },
+    async (req) => {
+      const parent = req.parent;
+      const household = req.household;
+      if (!parent || !household) throw new UnauthorizedError('household missing');
+      const out = await logTaskCompletion({
+        taskId: req.params.taskId,
+        householdId: household.id,
+        parentId: parent.id,
+        kidIds: req.body.kidIds,
+        idempotencyKey: req.body.idempotencyKey,
+      });
+      return out;
     },
   );
 }
