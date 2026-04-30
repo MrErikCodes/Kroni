@@ -10,7 +10,7 @@ import {
   TextInput,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
@@ -26,8 +26,18 @@ const CODE_LENGTH = 6;
 export default function KidPair() {
   const theme = useTheme();
   const router = useRouter();
+  // The /pair entrypoints (`app/pair/index.tsx` + `app/pair/[code].tsx`)
+  // redirect here with the share-link code as a `?code=` query param.
+  // We seed the digit boxes from that value before any user input lands.
+  const { code: codeFromQuery } = useLocalSearchParams<{ code?: string }>();
+  const initialDigits = ((): string[] => {
+    if (typeof codeFromQuery !== 'string') return Array(CODE_LENGTH).fill('');
+    const cleaned = codeFromQuery.replace(/\D/g, '').slice(0, CODE_LENGTH);
+    if (cleaned.length !== CODE_LENGTH) return Array(CODE_LENGTH).fill('');
+    return cleaned.split('');
+  })();
 
-  const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''));
+  const [digits, setDigits] = useState<string[]>(initialDigits);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRefs = useRef<(TextInput | null)[]>([]);
