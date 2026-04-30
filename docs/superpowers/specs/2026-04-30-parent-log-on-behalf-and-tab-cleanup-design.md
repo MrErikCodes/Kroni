@@ -32,6 +32,8 @@ Two issues observed in the parent app today:
 - **Multi-kid in one tap:** the kid picker sheet is multi-select. One tap on a task → check the kids it applies to → submit credits each kid separately.
 - **Settings demoted to gear icon:** Innstillinger leaves the tab bar and lives as a stack-pushed page reachable from a gear icon in the *Barn* tab header. Settings is rarely visited; the badge-bearing *Godkjenninger* tab earns its slot more.
 - **Add-kid moves to Settings:** the "+" on the *Barn* tab header is removed. "Legg til barn" lives under a *Husstand* section in Settings. Empty-state CTA still covers the first-add case when zero kids exist.
+- **Kid push on parent-logged credit:** fire the same `kroni.taskApproved` notification (and celebrate screen routing) for parent-logged credits as for kid-initiated approvals. The kid earned it; the tap source is irrelevant to the celebration.
+- **Today-eligibility helper:** factor a shared `isEligibleToday(task, todayLocal)` helper in `@kroni/shared` and use it on both server (`getTodayTasks` for kids) and client (Logg mode list filter). Single source of truth — drift between the two would create the "phantom task" risk.
 
 ## Final tab bar
 
@@ -197,30 +199,29 @@ The handler enforces that every `kidId` belongs to the same household as the cal
 
 ## i18n keys
 
-Norwegian (`nb`) is authoritative; English/Swedish/Danish are translated and marked `[REVIEW]` per the project pattern.
+Strings are locked across all four locales — no `[REVIEW]` markers on this batch. Norwegian first, then sv / da / en.
 
-```
-parent.tasksList.logMode                  // button label / a11y
-parent.tasksList.logModeHeadlineA         // "Hva er"
-parent.tasksList.logModeHeadlineB         // "gjort"
-parent.tasksList.logModeExit              // "Avslutt"
-parent.tasksList.kidPickerEyebrow         // "Marker fullført"
-parent.tasksList.kidPickerTitleA          // "Hvem gjorde"
-parent.tasksList.kidPickerTitleB          // "{task}" (italic)
-parent.tasksList.kidPickerNote            // "Saldoen krediteres umiddelbart — ingen godkjenning nødvendig."
-parent.tasksList.kidPickerCta             // "Marker som fullført ({count})"
-parent.tasksList.alreadyDone              // "Ferdig"
-parent.tasksList.creditedFor              // "Ferdig for {names}"
-parent.tasksList.logErrorGeneric          // "Kunne ikke logge. Prøv igjen."
-parent.tasksList.logErrorAlreadyDone      // "{name} har allerede fått kreditt for denne i dag."
+| Key | nb | sv | da | en |
+| --- | --- | --- | --- | --- |
+| `parent.tasksList.logMode` | Logg | Logga | Logg | Log |
+| `parent.tasksList.logModeHeadlineA` | Hva er | Vad är | Hvad er | What's |
+| `parent.tasksList.logModeHeadlineB` | gjort | klart | gjort | done |
+| `parent.tasksList.logModeExit` | Avslutt | Avsluta | Afslut | Exit |
+| `parent.tasksList.logModeEmpty` | Ingen oppgaver å logge i dag. | Inga uppgifter att logga idag. | Ingen opgaver at logge i dag. | No tasks to log today. |
+| `parent.tasksList.kidPickerEyebrow` | Marker fullført | Markera klart | Marker fuldført | Mark complete |
+| `parent.tasksList.kidPickerTitleA` | Hvem gjorde | Vem gjorde | Hvem gjorde | Who did |
+| `parent.tasksList.kidPickerNote` | Saldoen krediteres umiddelbart — ingen godkjenning nødvendig. | Saldot krediteras direkt — ingen godkännande behövs. | Saldoen krediteres straks — ingen godkendelse nødvendig. | Balance is credited immediately — no approval needed. |
+| `parent.tasksList.kidPickerCta` | Marker som fullført ({count}) | Markera som klart ({count}) | Marker som fuldført ({count}) | Mark complete ({count}) |
+| `parent.tasksList.alreadyDone` | Ferdig | Klart | Færdig | Done |
+| `parent.tasksList.creditedFor` | Ferdig for {names} | Klart för {names} | Færdig for {names} | Done for {names} |
+| `parent.tasksList.logErrorGeneric` | Kunne ikke logge. Prøv igjen. | Kunde inte logga. Försök igen. | Kunne ikke logge. Prøv igen. | Couldn't log. Try again. |
+| `parent.tasksList.logErrorAlreadyDone` | {name} har allerede fått kreditt for denne i dag. | {name} har redan fått kredit för detta idag. | {name} har allerede fået kredit for denne i dag. | {name} has already been credited for this today. |
+| `parent.settings.householdSection` | Husstand | Hushåll | Husstand | Household |
+| `parent.settings.addKid` | Legg til barn | Lägg till barn | Tilføj barn | Add child |
+| `parent.settings.inviteParent` | Inviter forelder | Bjud in förälder | Inviter forælder | Invite parent |
+| `parent.settings.inviteParentSoon` | Kommer snart | Kommer snart | Kommer snart | Coming soon |
 
-parent.settings.householdSection          // "Husstand"
-parent.settings.addKid                    // "Legg til barn"
-parent.settings.inviteParent              // "Inviter forelder"
-parent.settings.inviteParentSoon          // "Kommer snart"
-```
-
-The existing `parent.kidsList.addKid` key is kept (still used by the empty state).
+The kid picker title renders as `{titleA} {task.title}` with the task title in `displayItalic` — same italic-emphasis pattern used elsewhere in the parent app. The existing `parent.kidsList.addKid` key is kept (still used by the *Barn* empty state).
 
 ## Testing
 
@@ -233,7 +234,6 @@ The existing `parent.kidsList.addKid` key is kept (still used by the empty state
 
 ## Open items / risks
 
-- **Today-eligibility filter relies on local timezone** — the kid's recurrence rules use the household's local day. Existing `getTodayTasks` already handles this; the parent-side filter must use the same helper, not naive client time. Risk: parent in a different timezone than the household. Treat household timezone as authoritative; document if helper needs to be exposed.
-- **Notifications.** Parent-logged completions probably should not push a notification to the kid's device (no "your parent logged your chore" — feels off). Confirm before implementation: kid notification is suppressed for parent-logged credits.
-- **Already-pending interaction** — if a kid had marked a task pending and the parent logs it on behalf, the existing approval card animation in *Godkjenninger* should handle the row disappearing on next poll (30s). Acceptable; not a sync hole.
-- **Once-only tasks credited to multiple kids in one go** — the "once" recurrence is per-kid, so multi-kid select on a `once` task is fine: each kid gets their one credit and the task vanishes for them but stays for the others. Verify no global "once" semantics elsewhere.
+- **Already-pending interaction** — if a kid had marked a task pending and the parent logs it on behalf, the existing 30s poll on the *Godkjenninger* tab will animate the row out cleanly. Acceptable latency; not a sync hole.
+- **Once-only tasks credited to multiple kids in one go** — `once` recurrence is per-kid, so multi-kid select on a `once` task is fine: each kid gets their one credit, the task disappears for them but stays for siblings. Implementation step: verify no global "once" semantics exist elsewhere in the schema before relying on this.
+- **DB unique-index migration** — the recurrence-windowing logic enforces "one credit per kid per day" in app code. Verify whether a unique index on `(taskId, kidId, calendarDayLocal)` exists for `task_completions`. If not, add a defensive migration. Implementation-time check, not a design risk.
