@@ -17,7 +17,7 @@ export const personvernEn: LegalContent = {
             <strong>Nilsen Konsult</strong> (Norwegian business registration no. 931 405 861 MVA) is the data controller for the personal data processed through the Kroni app and the kroni.no website. That means we determine the purposes and means of the processing, and we are responsible for ensuring it complies with the Norwegian Personal Data Act and the GDPR.
           </p>
           <p>
-            Kroni is a family app where a parent creates chores, allowance and rewards for their children. For the app to work, we have to process a minimum of personal data about both the parent and the child. Throughout, we have chosen solutions that collect as little as possible — for example, we never ask for the child's last name, email address or photo, and no real money ever moves through the system. Privacy is built in, not bolted on.
+            Kroni is a family app where a parent creates chores, allowance and rewards for their children. For the app to work, we have to process a minimum of personal data about both the parent and the child. Throughout, we have chosen solutions that collect as little as possible — for example, we never ask for the child&apos;s last name, email address or photo, and no real money ever moves through the system. Privacy is built in, not bolted on.
           </p>
           <p>
             For privacy questions or to exercise your GDPR rights, reach us at <a href="mailto:support@kroni.no">support@kroni.no</a>.
@@ -46,11 +46,11 @@ export const personvernEn: LegalContent = {
             <li>First name (typically what the parent calls the child day to day — a nickname is fine).</li>
             <li>Optionally a year of birth — only the year, never day or month. Used for age-tailoring; optional.</li>
             <li>Optionally a four-digit PIN, stored as a bcrypt hash. We never store the PIN in clear text.</li>
-            <li>A chosen avatar key pointing to one of the app's predefined icons. We do not store user-uploaded images.</li>
+            <li>A chosen avatar key pointing to one of the app&apos;s predefined icons. We do not store user-uploaded images.</li>
             <li>Device ID and push token to deliver notifications about new chores, approvals and rewards.</li>
           </ul>
           <p>
-            We do <strong>not</strong> collect the child's last name, full date of birth, email address, phone number, photos or voice data, location, or other special categories of personal data about the child.
+            We do <strong>not</strong> collect the child&apos;s last name, full date of birth, email address, phone number, photos or voice data, location, or other special categories of personal data about the child.
           </p>
           <p>
             For purchases and billing, payment data (card data, billing address, etc.) is processed by Apple or Google as merchant of record. Kroni only receives an order confirmation without card information, plus an anonymised purchase object from RevenueCat (product id, purchase time, renewal time, trial status if any).
@@ -62,7 +62,7 @@ export const personvernEn: LegalContent = {
             <li>Rewards and redemptions.</li>
             <li>Virtual-kroner balances per child.</li>
             <li>
-              Technical telemetry from <strong>Sentry</strong> — crash reports with stack trace, breadcrumbs of recent events in the app, performance / distributed traces, plus device, OS and app version. Events are tagged with the parent's Clerk user ID and email address, and the child profile's internal ID if the error occurs on the child's side. Sentry is run as a <strong>self-hosted instance</strong> on the same infrastructure as the rest of the service; the logs do not leave our infrastructure and are not shared with third parties, especially not for marketing. Performance trace sampling is limited (10–20% in production).
+              Technical telemetry from <strong>Sentry</strong> — crash reports with stack trace, breadcrumbs of recent events in the app, performance / distributed traces, plus device, OS and app version. Events are tagged with the parent&apos;s Clerk user ID and email address, and the child profile&apos;s internal ID if the error occurs on the child&apos;s side. Sentry is run as a <strong>self-hosted instance</strong> on the same infrastructure as the rest of the service; the logs do not leave our infrastructure and are not shared with third parties, especially not for marketing. Performance trace sampling is limited (10–20% in production).
             </li>
           </ul>
         </>
@@ -75,7 +75,7 @@ export const personvernEn: LegalContent = {
       body: (
         <>
           <p>
-            Most data we get <strong>directly from the parent</strong> on registration, when creating child profiles, and through normal use of the app. The child's device pairs to the family via a six-digit code provided by the parent; the child does not enter personal data beyond what the parent has prefilled.
+            Most data we get <strong>directly from the parent</strong> on registration, when creating child profiles, and through normal use of the app. The child&apos;s device pairs to the family via a six-digit code provided by the parent; the child does not enter personal data beyond what the parent has prefilled.
           </p>
           <p>
             Technical data — IP address, device model, OS, app version, timestamps and similar — is collected automatically when the app contacts our server endpoints, and is necessary for the service to function and to detect abuse.
@@ -115,7 +115,7 @@ export const personvernEn: LegalContent = {
           <ul>
             <li>create, operate and maintain parent accounts and linked child profiles;</li>
             <li>let the child mark chores as done and the parent approve them;</li>
-            <li>maintain virtual-kroner balances and display them in the child's app;</li>
+            <li>maintain virtual-kroner balances and display them in the child&apos;s app;</li>
             <li>send relevant push notifications, when consent is given;</li>
             <li>handle subscription, trial and renewal via the App Store and Google Play;</li>
             <li>answer customer-service and privacy enquiries;</li>
@@ -156,11 +156,11 @@ export const personvernEn: LegalContent = {
             We do not share personal data with third parties for their own purposes. As an <strong>explicit principle</strong> we share as little data as possible — minimising the amount, the categories and the number of recipients. Some sharing is technically unavoidable for the app to work (login, billing, distribution), and where it occurs it is solely with processors bound by a Data Processing Agreement (DPA) under GDPR Article 28, or — for Apple and Google — as independent controllers for the merchant-of-record role.
           </p>
           <ul>
-            <li><strong>Hetzner Online GmbH</strong> — operates Kroni's application servers and PostgreSQL databases. Machines are located in Hetzner's data centre in <strong>Finland</strong>, within the EU/EEA. The entire core dataset (accounts, child profiles, chores, completions, virtual balances, Sentry logs) is held there.</li>
+            <li><strong>Hetzner Online GmbH</strong> — operates Kroni&apos;s application servers and PostgreSQL databases. Machines are located in Hetzner&apos;s data centre in <strong>Finland</strong>, within the EU/EEA. The entire core dataset (accounts, child profiles, chores, completions, virtual balances, Sentry logs) is held there.</li>
             <li><strong>Clerk, Inc.</strong> — authentication and account management for the parent. Processes email, login events and the Apple ID name if «Sign in with Apple» is used. Clerk has its own privacy policy.</li>
             <li><strong>RevenueCat, Inc.</strong> — handles subscription state and synchronises purchases / renewals across the App Store and Google Play. Receives an anonymised app-user-ID and purchase metadata; no card information. RevenueCat has its own privacy policy.</li>
             <li><strong>Mailpace</strong> (Ohmysmtp Ltd., established in the United Kingdom) — delivers our transactional emails from the sending domain <code>kroni.no</code> (authenticated with SPF, DKIM and DMARC). Processes your email address (sourced from Clerk) and the body content of the messages we send you. The purpose is solely delivery of account-essential service emails — sign-up confirmation, password reset, email verification, billing notices (failed payment, subscription expiration) and household invitation links. The legal basis is <strong>contract (GDPR Art. 6(1)(b))</strong> — we cannot operate the account without delivering these messages. Mailpace is a sub-processor under the data processing agreement we have with you, and retains delivery logs per its published retention schedule; the email content itself is not stored long-term by us. These are essential service messages and <strong>cannot be opted out of</strong> while the account is active; any marketing emails (we send none today) would require separate, opt-in consent. We have chosen to send our own, localised emails matching Kroni&apos;s visual identity rather than Clerk&apos;s default templates, which are disabled.</li>
-            <li><strong>Apple Distribution International Ltd.</strong> (App Store) and <strong>Google Commerce Limited</strong> (Google Play) — distribution and payment as merchant of record. Apple's and Google's privacy terms govern what they themselves collect.</li>
+            <li><strong>Apple Distribution International Ltd.</strong> (App Store) and <strong>Google Commerce Limited</strong> (Google Play) — distribution and payment as merchant of record. Apple&apos;s and Google&apos;s privacy terms govern what they themselves collect.</li>
             <li><strong>Expo (Expo Application Services)</strong> — delivery of push notifications.</li>
             <li><strong>Cloudflare, Inc.</strong> — DDoS protection and CDN for kroni.no.</li>
           </ul>
@@ -178,10 +178,10 @@ export const personvernEn: LegalContent = {
       body: (
         <>
           <p>
-            Some of our processors — especially Clerk and RevenueCat — are established in the US and may have data flows there. Such transfers rely on the <strong>EU Commission's Standard Contractual Clauses (SCCs)</strong> per GDPR Article 46, supplemented by technical and organisational measures.
+            Some of our processors — especially Clerk and RevenueCat — are established in the US and may have data flows there. Such transfers rely on the <strong>EU Commission&apos;s Standard Contractual Clauses (SCCs)</strong> per GDPR Article 46, supplemented by technical and organisational measures.
           </p>
           <p>
-            Kroni's core databases and application servers are operated by <strong>Hetzner in Finland</strong>, so day-to-day processing takes place within the EU/EEA. The «central» dataset — chores, completions, virtual balances, child profiles and Sentry logs — therefore never leaves the EEA in normal operation.
+            Kroni&apos;s core databases and application servers are operated by <strong>Hetzner in Finland</strong>, so day-to-day processing takes place within the EU/EEA. The «central» dataset — chores, completions, virtual balances, child profiles and Sentry logs — therefore never leaves the EEA in normal operation.
           </p>
         </>
       ),
@@ -195,7 +195,7 @@ export const personvernEn: LegalContent = {
           <p>We have implemented reasonable technical and organisational measures:</p>
           <ul>
             <li>TLS encryption on all traffic.</li>
-            <li>Hashing of sensitive fields — the child's PIN is a bcrypt hash.</li>
+            <li>Hashing of sensitive fields — the child&apos;s PIN is a bcrypt hash.</li>
             <li>Access control on a <em>need-to-know</em> basis.</li>
             <li>Logging and monitoring via our self-hosted Sentry instance, plus regular security updates.</li>
             <li>Regular database backups and restore procedures.</li>
@@ -250,10 +250,10 @@ export const personvernEn: LegalContent = {
       body: (
         <>
           <p>
-            The age of digital consent under GDPR Article 8 is set at 13 in Norway. Children under 13 may only use Kroni through a child profile created by a parent or legal guardian, who consents on the child's behalf.
+            The age of digital consent under GDPR Article 8 is set at 13 in Norway. Children under 13 may only use Kroni through a child profile created by a parent or legal guardian, who consents on the child&apos;s behalf.
           </p>
           <p>
-            For children <strong>13 or older</strong> the parent may take the child's own consent into account. Either way, all administration and account ownership remain with the parent.
+            For children <strong>13 or older</strong> the parent may take the child&apos;s own consent into account. Either way, all administration and account ownership remain with the parent.
           </p>
         </>
       ),

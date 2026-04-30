@@ -45,9 +45,9 @@ export const vilkarEn: LegalContent = {
           <ul>
             <li><strong>The App</strong> — the Kroni mobile app for iOS and Android, the related website and underlying services.</li>
             <li><strong>Parent</strong> — the adult account holder who creates the family, manages child profiles, chores and rewards.</li>
-            <li><strong>Child</strong> — a child profile paired to the Parent's account via a six-digit code. The child has its own simplified login but no separate agreement with Kroni.</li>
-            <li><strong>Account</strong> — the Parent's overall access to the service, including linked child profiles.</li>
-            <li><strong>Virtual kroner</strong> — an internal, non-monetary counter shown as «kroner» or «kr» in the child's app. They do <em>not</em> represent Norwegian kroner, cannot be exchanged for real money, and have no value outside the App.</li>
+            <li><strong>Child</strong> — a child profile paired to the Parent&apos;s account via a six-digit code. The child has its own simplified login but no separate agreement with Kroni.</li>
+            <li><strong>Account</strong> — the Parent&apos;s overall access to the service, including linked child profiles.</li>
+            <li><strong>Virtual kroner</strong> — an internal, non-monetary counter shown as «kroner» or «kr» in the child&apos;s app. They do <em>not</em> represent Norwegian kroner, cannot be exchanged for real money, and have no value outside the App.</li>
             <li><strong>Reward</strong> — an item, experience or action defined by the Parent that the child can «buy» with virtual kroner. Delivered by the Parent, not by Kroni.</li>
             <li><strong>Family subscription</strong> — the paid subscription product (monthly or yearly) that unlocks unlimited child profiles, chores and rewards, renewing automatically until cancelled.</li>
             <li><strong>Lifetime purchase</strong> — a one-time purchase that grants permanent access to all features of the Family subscription for the account it is tied to. Does not renew, is not re-billed, and includes future features within the same product area. Has no trial period.</li>
@@ -64,7 +64,7 @@ export const vilkarEn: LegalContent = {
       body: (
         <>
           <p>
-            Kroni lets the Parent create chores, assign them to one or more children, and attach an amount of virtual kroner to each chore. When the child marks a chore as done, the Parent can approve it and the child's virtual balance grows accordingly. The child can then «redeem» rewards the Parent has set up.
+            Kroni lets the Parent create chores, assign them to one or more children, and attach an amount of virtual kroner to each chore. When the child marks a chore as done, the Parent can approve it and the child&apos;s virtual balance grows accordingly. The child can then «redeem» rewards the Parent has set up.
           </p>
           <p>
             <strong>Kroni is not a payment service, wallet or financial institution.</strong> No real money ever moves between accounts in Kroni. The balance shown to the child is an internal point value with meaning only inside the family using the App. Virtual kroner cannot be transferred between families, cannot be exchanged for cash, goods or services from third parties, and grant no claim against Kroni or anyone else.
@@ -82,10 +82,10 @@ export const vilkarEn: LegalContent = {
       body: (
         <>
           <p>
-            To use Kroni, the Parent creates an account via our authentication partner Clerk, with email or via «Sign in with Apple». The Parent must provide accurate, up-to-date information and is responsible for keeping login credentials secret. All activity from the Parent's account is treated as performed by the Parent.
+            To use Kroni, the Parent creates an account via our authentication partner Clerk, with email or via «Sign in with Apple». The Parent must provide accurate, up-to-date information and is responsible for keeping login credentials secret. All activity from the Parent&apos;s account is treated as performed by the Parent.
           </p>
           <p>
-            Child profiles are always created by the Parent. When a child profile is added, the App generates a six-digit pairing code used to connect the child's device. The Parent represents that the Parent or another person with parental responsibility is the one creating the profile, and that any required consent under GDPR Article 8 and the Norwegian Personal Data Act has been obtained for children under 13.
+            Child profiles are always created by the Parent. When a child profile is added, the App generates a six-digit pairing code used to connect the child&apos;s device. The Parent represents that the Parent or another person with parental responsibility is the one creating the profile, and that any required consent under GDPR Article 8 and the Norwegian Personal Data Act has been obtained for children under 13.
           </p>
           <p>
             If the Parent suspects unauthorised use of the Account, contact <a href="mailto:support@kroni.no">support@kroni.no</a> without undue delay.
@@ -105,12 +105,12 @@ export const vilkarEn: LegalContent = {
           <p>You agree not to:</p>
           <ul>
             <li>use the App in violation of Norwegian or other applicable law;</li>
-            <li>attempt to gain unauthorised access to Kroni's systems or other people's accounts;</li>
+            <li>attempt to gain unauthorised access to Kroni&apos;s systems or other people&apos;s accounts;</li>
             <li>decompile, rewrite, disassemble or otherwise reverse-engineer the App, beyond what mandatory law permits;</li>
             <li>run automated scripts, scrapers, bots or load tests without prior written consent;</li>
             <li>use the App for purposes other than family chore and reward management;</li>
             <li>upload content that is offensive, abusive, discriminatory, sexualised, violent or otherwise inappropriate for children;</li>
-            <li>use the App to monitor children in ways that breach the child's rights under the UN Convention on the Rights of the Child or Norwegian children's law.</li>
+            <li>use the App to monitor children in ways that breach the child&apos;s rights under the UN Convention on the Rights of the Child or Norwegian children&apos;s law.</li>
           </ul>
           <p>
             The Parent is responsible for ensuring linked child profiles stay within these limits. We reserve the right to close accounts that breach these Terms.
@@ -153,10 +153,10 @@ export const vilkarEn: LegalContent = {
             At the end of the trial, the subscription <strong>automatically renews</strong> at the interval you chose, at the price shown in the Platform at the time of purchase, billed via Apple ID or Google account.
           </p>
           <p>
-            To avoid being charged you must <strong>cancel the subscription at least 24 hours before the trial ends</strong> in the Platform's subscription settings.
+            To avoid being charged you must <strong>cancel the subscription at least 24 hours before the trial ends</strong> in the Platform&apos;s subscription settings.
           </p>
           <p>
-            The free trial can only be used once per Apple ID or Google account, in line with the Platforms' own rules.
+            The free trial can only be used once per Apple ID or Google account, in line with the Platforms&apos; own rules.
           </p>
         </>
       ),
@@ -253,10 +253,10 @@ export const vilkarEn: LegalContent = {
       body: (
         <>
           <p>
-            The Parent has full responsibility for all content entered into the App — chore titles, descriptions, reward names, allowance arrangements, child profile names and other free-text content. You represent that such content is suitable for children and does not infringe anyone's rights.
+            The Parent has full responsibility for all content entered into the App — chore titles, descriptions, reward names, allowance arrangements, child profile names and other free-text content. You represent that such content is suitable for children and does not infringe anyone&apos;s rights.
           </p>
           <p>
-            We take no editorial responsibility for the family's private content, but reserve the right to remove or block content that obviously breaches section 05 or the law.
+            We take no editorial responsibility for the family&apos;s private content, but reserve the right to remove or block content that obviously breaches section 05 or the law.
           </p>
         </>
       ),
@@ -301,10 +301,10 @@ export const vilkarEn: LegalContent = {
             Kroni is provided «as is» and «as available». To the extent permitted by mandatory law, we give no guarantee that the service will always be available, error-free or fit for any particular purpose beyond what is described on kroni.no and in the App.
           </p>
           <p>
-            We are not liable for loss of virtual kroner due to circumstances on the Parent's or child's side. Virtual kroner have no monetary value, so such «loss» does not constitute economic loss in the legal sense.
+            We are not liable for loss of virtual kroner due to circumstances on the Parent&apos;s or child&apos;s side. Virtual kroner have no monetary value, so such «loss» does not constitute economic loss in the legal sense.
           </p>
           <p>
-            Unless mandatory law requires otherwise, Kroni's total liability to a user per calendar year is limited to the amount the user has actually paid for the service in that calendar year. We are not liable for indirect loss.
+            Unless mandatory law requires otherwise, Kroni&apos;s total liability to a user per calendar year is limited to the amount the user has actually paid for the service in that calendar year. We are not liable for indirect loss.
           </p>
           <p>
             These limitations do not apply to wilful misconduct or gross negligence on our side, nor to personal injury caused by negligence, and they do not affect your mandatory rights as a consumer.
@@ -319,10 +319,10 @@ export const vilkarEn: LegalContent = {
       body: (
         <>
           <p>
-            Norwegian law sets the age of digital consent under GDPR Article 8 at 13. For children under 13, parental consent is required for processing of the child's personal data. The Parent represents that such consent is validly given on the child's behalf.
+            Norwegian law sets the age of digital consent under GDPR Article 8 at 13. For children under 13, parental consent is required for processing of the child&apos;s personal data. The Parent represents that such consent is validly given on the child&apos;s behalf.
           </p>
           <p>
-            In line with parental responsibility under the Norwegian Children Act, the Parent has overall responsibility for the child's safe and appropriate use of the App.
+            In line with parental responsibility under the Norwegian Children Act, the Parent has overall responsibility for the child&apos;s safe and appropriate use of the App.
           </p>
         </>
       ),
@@ -381,7 +381,7 @@ export const vilkarEn: LegalContent = {
           <ul>
             <li><strong>Forbrukertilsynet (Norwegian Consumer Authority)</strong> — <a href="https://www.forbrukertilsynet.no" target="_blank" rel="noopener noreferrer">forbrukertilsynet.no</a></li>
             <li><strong>Forbrukerklageutvalget (Norwegian Consumer Disputes Tribunal)</strong> — <a href="https://www.forbrukerklageutvalget.no" target="_blank" rel="noopener noreferrer">forbrukerklageutvalget.no</a></li>
-            <li><strong>EU Commission's Online Dispute Resolution platform (ODR)</strong> — <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a></li>
+            <li><strong>EU Commission&apos;s Online Dispute Resolution platform (ODR)</strong> — <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer">ec.europa.eu/consumers/odr</a></li>
           </ul>
           <p>
             If the dispute is not resolved amicably, <strong>Oslo District Court</strong> is agreed as venue. Mandatory rules on consumer venue still take precedence.
