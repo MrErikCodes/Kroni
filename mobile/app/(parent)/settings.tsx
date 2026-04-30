@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth, useUser } from '@clerk/clerk-expo';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy, UserPlus } from 'lucide-react-native';
+import { ArrowLeft, Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy, UserPlus } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -204,6 +204,18 @@ export default function SettingsTab() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => {
+            void Haptics.selectionAsync();
+            router.back();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.backBtn}
+        >
+          <ArrowLeft size={24} color={tx.primary} strokeWidth={2} />
+        </TouchableOpacity>
         <KroniText variant="eyebrow" tone="gold">
           {t('parent.settings.eyebrow')}
         </KroniText>
@@ -446,6 +458,14 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 16,
     gap: 8,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    marginLeft: -10,
+    marginBottom: 4,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   headlineRow: {
     flexDirection: 'row',
