@@ -133,6 +133,15 @@ export default function RoleChooser() {
           </TouchableOpacity>
         </View>
 
+        {/* Brand motto — italic display line above the trust strip. */}
+        <KroniText
+          variant="bodyLarge"
+          tone="gold"
+          style={[styles.motto, { fontFamily: fonts.displayItalic }]}
+        >
+          {t('common.motto')}
+        </KroniText>
+
         {/* Trust strip — middot separators, sand-500. */}
         <View style={styles.trustStrip}>
           <KroniText variant="caption" tone="secondary" style={styles.trustText}>
@@ -206,6 +215,13 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     lineHeight: 20,
+  },
+  motto: {
+    textAlign: 'center',
+    fontSize: 18,
+    lineHeight: 24,
+    paddingHorizontal: 12,
+    paddingTop: 16,
   },
   trustStrip: {
     flexDirection: 'row',

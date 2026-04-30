@@ -208,6 +208,13 @@ export default function PaywallScreen() {
           <KroniText variant="bodyLarge" tone="secondary" style={styles.intro}>
             {t('paywall.intro')}
           </KroniText>
+          <KroniText
+            variant="bodyLarge"
+            tone="gold"
+            style={[styles.motto, { fontFamily: fonts.displayItalic }]}
+          >
+            {t('common.motto')}
+          </KroniText>
         </View>
 
         <Card tone="elevated" radius="2xl" style={styles.featureCard}>
@@ -491,6 +498,11 @@ const styles = StyleSheet.create({
   intro: {
     fontSize: 17,
     lineHeight: 26,
+  },
+  motto: {
+    fontSize: 18,
+    lineHeight: 24,
+    paddingTop: 4,
   },
   featureCard: {
     padding: 24,
