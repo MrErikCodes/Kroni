@@ -1,25 +1,30 @@
 {
   "common": {
     "ok": "OK",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "confirm": "Confirm",
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Try again",
-    "empty": "Nothing here yet",
-    "close": "Close",
-    "back": "Back"
+    "cancel": "Annuller",
+    "save": "Gem",
+    "delete": "Slet",
+    "confirm": "Bekræft",
+    "loading": "Indlæser...",
+    "error": "Noget gik galt",
+    "retry": "Prøv igen",
+    "empty": "Intet her endnu",
+    "close": "Luk",
+    "back": "Tilbage",
+    "edit": "Rediger",
+    "add": "Tilføj",
+    "done": "Færdig",
+    "yes": "Ja",
+    "no": "Nej"
   },
   "auth": {
     "parent": {
-      "signIn": "Sign in",
-      "signUp": "Create account",
-      "email": "Email address",
-      "password": "Password",
-      "continueWithApple": "Continue with Apple",
-      "continueWithEmail": "Continue with email",
+      "signIn": "Log ind",
+      "signUp": "Opret konto",
+      "email": "E-mailadresse",
+      "password": "Adgangskode",
+      "continueWithApple": "Fortsæt med Apple",
+      "continueWithEmail": "Fortsæt med e-mail",
       "noAccount": "Har du ikke en konto?",
       "hasAccount": "Har du allerede en konto?",
       "welcomeBack": "Velkommen tilbage",
@@ -31,10 +36,47 @@
       "consentDot": "."
     },
     "kid": {
-      "pair": "Connect to parent",
-      "enterCode": "Enter the code you got from your parent",
-      "connecting": "Connecting...",
-      "paired": "Connected! Hi %{name}!"
+      "pair": "Forbind med forælder",
+      "enterCode": "Indtast koden du fik af din forælder",
+      "connecting": "Forbinder...",
+      "paired": "Forbundet! Hej %{name}!",
+      "pairButton": "Forbind",
+      "codeLabel": "6-cifret kode",
+      "nameLabel": "Hvad hedder du?",
+      "namePlaceholder": "Fornavn",
+      "birthYearLabel": "Fødselsår (valgfrit)",
+      "birthYearPlaceholder": "F.eks. 2015",
+      "avatarLabel": "Vælg en avatar",
+      "errorInvalidCode": "Ugyldig eller udløbet kode. Prøv igen.",
+      "errorNetwork": "Kunne ikke forbinde. Tjek din internetforbindelse."
+    },
+    "parentSignIn": {
+      "eyebrow": "Log ind",
+      "headlineA": "Velkommen",
+      "headlineB": "hjem",
+      "twoFactor": {
+        "totp": "Indtast den 6-cifrede kode fra din godkendelsesapp.",
+        "phone_code": "Vi sendte en kode til din telefon. Indtast den nedenfor.",
+        "email_code": "Vi sendte en kode til din e-mail. Indtast den nedenfor.",
+        "backup_code": "Indtast en af dine backupkoder.",
+        "codeLabel": "Kode",
+        "codeAccessibility": "6-cifret kode",
+        "confirmButton": "Bekræft",
+        "switchAccount": "Skift konto",
+        "errorNotLoaded": "Lige om lidt — appen er stadig ved at indlæse.",
+        "errorUnavailable": "Login er ikke tilgængeligt. Prøv igen.",
+        "errorStatus": "Status: %{status}. Prøv igen eller kontakt support.",
+        "errorStatus2fa": "Status: %{status}. Prøv koden igen.",
+        "errorNoMethod": "Ingen understøttet to-faktor-metode (%{names})."
+      }
+    },
+    "parentSignUp": {
+      "eyebrow": "Ny konto",
+      "headlineA": "Kom i gang",
+      "headlineB": "gratis",
+      "verifyText": "Vi har sendt en bekræftelseskode til %{email}. Indtast koden nedenfor.",
+      "verifyCodeLabel": "Bekræftelseskode",
+      "verifyCodeAccessibility": "Bekræftelseskode"
     },
     "resetPassword": {
       "title": "Nulstil adgangskode",
@@ -45,16 +87,122 @@
       "submit": "Nulstil",
       "forgotLink": "Glemt adgangskode?",
       "errorGeneric": "Kunne ikke nulstille adgangskoden. Prøv igen."
+    },
+    "kidPair": {
+      "eyebrow": "Barn",
+      "headlineA": "Indtast",
+      "headlineB": "koden",
+      "digitAccessibility": "Ciffer %{n}"
     }
   },
   "parent": {
-    "kids": "Kids",
-    "tasks": "Tasks",
-    "rewards": "Rewards",
-    "approvals": "Approvals",
-    "settings": "Settings",
-    "paywall": "Upgrade to Family",
+    "kids": "Børn",
+    "tasks": "Opgaver",
+    "rewards": "Belønninger",
+    "paywall": "Opgrader til Familie",
+    "kidsList": {
+      "title": "Børn",
+      "empty": "Ingen børn tilføjet endnu",
+      "emptyBody": "Tilføj dit første barn for at komme i gang",
+      "addKid": "Tilføj barn",
+      "kidCount": "%{count} børn",
+      "eyebrow": "Forælder",
+      "headlineA": "Din",
+      "headlineB": "familie",
+      "noAllowance": "Ingen lommepenge sat"
+    },
+    "kidNew": {
+      "title": "Nyt barn",
+      "namePlaceholder": "Barnets navn",
+      "nameLabel": "Navn",
+      "birthYearLabel": "Fødselsår (valgfrit)",
+      "birthYearPlaceholder": "F.eks. 2015",
+      "allowanceLabel": "Ugentlige lommepenge (kr)",
+      "allowancePlaceholder": "0",
+      "avatarLabel": "Vælg en avatar",
+      "create": "Opret barn",
+      "creating": "Opretter...",
+      "successTitle": "Barn oprettet!",
+      "successBody": "Nu kan du generere en parringskode for at forbinde barnet med appen."
+    },
     "kidDetail": {
+      "tasks": "Opgaver",
+      "balance": "Saldo",
+      "history": "Historik",
+      "editName": "Rediger navn",
+      "weeklyAllowance": "Ugentlige lommepenge",
+      "deleteKid": "Slet barn",
+      "deleteConfirm": "Er du sikker på, at du vil slette %{name}? Det kan ikke fortrydes.",
+      "noTasks": "Ingen opgaver tildelt endnu",
+      "adjustBalance": "Juster saldo",
+      "edit": "Rediger",
+      "perWeek": "%{amount} / uge",
+      "allowanceOff": "Ingen lommepenge",
+      "generatePairingCode": "Generer parringskode",
+      "bornIn": "Født %{year}",
+      "emptyHistoryTitle": "Ingen transaktioner endnu",
+      "emptyHistoryBody": "Når %{name} fuldfører opgaver, vises de her.",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "for %{count} dage siden",
+      "adjustModal": {
+        "title": "Juster saldo",
+        "amountLabel": "Beløb (kr)",
+        "amountHelp": "Brug minus for at trække fra, f.eks. -50.",
+        "reasonLabel": "Årsag",
+        "noteLabel": "Note (valgfrit)",
+        "notePlaceholder": "Kort begrundelse...",
+        "save": "Gem",
+        "cancel": "Annuller",
+        "errorInsufficient": "Saldoen kan ikke blive negativ.",
+        "errorAmountZero": "Beløbet kan ikke være nul.",
+        "errorAmountInvalid": "Indtast et gyldigt beløb.",
+        "errorGeneric": "Kunne ikke gemme. Prøv igen.",
+        "reasons": {
+          "adjustment": "Justering",
+          "gift": "Gave",
+          "reversal": "Refundering"
+        }
+      },
+      "allowanceModal": {
+        "title": "Lommepenge",
+        "amountLabel": "Beløb (kr)",
+        "amountHelp": "0 betyder fra.",
+        "frequencyLabel": "Hvor ofte?",
+        "frequency": {
+          "none": "Fra",
+          "weekly": "Ugentligt",
+          "biweekly": "Hver 2. uge",
+          "monthly": "Månedligt"
+        },
+        "dayOfWeekLabel": "Hvilken ugedag?",
+        "dayOfMonthLabel": "Hvilken dag i måneden?",
+        "dayOfMonthHelp": "Hvis måneden er kortere, udbetales på sidste dag i måneden.",
+        "dayOfWeek": {
+          "mon": "Man",
+          "tue": "Tir",
+          "wed": "Ons",
+          "thu": "Tor",
+          "fri": "Fre",
+          "sat": "Lør",
+          "sun": "Søn"
+        },
+        "save": "Gem",
+        "cancel": "Annuller",
+        "errorInvalid": "Indtast et gyldigt beløb.",
+        "errorMissingDayOfWeek": "Vælg ugedag.",
+        "errorMissingDayOfMonth": "Vælg dag i måneden.",
+        "errorGeneric": "Kunne ikke gemme. Prøv igen."
+      },
+      "allowance": "Lommepenge",
+      "allowanceFrequencyLabel": {
+        "none": "Fra",
+        "weekly": "Ugentligt",
+        "biweekly": "Hver 2. uge",
+        "monthly": "Månedligt"
+      },
+      "nextPayment": "Næste udbetaling: %{date}",
+      "nextPaymentNone": "Næste udbetaling: —",
       "pairingCode": {
         "regenerateButton": "Generer ny parringskode",
         "confirmTitle": "Generer ny kode?",
@@ -68,33 +216,251 @@
         "shareTitle": "Parring til %{name}",
         "shareBody": "Åbn %{url} på din telefon for at logge %{name} ind i Kroni Family. Linket er gyldigt i %{minutes} minutter."
       }
+    },
+    "tasksList": {
+      "title": "Opgaver",
+      "empty": "Ingen opgaver oprettet endnu",
+      "emptyBody": "Opret din første opgave",
+      "addTask": "Ny opgave",
+      "allKids": "Alle børn",
+      "groupedByKid": "Grupperet pr. barn",
+      "eyebrow": "Opgaver",
+      "headlineA": "Hvad skal",
+      "headlineB": "gøres",
+      "recurrenceDaily": "Dagligt",
+      "recurrenceWeekly": "Ugentligt",
+      "recurrenceOnce": "Én gang",
+      "inactive": "Inaktiv",
+      "approval": "Godkendelse"
+    },
+    "taskNew": {
+      "title": "Ny opgave",
+      "titleLabel": "Opgavetitel",
+      "titlePlaceholder": "F.eks. Ryd op på værelset",
+      "descLabel": "Beskrivelse (valgfrit)",
+      "descPlaceholder": "Beskriv opgaven...",
+      "rewardLabel": "Belønning (kr)",
+      "rewardAccessibility": "Belønning",
+      "rewardPlaceholder": "F.eks. 2000 = 20 kr",
+      "recurrenceLabel": "Gentagelse",
+      "kidLabel": "Tildel til barn",
+      "kidNone": "Alle børn",
+      "requiresApproval": "Kræver godkendelse",
+      "create": "Opret opgave",
+      "daysLabel": "Hvilke dage?",
+      "anyDayLabel": "Valgfri",
+      "anyDayAccessibility": "Valgfri — alle dage",
+      "recurrence": {
+        "daily": "Dagligt",
+        "weekly": "Ugentligt",
+        "once": "Én gang"
+      }
+    },
+    "taskDetail": {
+      "title": "Rediger opgave",
+      "save": "Gem ændringer",
+      "deactivate": "Deaktiver",
+      "activate": "Aktiver",
+      "delete": "Slet opgave",
+      "deleteConfirm": "Er du sikker på, at du vil slette denne opgave?"
+    },
+    "rewardsList": {
+      "title": "Belønninger",
+      "empty": "Ingen belønninger oprettet endnu",
+      "emptyBody": "Opret en belønning, børnene kan arbejde hen imod",
+      "addReward": "Ny belønning",
+      "eyebrow": "Belønninger",
+      "headlineA": "Det de",
+      "headlineB": "vil have",
+      "inactive": "Inaktiv"
+    },
+    "rewardNew": {
+      "title": "Ny belønning",
+      "titleLabel": "Belønningens titel",
+      "titlePlaceholder": "F.eks. Biografbilletter",
+      "costLabel": "Pris (kr)",
+      "costAccessibility": "Pris",
+      "costPlaceholder": "F.eks. 5000 = 50 kr",
+      "kidLabel": "Tildel til barn",
+      "kidNone": "Alle børn",
+      "create": "Opret belønning"
+    },
+    "rewardDetail": {
+      "title": "Rediger belønning",
+      "save": "Gem ændringer",
+      "delete": "Slet belønning",
+      "deleteConfirm": "Er du sikker på, at du vil slette denne belønning?",
+      "activeLabel": "Aktiv"
+    },
+    "approvals": {
+      "title": "Godkendelser",
+      "empty": "Ingen ventende godkendelser",
+      "emptyBody": "Godt! Alt er i orden.",
+      "approve": "Godkend",
+      "reject": "Afvis",
+      "taskSection": "Opgaver",
+      "rewardSection": "Belønninger",
+      "swipeHint": "Stryg for at godkende eller afvise",
+      "confirmApprove": "Godkend fuldførelse af \"%{title}\"?",
+      "confirmReject": "Afvis fuldførelse af \"%{title}\"?",
+      "approvedToast": "Godkendt! %{name} fik %{amount}",
+      "rejectedToast": "Afvist",
+      "kindReward": "Belønning",
+      "kindTask": "Opgave"
+    },
+    "pairingCode": {
+      "title": "Parringskode",
+      "instructions": "Vis denne kode til dit barn. De indtaster den i appen for at forbinde med din konto.",
+      "expiresIn": "Udløber om %{time}",
+      "expired": "Koden er udløbet",
+      "regenerate": "Generer ny kode",
+      "copy": "Kopiér kode",
+      "copied": "Kopieret!",
+      "generating": "Genererer..."
+    },
+    "settings": {
+      "title": "Indstillinger",
+      "account": "Konto",
+      "displayName": "Visningsnavn",
+      "email": "E-mail",
+      "password": "Adgangskode",
+      "passwordValue": "••••••••",
+      "editAccount": "Rediger konto",
+      "subscription": "Abonnement",
+      "subscriptionTier": {
+        "free": "Gratis",
+        "family": "Familie"
+      },
+      "upgradePro": "Opgrader til Familie",
+      "signOut": "Log ud",
+      "signOutConfirm": "Er du sikker på, at du vil logge ud?",
+      "language": "Sprog",
+      "languageHelp": "Bruges i appen og i e-mails fra Kroni.",
+      "notifications": "Notifikationer",
+      "privacy": "Privatliv",
+      "terms": "Vilkår",
+      "support": "Support",
+      "version": "Version %{version}",
+      "other": "Andet",
+      "eyebrow": "Konto",
+      "headlineSettings": "Indstillinger",
+      "appInfo": {
+        "copyButton": "Kopiér app-info",
+        "copiedTitle": "Kopieret til udklipsholderen",
+        "copyAgain": "Kopiér igen",
+        "roleLine": {
+          "parent": "Rolle: forælder",
+          "kid": "Rolle: barn"
+        },
+        "platformLine": "Platform: %{platform} %{osVersion}"
+      }
+    },
+    "account": {
+      "title": "Konto",
+      "nameSection": "Navn",
+      "firstName": "Fornavn",
+      "lastName": "Efternavn",
+      "saveName": "Gem navn",
+      "nameSaved": "Navn gemt",
+      "emailSection": "E-mail",
+      "currentEmail": "Nuværende e-mail",
+      "newEmail": "Ny e-mail",
+      "newEmailPlaceholder": "ny@eksempel.dk",
+      "sendCode": "Send bekræftelseskode",
+      "sendingCode": "Sender...",
+      "codeSent": "Vi sendte en kode til %{email}.",
+      "verifyCode": "Bekræft kode",
+      "codeLabel": "Kode fra e-mail",
+      "codePlaceholder": "123456",
+      "confirmEmail": "Skift e-mail",
+      "emailChanged": "E-mail opdateret",
+      "passwordSection": "Adgangskode",
+      "currentPassword": "Nuværende adgangskode",
+      "newPassword": "Ny adgangskode",
+      "confirmPassword": "Bekræft ny adgangskode",
+      "savePassword": "Gem adgangskode",
+      "passwordSaved": "Adgangskode opdateret",
+      "errorPasswordsDontMatch": "Adgangskoderne er ikke ens.",
+      "errorPasswordTooShort": "Adgangskoden skal være mindst 8 tegn.",
+      "errorEmailInvalid": "Indtast en gyldig e-mailadresse.",
+      "errorGeneric": "Noget gik galt. Prøv igen."
+    },
+    "household": {
+      "sectionTitle": "Familie",
+      "members": {
+        "title": "Medlemmer",
+        "emptyState": "Ingen forælder tilføjet endnu",
+        "premiumOwnerLabel": "Premium-ejer",
+        "currentUserLabel": "(dig)",
+        "invitedLabel": "Inviteret"
+      },
+      "inviteButton": "Inviter forælder",
+      "inviteModal": {
+        "title": "Inviter forælder",
+        "emailLabel": "E-mail (valgfrit)",
+        "emailPlaceholder": "valgfrit@eksempel.dk",
+        "generate": "Generer kode",
+        "generating": "Genererer...",
+        "errorRateLimit": "For mange forsøg. Prøv igen om lidt.",
+        "errorEmailInvalid": "Indtast en gyldig e-mailadresse.",
+        "errorGeneric": "Kunne ikke oprette kode. Prøv igen.",
+        "codeDisplayHeading": "Del koden med forælderen",
+        "copyButton": "Kopiér",
+        "copiedToast": "Kopieret!",
+        "mailtoSubject": "Bliv en del af Kroni-familien",
+        "mailtoBody": "Hej!\n\nBrug denne kode for at blive en del af vores familie på Kroni: %{code}\n\nKoden udløber %{expires}.",
+        "mailtoLink": "Send via e-mail",
+        "expiresIn": "Udløber om %{time}",
+        "share": "Del",
+        "close": "Luk"
+      },
+      "invitesList": {
+        "title": "Aktive invitationer",
+        "empty": "Ingen aktive invitationer",
+        "revokeConfirm": "Tilbagekald invitation med kode %{code}?",
+        "revokeAction": "Tilbagekald"
+      },
+      "joinFlow": {
+        "linkLabel": "Har du en familiekode? Bliv en del af en familie.",
+        "codeInputLabel": "Familiekode",
+        "codePlaceholder": "6-cifret kode",
+        "errorInvalid": "Ugyldig eller udløbet kode.",
+        "errorAlreadyJoined": "Du er allerede med i en familie."
+      }
     }
   },
   "kid": {
-    "today": "Today",
-    "balance": "Balance",
-    "rewards": "Rewards",
-    "profile": "Profile",
+    "today": "I dag",
+    "balance": "Saldo",
+    "rewards": "Belønninger",
+    "profile": "Profil",
     "profileLanguage": {
       "title": "Sprog",
       "subtitle": "Vælg appens sprog"
     },
-    "profileScreen": {
-      "avatar": {
-        "editTitle": "Skift figur",
-        "pickerTitle": "Vælg figur"
-      }
-    },
-    "celebrate": "Great job!",
-    "errors": {
-      "loadFailedTitle": "Kunne ikke indlæse",
-      "loadFailedBody": "Noget gik galt. Tjek forbindelsen og prøv igen.",
-      "retry": "Prøv igen",
-      "completeFailed": "Kunne ikke registrere opgaven. Prøv igen.",
-      "uncompleteFailed": "Kunne ikke fortryde. Prøv igen."
-    },
     "todayScreen": {
+      "greeting": "Hej, %{name}!",
+      "greetingMorning": "Godmorgen, %{name}!",
+      "greetingAfternoon": "God eftermiddag, %{name}!",
+      "greetingEvening": "Godaften, %{name}!",
+      "tasksToday": "%{count} opgaver i dag",
+      "noTasks": "Ingen opgaver i dag!",
+      "noTasksBody": "Du har fri i dag. Nyd det!",
+      "pendingSection": "At gøre",
+      "doneSection": "Færdig",
+      "completedOverlay": "Godt klaret!",
+      "waitingApproval": "Venter på godkendelse",
+      "approved": "Godkendt",
+      "rejected": "Afvist",
+      "progressLabel": "%{done} af %{total} fuldført",
+      "heroToday": "I dag,",
+      "balanceLabel": "Saldo",
+      "balanceAccessibility": "Saldo: %{amount} øre",
       "detailSheet": {
+        "whenLabel": "Hvornår",
+        "approvalLabel": "Godkendelse",
+        "approvalRequired": "Forælder skal godkende",
+        "approvalDirect": "Lægges til saldo direkte",
         "recurrenceDaily": "Hver dag",
         "recurrenceOnce": "Kun én gang",
         "recurrenceWeekly": "Ugentligt",
@@ -111,18 +477,174 @@
           "6": "lørdag"
         }
       }
+    },
+    "balanceScreen": {
+      "title": "Saldo",
+      "currentBalance": "Din saldo",
+      "weekEarned": "Tjent i denne uge",
+      "weekSpent": "Brugt i denne uge",
+      "history": "Historik",
+      "emptyHistory": "Ingen transaktioner endnu",
+      "emptyHistoryBody": "Fuldfør opgaver for at tjene penge!",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "for %{count} dage siden",
+      "reasons": {
+        "task": "Opgave fuldført",
+        "allowance": "Ugentlige lommepenge",
+        "redemption": "Belønning indløst",
+        "adjustment": "Justering",
+        "gift": "Gave",
+        "reversal": "Refundering"
+      }
+    },
+    "rewardsScreen": {
+      "title": "Belønninger",
+      "empty": "Ingen belønninger tilgængelige",
+      "emptyBody": "Din forælder har ikke tilføjet belønninger endnu",
+      "needMore": "Mangler %{amount}",
+      "redeem": "Indløs",
+      "confirmRedeem": "Vil du indløse \"%{title}\" for %{amount}?",
+      "waiting": "Venter på godkendelse",
+      "affordable": "Du har råd til dette!",
+      "redeemed": "Sendt til godkendelse!",
+      "errorInsufficient": "Du har ikke nok saldo til dette endnu.",
+      "eyebrow": "Belønninger",
+      "headlineA": "Det du",
+      "headlineB": "vil have"
+    },
+    "profileScreen": {
+      "title": "Profil",
+      "weeklyEarnings": "Indtjening de seneste 7 dage",
+      "signOut": "Forbind fra",
+      "signOutConfirm": "Er du sikker på, at du vil forbinde fra denne enhed?",
+      "avatarChange": "Skift figur",
+      "avatar": {
+        "editTitle": "Skift figur",
+        "pickerTitle": "Vælg figur"
+      },
+      "noEarnings": "Ingen indtjening endnu",
+      "eyebrow": "Profil",
+      "appInfo": {
+        "copyButton": "Kopiér app-info",
+        "copiedTitle": "Kopieret til udklipsholderen",
+        "copyAgain": "Kopiér igen",
+        "roleLine": {
+          "kid": "Rolle: barn"
+        },
+        "platformLine": "Platform: %{platform} %{osVersion}"
+      }
+    },
+    "celebrate": {
+      "title": "Godt klaret!",
+      "youGot": "Du fik",
+      "dismiss": "Hurra!",
+      "newBalance": "Din saldo nu:"
+    },
+    "errors": {
+      "loadFailedTitle": "Kunne ikke indlæse",
+      "loadFailedBody": "Noget gik galt. Tjek forbindelsen og prøv igen.",
+      "retry": "Prøv igen",
+      "completeFailed": "Kunne ikke registrere opgaven. Prøv igen.",
+      "uncompleteFailed": "Kunne ikke fortryde. Prøv igen."
     }
   },
+  "paywall": {
+    "title": "Kroni Familie",
+    "subtitle": "Ubegrænset adgang for hele familien",
+    "features": {
+      "kids": "Ubegrænset antal børn",
+      "tasks": "Ubegrænset antal opgaver",
+      "rewards": "Alle belønningsfunktioner",
+      "notifications": "Push-notifikationer",
+      "history": "Fuld historik"
+    },
+    "monthly": "Månedligt",
+    "yearly": "Årligt",
+    "save": "Spar 32%",
+    "subscribe": "Abonner nu",
+    "restore": "Gendan køb",
+    "terms": "Vilkår for brug",
+    "privacy": "Privatliv",
+    "legalNote": "Abonnementet fornys automatisk til samme pris. Du kan opsige når som helst i App Store-indstillingerne.",
+    "free": {
+      "kids": "1 barn",
+      "tasks": "5 aktive opgaver"
+    },
+    "pro": {
+      "kids": "Ubegrænset antal børn",
+      "tasks": "Ubegrænset antal opgaver"
+    },
+    "headerEyebrow": "Familieplan",
+    "headerCaption": "Familieplan",
+    "headlineA": "Når familien",
+    "headlineB": "vokser",
+    "intro": "Ubegrænset antal børn og opgaver, notifikationer og fuld historik. Sæt på pause når familien er på ferie, opsig når du vil.",
+    "featuresEyebrow": "Det du får",
+    "trustCancel": "Opsig når du vil",
+    "trustNoAds": "Ingen reklamer",
+    "trustNoCash": "Aldrig rigtige penge",
+    "lifetime": "Livstid",
+    "lifetimeBadge": "Bedst værdi",
+    "lifetimePrice": "1.199 kr engangsbeløb",
+    "lifetimeNote": "Tre års årsabonnement på én gang — betal aldrig igen.",
+    "trial": "7 dage gratis",
+    "trialNote": "Opsig i App Store senest 24 timer før prøveperioden slutter for at undgå betaling.",
+    "choosePlan": "Vælg plan",
+    "perMonth": "/ md.",
+    "perYear": "/ år",
+    "startTrial": "Start 7 dage gratis",
+    "buyLifetime": "Køb livstidsadgang",
+    "errorTitle": "Kunne ikke indlæse plandetaljer",
+    "errorBody": "Tjek internetforbindelsen og prøv igen.",
+    "errorRetry": "Prøv igen"
+  },
+  "subscriptionDetail": {
+    "title": "Abonnement",
+    "eyebrow": "Plan",
+    "tierFamily": "Kroni Familie",
+    "tierFree": "Gratis",
+    "tierLifetime": "Kroni Familie · Livstid",
+    "renewsOn": "Fornys %{date}",
+    "expiresOn": "Udløber %{date}",
+    "lifetimeBlurb": "Du ejer Kroni Familie for altid. Aldrig mere betaling.",
+    "freeBlurb": "Du er på gratisplanen — 1 barn og 5 aktive opgaver.",
+    "trialActive": "Prøveperiode aktiv",
+    "trialActiveBody": "Prøveperioden varer til %{date}. Du bliver opkrævet automatisk, hvis du ikke opsiger mindst 24 timer før.",
+    "manageButton": "Administrer i App Store",
+    "manageHint": "Opsigelse, betalingsmetode og familiedeling håndteres af butikken.",
+    "restoreButton": "Gendan køb",
+    "restoring": "Gendanner…",
+    "restoreSuccess": "Køb gendannet",
+    "restoreEmpty": "Ingen tidligere køb fundet på denne konto.",
+    "restoreError": "Kunne ikke gendanne. Prøv igen.",
+    "upgradeButton": "Opgrader nu"
+  },
   "roleChooser": {
-    "title": "Who are you?",
-    "subtitle": "Choose your role to get started",
+    "title": "Hvem er du?",
+    "subtitle": "Vælg din rolle for at komme i gang",
     "parentCard": {
-      "title": "Parent",
-      "description": "Create tasks, approve completions, and manage rewards"
+      "title": "Forælder",
+      "description": "Opret opgaver, godkend fuldførelser og administrer belønninger"
     },
     "kidCard": {
-      "title": "Kid",
-      "description": "See today's tasks, earn money, and redeem rewards"
-    }
+      "title": "Barn",
+      "description": "Se dagens opgaver, tjen penge og indløs belønninger"
+    },
+    "eyebrow": "Velkommen til Kroni",
+    "headlineA": "Hvem er du —",
+    "headlineB": "i dag",
+    "intro": "Vælg hvilken side af Kroni du logger ind på.",
+    "parentEyebrow": "Forælder",
+    "parentHeadline": "Sæt familien op.",
+    "parentBody": "Opret opgaver, godkend færdigt arbejde og fastsæt lommepenge. Fra køkkenbordet, ikke fra appen.",
+    "kidEyebrow": "Barn",
+    "kidHeadline": "Log ind med kode.",
+    "kidBody": "Bed dine forældre om en sekscifret kode. Du får din egen opgaveliste og saldo.",
+    "trustBuilt": "Bygget i Norge",
+    "trustNoCash": "Aldrig rigtige penge",
+    "trustAge": "For børn 6–14 år",
+    "parentAccessibility": "Forælder",
+    "kidAccessibility": "Barn"
   }
 }

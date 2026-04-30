@@ -1,25 +1,30 @@
 {
   "common": {
     "ok": "OK",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "confirm": "Confirm",
-    "loading": "Loading...",
-    "error": "Something went wrong",
-    "retry": "Try again",
-    "empty": "Nothing here yet",
-    "close": "Close",
-    "back": "Back"
+    "cancel": "Avbryt",
+    "save": "Spara",
+    "delete": "Radera",
+    "confirm": "Bekräfta",
+    "loading": "Laddar...",
+    "error": "Något gick fel",
+    "retry": "Försök igen",
+    "empty": "Inget här ännu",
+    "close": "Stäng",
+    "back": "Tillbaka",
+    "edit": "Redigera",
+    "add": "Lägg till",
+    "done": "Klar",
+    "yes": "Ja",
+    "no": "Nej"
   },
   "auth": {
     "parent": {
-      "signIn": "Sign in",
-      "signUp": "Create account",
-      "email": "Email address",
-      "password": "Password",
-      "continueWithApple": "Continue with Apple",
-      "continueWithEmail": "Continue with email",
+      "signIn": "Logga in",
+      "signUp": "Skapa konto",
+      "email": "E-postadress",
+      "password": "Lösenord",
+      "continueWithApple": "Fortsätt med Apple",
+      "continueWithEmail": "Fortsätt med e-post",
       "noAccount": "Har du inget konto?",
       "hasAccount": "Har du redan ett konto?",
       "welcomeBack": "Välkommen tillbaka",
@@ -31,10 +36,47 @@
       "consentDot": "."
     },
     "kid": {
-      "pair": "Connect to parent",
-      "enterCode": "Enter the code you got from your parent",
-      "connecting": "Connecting...",
-      "paired": "Connected! Hi %{name}!"
+      "pair": "Anslut till förälder",
+      "enterCode": "Skriv in koden du fick av din förälder",
+      "connecting": "Ansluter...",
+      "paired": "Ansluten! Hej %{name}!",
+      "pairButton": "Anslut",
+      "codeLabel": "6-siffrig kod",
+      "nameLabel": "Vad heter du?",
+      "namePlaceholder": "Förnamn",
+      "birthYearLabel": "Födelseår (valfritt)",
+      "birthYearPlaceholder": "T.ex. 2015",
+      "avatarLabel": "Välj en avatar",
+      "errorInvalidCode": "Ogiltig eller utgången kod. Försök igen.",
+      "errorNetwork": "Kunde inte ansluta. Kontrollera din internetanslutning."
+    },
+    "parentSignIn": {
+      "eyebrow": "Logga in",
+      "headlineA": "Välkommen",
+      "headlineB": "hem",
+      "twoFactor": {
+        "totp": "Skriv in den 6-siffriga koden från din autentiseringsapp.",
+        "phone_code": "Vi skickade en kod till din telefon. Skriv in den nedan.",
+        "email_code": "Vi skickade en kod till din e-post. Skriv in den nedan.",
+        "backup_code": "Skriv in en av dina reservkoder.",
+        "codeLabel": "Kod",
+        "codeAccessibility": "6-siffrig kod",
+        "confirmButton": "Bekräfta",
+        "switchAccount": "Byt konto",
+        "errorNotLoaded": "Strax — appen laddar fortfarande.",
+        "errorUnavailable": "Inloggning är inte tillgänglig. Försök igen.",
+        "errorStatus": "Status: %{status}. Försök igen eller kontakta support.",
+        "errorStatus2fa": "Status: %{status}. Försök med koden igen.",
+        "errorNoMethod": "Ingen tvåfaktorsmetod stöds (%{names})."
+      }
+    },
+    "parentSignUp": {
+      "eyebrow": "Nytt konto",
+      "headlineA": "Börja",
+      "headlineB": "gratis",
+      "verifyText": "Vi har skickat en bekräftelsekod till %{email}. Skriv in koden nedan.",
+      "verifyCodeLabel": "Bekräftelsekod",
+      "verifyCodeAccessibility": "Bekräftelsekod"
     },
     "resetPassword": {
       "title": "Återställ lösenord",
@@ -45,16 +87,122 @@
       "submit": "Återställ",
       "forgotLink": "Glömt lösenord?",
       "errorGeneric": "Kunde inte återställa lösenordet. Försök igen."
+    },
+    "kidPair": {
+      "eyebrow": "Barn",
+      "headlineA": "Skriv in",
+      "headlineB": "koden",
+      "digitAccessibility": "Siffra %{n}"
     }
   },
   "parent": {
-    "kids": "Kids",
-    "tasks": "Tasks",
-    "rewards": "Rewards",
-    "approvals": "Approvals",
-    "settings": "Settings",
-    "paywall": "Upgrade to Family",
+    "kids": "Barn",
+    "tasks": "Uppgifter",
+    "rewards": "Belöningar",
+    "paywall": "Uppgradera till Familj",
+    "kidsList": {
+      "title": "Barn",
+      "empty": "Inga barn tillagda ännu",
+      "emptyBody": "Lägg till ditt första barn för att komma igång",
+      "addKid": "Lägg till barn",
+      "kidCount": "%{count} barn",
+      "eyebrow": "Förälder",
+      "headlineA": "Din",
+      "headlineB": "familj",
+      "noAllowance": "Ingen veckopeng inställd"
+    },
+    "kidNew": {
+      "title": "Nytt barn",
+      "namePlaceholder": "Barnets namn",
+      "nameLabel": "Namn",
+      "birthYearLabel": "Födelseår (valfritt)",
+      "birthYearPlaceholder": "T.ex. 2015",
+      "allowanceLabel": "Veckopeng (kr)",
+      "allowancePlaceholder": "0",
+      "avatarLabel": "Välj en avatar",
+      "create": "Skapa barn",
+      "creating": "Skapar...",
+      "successTitle": "Barn skapat!",
+      "successBody": "Nu kan du skapa en parningskod för att ansluta barnet till appen."
+    },
     "kidDetail": {
+      "tasks": "Uppgifter",
+      "balance": "Saldo",
+      "history": "Historik",
+      "editName": "Redigera namn",
+      "weeklyAllowance": "Veckopeng",
+      "deleteKid": "Radera barn",
+      "deleteConfirm": "Är du säker på att du vill radera %{name}? Det går inte att ångra.",
+      "noTasks": "Inga uppgifter tilldelade ännu",
+      "adjustBalance": "Justera saldo",
+      "edit": "Ändra",
+      "perWeek": "%{amount} / vecka",
+      "allowanceOff": "Ingen veckopeng",
+      "generatePairingCode": "Skapa parningskod",
+      "bornIn": "Född %{year}",
+      "emptyHistoryTitle": "Inga transaktioner ännu",
+      "emptyHistoryBody": "När %{name} slutför uppgifter dyker de upp här.",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "för %{count} dagar sedan",
+      "adjustModal": {
+        "title": "Justera saldo",
+        "amountLabel": "Belopp (kr)",
+        "amountHelp": "Använd minus för att dra av, t.ex. -50.",
+        "reasonLabel": "Anledning",
+        "noteLabel": "Notering (valfritt)",
+        "notePlaceholder": "Kort motivering...",
+        "save": "Spara",
+        "cancel": "Avbryt",
+        "errorInsufficient": "Saldot kan inte bli negativt.",
+        "errorAmountZero": "Beloppet kan inte vara noll.",
+        "errorAmountInvalid": "Skriv in ett giltigt belopp.",
+        "errorGeneric": "Kunde inte spara. Försök igen.",
+        "reasons": {
+          "adjustment": "Justering",
+          "gift": "Gåva",
+          "reversal": "Återbetalning"
+        }
+      },
+      "allowanceModal": {
+        "title": "Veckopeng",
+        "amountLabel": "Belopp (kr)",
+        "amountHelp": "0 betyder av.",
+        "frequencyLabel": "Hur ofta?",
+        "frequency": {
+          "none": "Av",
+          "weekly": "Varje vecka",
+          "biweekly": "Varannan vecka",
+          "monthly": "Varje månad"
+        },
+        "dayOfWeekLabel": "Vilken veckodag?",
+        "dayOfMonthLabel": "Vilken dag i månaden?",
+        "dayOfMonthHelp": "Om månaden är kortare betalas den ut sista dagen i månaden.",
+        "dayOfWeek": {
+          "mon": "Mån",
+          "tue": "Tis",
+          "wed": "Ons",
+          "thu": "Tor",
+          "fri": "Fre",
+          "sat": "Lör",
+          "sun": "Sön"
+        },
+        "save": "Spara",
+        "cancel": "Avbryt",
+        "errorInvalid": "Skriv in ett giltigt belopp.",
+        "errorMissingDayOfWeek": "Välj veckodag.",
+        "errorMissingDayOfMonth": "Välj dag i månaden.",
+        "errorGeneric": "Kunde inte spara. Försök igen."
+      },
+      "allowance": "Veckopeng",
+      "allowanceFrequencyLabel": {
+        "none": "Av",
+        "weekly": "Varje vecka",
+        "biweekly": "Varannan vecka",
+        "monthly": "Varje månad"
+      },
+      "nextPayment": "Nästa utbetalning: %{date}",
+      "nextPaymentNone": "Nästa utbetalning: —",
       "pairingCode": {
         "regenerateButton": "Skapa ny parningskod",
         "confirmTitle": "Skapa ny kod?",
@@ -68,33 +216,251 @@
         "shareTitle": "Parning till %{name}",
         "shareBody": "Öppna %{url} på din telefon för att logga in %{name} i Kroni Family. Länken är giltig i %{minutes} minuter."
       }
+    },
+    "tasksList": {
+      "title": "Uppgifter",
+      "empty": "Inga uppgifter skapade ännu",
+      "emptyBody": "Skapa din första uppgift",
+      "addTask": "Ny uppgift",
+      "allKids": "Alla barn",
+      "groupedByKid": "Grupperat per barn",
+      "eyebrow": "Uppgifter",
+      "headlineA": "Vad behöver",
+      "headlineB": "göras",
+      "recurrenceDaily": "Dagligen",
+      "recurrenceWeekly": "Varje vecka",
+      "recurrenceOnce": "En gång",
+      "inactive": "Inaktiv",
+      "approval": "Godkännande"
+    },
+    "taskNew": {
+      "title": "Ny uppgift",
+      "titleLabel": "Uppgiftens titel",
+      "titlePlaceholder": "T.ex. Städa rummet",
+      "descLabel": "Beskrivning (valfritt)",
+      "descPlaceholder": "Beskriv uppgiften...",
+      "rewardLabel": "Belöning (kr)",
+      "rewardAccessibility": "Belöning",
+      "rewardPlaceholder": "T.ex. 2000 = 20 kr",
+      "recurrenceLabel": "Upprepning",
+      "kidLabel": "Tilldela till barn",
+      "kidNone": "Alla barn",
+      "requiresApproval": "Kräver godkännande",
+      "create": "Skapa uppgift",
+      "daysLabel": "Vilka dagar?",
+      "anyDayLabel": "Valfri",
+      "anyDayAccessibility": "Valfri — alla dagar",
+      "recurrence": {
+        "daily": "Dagligen",
+        "weekly": "Varje vecka",
+        "once": "En gång"
+      }
+    },
+    "taskDetail": {
+      "title": "Redigera uppgift",
+      "save": "Spara ändringar",
+      "deactivate": "Inaktivera",
+      "activate": "Aktivera",
+      "delete": "Radera uppgift",
+      "deleteConfirm": "Är du säker på att du vill radera den här uppgiften?"
+    },
+    "rewardsList": {
+      "title": "Belöningar",
+      "empty": "Inga belöningar skapade ännu",
+      "emptyBody": "Skapa en belöning som barnen kan jobba mot",
+      "addReward": "Ny belöning",
+      "eyebrow": "Belöningar",
+      "headlineA": "Det de",
+      "headlineB": "vill ha",
+      "inactive": "Inaktiv"
+    },
+    "rewardNew": {
+      "title": "Ny belöning",
+      "titleLabel": "Belöningens titel",
+      "titlePlaceholder": "T.ex. Biobiljetter",
+      "costLabel": "Kostnad (kr)",
+      "costAccessibility": "Kostnad",
+      "costPlaceholder": "T.ex. 5000 = 50 kr",
+      "kidLabel": "Tilldela till barn",
+      "kidNone": "Alla barn",
+      "create": "Skapa belöning"
+    },
+    "rewardDetail": {
+      "title": "Redigera belöning",
+      "save": "Spara ändringar",
+      "delete": "Radera belöning",
+      "deleteConfirm": "Är du säker på att du vill radera den här belöningen?",
+      "activeLabel": "Aktiv"
+    },
+    "approvals": {
+      "title": "Godkännanden",
+      "empty": "Inga väntande godkännanden",
+      "emptyBody": "Bra! Allt är i ordning.",
+      "approve": "Godkänn",
+      "reject": "Avvisa",
+      "taskSection": "Uppgifter",
+      "rewardSection": "Belöningar",
+      "swipeHint": "Svep för att godkänna eller avvisa",
+      "confirmApprove": "Godkänna att \"%{title}\" är klar?",
+      "confirmReject": "Avvisa att \"%{title}\" är klar?",
+      "approvedToast": "Godkänd! %{name} fick %{amount}",
+      "rejectedToast": "Avvisad",
+      "kindReward": "Belöning",
+      "kindTask": "Uppgift"
+    },
+    "pairingCode": {
+      "title": "Parningskod",
+      "instructions": "Visa den här koden för ditt barn. De skriver in den i appen för att ansluta till ditt konto.",
+      "expiresIn": "Förfaller om %{time}",
+      "expired": "Koden har förfallit",
+      "regenerate": "Skapa ny kod",
+      "copy": "Kopiera kod",
+      "copied": "Kopierad!",
+      "generating": "Skapar..."
+    },
+    "settings": {
+      "title": "Inställningar",
+      "account": "Konto",
+      "displayName": "Visningsnamn",
+      "email": "E-post",
+      "password": "Lösenord",
+      "passwordValue": "••••••••",
+      "editAccount": "Redigera konto",
+      "subscription": "Prenumeration",
+      "subscriptionTier": {
+        "free": "Gratis",
+        "family": "Familj"
+      },
+      "upgradePro": "Uppgradera till Familj",
+      "signOut": "Logga ut",
+      "signOutConfirm": "Är du säker på att du vill logga ut?",
+      "language": "Språk",
+      "languageHelp": "Används i appen och i e-post från Kroni.",
+      "notifications": "Notiser",
+      "privacy": "Integritet",
+      "terms": "Villkor",
+      "support": "Support",
+      "version": "Version %{version}",
+      "other": "Annat",
+      "eyebrow": "Konto",
+      "headlineSettings": "Inställningar",
+      "appInfo": {
+        "copyButton": "Kopiera appinfo",
+        "copiedTitle": "Kopierat till urklipp",
+        "copyAgain": "Kopiera igen",
+        "roleLine": {
+          "parent": "Roll: förälder",
+          "kid": "Roll: barn"
+        },
+        "platformLine": "Plattform: %{platform} %{osVersion}"
+      }
+    },
+    "account": {
+      "title": "Konto",
+      "nameSection": "Namn",
+      "firstName": "Förnamn",
+      "lastName": "Efternamn",
+      "saveName": "Spara namn",
+      "nameSaved": "Namn sparat",
+      "emailSection": "E-post",
+      "currentEmail": "Nuvarande e-post",
+      "newEmail": "Ny e-post",
+      "newEmailPlaceholder": "ny@exempel.se",
+      "sendCode": "Skicka bekräftelsekod",
+      "sendingCode": "Skickar...",
+      "codeSent": "Vi skickade en kod till %{email}.",
+      "verifyCode": "Bekräfta kod",
+      "codeLabel": "Kod från e-post",
+      "codePlaceholder": "123456",
+      "confirmEmail": "Byt e-post",
+      "emailChanged": "E-post uppdaterad",
+      "passwordSection": "Lösenord",
+      "currentPassword": "Nuvarande lösenord",
+      "newPassword": "Nytt lösenord",
+      "confirmPassword": "Bekräfta nytt lösenord",
+      "savePassword": "Spara lösenord",
+      "passwordSaved": "Lösenord uppdaterat",
+      "errorPasswordsDontMatch": "Lösenorden stämmer inte överens.",
+      "errorPasswordTooShort": "Lösenordet måste vara minst 8 tecken.",
+      "errorEmailInvalid": "Skriv in en giltig e-postadress.",
+      "errorGeneric": "Något gick fel. Försök igen."
+    },
+    "household": {
+      "sectionTitle": "Familj",
+      "members": {
+        "title": "Medlemmar",
+        "emptyState": "Ingen förälder tillagd ännu",
+        "premiumOwnerLabel": "Premiumägare",
+        "currentUserLabel": "(du)",
+        "invitedLabel": "Inbjuden"
+      },
+      "inviteButton": "Bjud in förälder",
+      "inviteModal": {
+        "title": "Bjud in förälder",
+        "emailLabel": "E-post (valfritt)",
+        "emailPlaceholder": "valfritt@exempel.se",
+        "generate": "Skapa kod",
+        "generating": "Skapar...",
+        "errorRateLimit": "För många försök. Försök igen om en stund.",
+        "errorEmailInvalid": "Skriv in en giltig e-postadress.",
+        "errorGeneric": "Kunde inte skapa kod. Försök igen.",
+        "codeDisplayHeading": "Dela koden med föräldern",
+        "copyButton": "Kopiera",
+        "copiedToast": "Kopierad!",
+        "mailtoSubject": "Gå med i Kroni-familjen",
+        "mailtoBody": "Hej!\n\nAnvänd den här koden för att gå med i vår familj på Kroni: %{code}\n\nKoden förfaller %{expires}.",
+        "mailtoLink": "Skicka via e-post",
+        "expiresIn": "Förfaller om %{time}",
+        "share": "Dela",
+        "close": "Stäng"
+      },
+      "invitesList": {
+        "title": "Aktiva inbjudningar",
+        "empty": "Inga aktiva inbjudningar",
+        "revokeConfirm": "Återkalla inbjudan med kod %{code}?",
+        "revokeAction": "Återkalla"
+      },
+      "joinFlow": {
+        "linkLabel": "Har du en familjekod? Gå med i en familj.",
+        "codeInputLabel": "Familjekod",
+        "codePlaceholder": "6-siffrig kod",
+        "errorInvalid": "Ogiltig eller utgången kod.",
+        "errorAlreadyJoined": "Du är redan med i en familj."
+      }
     }
   },
   "kid": {
-    "today": "Today",
-    "balance": "Balance",
-    "rewards": "Rewards",
-    "profile": "Profile",
+    "today": "I dag",
+    "balance": "Saldo",
+    "rewards": "Belöningar",
+    "profile": "Profil",
     "profileLanguage": {
       "title": "Språk",
       "subtitle": "Välj appens språk"
     },
-    "profileScreen": {
-      "avatar": {
-        "editTitle": "Byt figur",
-        "pickerTitle": "Välj figur"
-      }
-    },
-    "celebrate": "Great job!",
-    "errors": {
-      "loadFailedTitle": "Kunde inte ladda",
-      "loadFailedBody": "Något gick fel. Kontrollera anslutningen och försök igen.",
-      "retry": "Försök igen",
-      "completeFailed": "Kunde inte markera uppgiften som klar. Försök igen.",
-      "uncompleteFailed": "Kunde inte ångra. Försök igen."
-    },
     "todayScreen": {
+      "greeting": "Hej, %{name}!",
+      "greetingMorning": "God morgon, %{name}!",
+      "greetingAfternoon": "God eftermiddag, %{name}!",
+      "greetingEvening": "God kväll, %{name}!",
+      "tasksToday": "%{count} uppgifter i dag",
+      "noTasks": "Inga uppgifter i dag!",
+      "noTasksBody": "Du är ledig i dag. Njut!",
+      "pendingSection": "Att göra",
+      "doneSection": "Klart",
+      "completedOverlay": "Bra jobbat!",
+      "waitingApproval": "Väntar på godkännande",
+      "approved": "Godkänd",
+      "rejected": "Avvisad",
+      "progressLabel": "%{done} av %{total} klara",
+      "heroToday": "I dag,",
+      "balanceLabel": "Saldo",
+      "balanceAccessibility": "Saldo: %{amount} öre",
       "detailSheet": {
+        "whenLabel": "När",
+        "approvalLabel": "Godkännande",
+        "approvalRequired": "Förälder måste godkänna",
+        "approvalDirect": "Läggs till saldo direkt",
         "recurrenceDaily": "Varje dag",
         "recurrenceOnce": "Endast en gång",
         "recurrenceWeekly": "Varje vecka",
@@ -111,18 +477,174 @@
           "6": "lördag"
         }
       }
+    },
+    "balanceScreen": {
+      "title": "Saldo",
+      "currentBalance": "Ditt saldo",
+      "weekEarned": "Tjänat den här veckan",
+      "weekSpent": "Spenderat den här veckan",
+      "history": "Historik",
+      "emptyHistory": "Inga transaktioner ännu",
+      "emptyHistoryBody": "Slutför uppgifter för att tjäna pengar!",
+      "today": "i dag",
+      "yesterday": "i går",
+      "daysAgo": "för %{count} dagar sedan",
+      "reasons": {
+        "task": "Uppgift slutförd",
+        "allowance": "Veckopeng",
+        "redemption": "Belöning inlöst",
+        "adjustment": "Justering",
+        "gift": "Gåva",
+        "reversal": "Återbetalning"
+      }
+    },
+    "rewardsScreen": {
+      "title": "Belöningar",
+      "empty": "Inga belöningar tillgängliga",
+      "emptyBody": "Din förälder har inte lagt till några belöningar ännu",
+      "needMore": "Behöver %{amount} till",
+      "redeem": "Lös in",
+      "confirmRedeem": "Vill du lösa in \"%{title}\" för %{amount}?",
+      "waiting": "Väntar på godkännande",
+      "affordable": "Du har råd med detta!",
+      "redeemed": "Skickad för godkännande!",
+      "errorInsufficient": "Du har inte tillräckligt med saldo för detta ännu.",
+      "eyebrow": "Belöningar",
+      "headlineA": "Det du",
+      "headlineB": "vill ha"
+    },
+    "profileScreen": {
+      "title": "Profil",
+      "weeklyEarnings": "Intjänat de senaste 7 dagarna",
+      "signOut": "Koppla från",
+      "signOutConfirm": "Är du säker på att du vill koppla från den här enheten?",
+      "avatarChange": "Byt figur",
+      "avatar": {
+        "editTitle": "Byt figur",
+        "pickerTitle": "Välj figur"
+      },
+      "noEarnings": "Inget intjänat ännu",
+      "eyebrow": "Profil",
+      "appInfo": {
+        "copyButton": "Kopiera appinfo",
+        "copiedTitle": "Kopierat till urklipp",
+        "copyAgain": "Kopiera igen",
+        "roleLine": {
+          "kid": "Roll: barn"
+        },
+        "platformLine": "Plattform: %{platform} %{osVersion}"
+      }
+    },
+    "celebrate": {
+      "title": "Bra jobbat!",
+      "youGot": "Du fick",
+      "dismiss": "Jippi!",
+      "newBalance": "Ditt saldo nu:"
+    },
+    "errors": {
+      "loadFailedTitle": "Kunde inte ladda",
+      "loadFailedBody": "Något gick fel. Kontrollera anslutningen och försök igen.",
+      "retry": "Försök igen",
+      "completeFailed": "Kunde inte markera uppgiften som klar. Försök igen.",
+      "uncompleteFailed": "Kunde inte ångra. Försök igen."
     }
   },
+  "paywall": {
+    "title": "Kroni Familj",
+    "subtitle": "Obegränsad åtkomst för hela familjen",
+    "features": {
+      "kids": "Obegränsat antal barn",
+      "tasks": "Obegränsat antal uppgifter",
+      "rewards": "Alla belöningsfunktioner",
+      "notifications": "Push-notiser",
+      "history": "Fullständig historik"
+    },
+    "monthly": "Varje månad",
+    "yearly": "Årligen",
+    "save": "Spara 32%",
+    "subscribe": "Prenumerera nu",
+    "restore": "Återställ köp",
+    "terms": "Användarvillkor",
+    "privacy": "Integritet",
+    "legalNote": "Prenumerationen förnyas automatiskt till samma pris. Du kan säga upp när som helst i App Store-inställningarna.",
+    "free": {
+      "kids": "1 barn",
+      "tasks": "5 aktiva uppgifter"
+    },
+    "pro": {
+      "kids": "Obegränsat antal barn",
+      "tasks": "Obegränsat antal uppgifter"
+    },
+    "headerEyebrow": "Familjeplan",
+    "headerCaption": "Familjeplan",
+    "headlineA": "När familjen",
+    "headlineB": "växer",
+    "intro": "Obegränsat antal barn och uppgifter, notiser och full historik. Pausa när familjen är på semester, säg upp när du vill.",
+    "featuresEyebrow": "Det du får",
+    "trustCancel": "Säg upp när du vill",
+    "trustNoAds": "Ingen reklam",
+    "trustNoCash": "Aldrig riktiga pengar",
+    "lifetime": "Livstid",
+    "lifetimeBadge": "Bäst värde",
+    "lifetimePrice": "1 199 kr engångsbelopp",
+    "lifetimeNote": "Tre års årsprenumeration på en gång — betala aldrig igen.",
+    "trial": "7 dagar gratis",
+    "trialNote": "Säg upp i App Store senast 24 timmar innan provperioden slutar för att slippa betalning.",
+    "choosePlan": "Välj plan",
+    "perMonth": "/ mån",
+    "perYear": "/ år",
+    "startTrial": "Starta 7 dagar gratis",
+    "buyLifetime": "Köp livstidstillgång",
+    "errorTitle": "Kunde inte ladda planinformation",
+    "errorBody": "Kontrollera internetanslutningen och försök igen.",
+    "errorRetry": "Försök igen"
+  },
+  "subscriptionDetail": {
+    "title": "Prenumeration",
+    "eyebrow": "Plan",
+    "tierFamily": "Kroni Familj",
+    "tierFree": "Gratis",
+    "tierLifetime": "Kroni Familj · Livstid",
+    "renewsOn": "Förnyas %{date}",
+    "expiresOn": "Förfaller %{date}",
+    "lifetimeBlurb": "Du äger Kroni Familj för alltid. Aldrig mer betalning.",
+    "freeBlurb": "Du är på gratisplanen — 1 barn och 5 aktiva uppgifter.",
+    "trialActive": "Provperiod aktiv",
+    "trialActiveBody": "Provperioden varar till %{date}. Du debiteras automatiskt om du inte säger upp minst 24 timmar innan.",
+    "manageButton": "Hantera i App Store",
+    "manageHint": "Uppsägning, betalningssätt och familjedelning hanteras av butiken.",
+    "restoreButton": "Återställ köp",
+    "restoring": "Återställer…",
+    "restoreSuccess": "Köp återställda",
+    "restoreEmpty": "Inga tidigare köp hittades på det här kontot.",
+    "restoreError": "Kunde inte återställa. Försök igen.",
+    "upgradeButton": "Uppgradera nu"
+  },
   "roleChooser": {
-    "title": "Who are you?",
-    "subtitle": "Choose your role to get started",
+    "title": "Vem är du?",
+    "subtitle": "Välj din roll för att komma igång",
     "parentCard": {
-      "title": "Parent",
-      "description": "Create tasks, approve completions, and manage rewards"
+      "title": "Förälder",
+      "description": "Skapa uppgifter, godkänn slutförda uppgifter och hantera belöningar"
     },
     "kidCard": {
-      "title": "Kid",
-      "description": "See today's tasks, earn money, and redeem rewards"
-    }
+      "title": "Barn",
+      "description": "Se dagens uppgifter, tjäna pengar och lös in belöningar"
+    },
+    "eyebrow": "Välkommen till Kroni",
+    "headlineA": "Vem är du —",
+    "headlineB": "i dag",
+    "intro": "Välj vilken sida av Kroni du loggar in på.",
+    "parentEyebrow": "Förälder",
+    "parentHeadline": "Sätt upp familjen.",
+    "parentBody": "Skapa uppgifter, godkänn slutfört arbete och bestäm veckopeng. Från köksbordet, inte appen.",
+    "kidEyebrow": "Barn",
+    "kidHeadline": "Logga in med kod.",
+    "kidBody": "Be dina föräldrar om en sexsiffrig kod. Du får din egen uppgiftslista och saldo.",
+    "trustBuilt": "Byggd i Norge",
+    "trustNoCash": "Aldrig riktiga pengar",
+    "trustAge": "För barn 6–14 år",
+    "parentAccessibility": "Förälder",
+    "kidAccessibility": "Barn"
   }
 }
