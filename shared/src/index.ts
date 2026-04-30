@@ -4,6 +4,7 @@ export * from './schemas/parent.js';
 export * from './schemas/kid.js';
 export * from './schemas/pairing.js';
 export * from './schemas/task.js';
+export * from './schemas/parent-log.js';
 export * from './schemas/reward.js';
 export * from './schemas/balance.js';
 export * from './schemas/errors.js';
