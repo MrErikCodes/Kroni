@@ -1,4 +1,4 @@
-import { and, eq, isNull, or, asc } from 'drizzle-orm';
+import { and, eq, isNull, or, asc, inArray } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 import { getDb } from '../db/index.js';
 import { tasks, taskCompletions, type TaskCompletionRow } from '../db/schema/tasks.js';
@@ -6,7 +6,6 @@ import { kids } from '../db/schema/kids.js';
 import { todayInAppTz, dayOfWeekInAppTz } from '../lib/time.js';
 import {
   isEligibleToday,
-  LoggableTasksResponseSchema,
   type DayOfWeek,
   type TaskCompletionStatus,
   type LoggableTask,
@@ -156,6 +155,8 @@ export async function listLoggableTasks(householdId: string): Promise<LoggableTa
 
   const taskIds = eligibleTasks.map((t) => t.id);
   const kidIds = householdKids.map((k) => k.id);
+  const taskIdSet = new Set(taskIds);
+  const kidIdSet = new Set(kidIds);
   const completions = await db
     .select({
       taskId: taskCompletions.taskId,
@@ -165,15 +166,25 @@ export async function listLoggableTasks(householdId: string): Promise<LoggableTa
       rejectedAt: taskCompletions.rejectedAt,
     })
     .from(taskCompletions)
-    .where(eq(taskCompletions.scheduledFor, today));
+    .where(
+      and(
+        eq(taskCompletions.scheduledFor, today),
+        inArray(taskCompletions.taskId, taskIds),
+        inArray(taskCompletions.kidId, kidIds),
+      ),
+    );
 
   const completionByTaskKid = new Map<string, (typeof completions)[number]>();
   for (const c of completions) {
-    if (!taskIds.includes(c.taskId) || !kidIds.includes(c.kidId)) continue;
+    if (!taskIdSet.has(c.taskId) || !kidIdSet.has(c.kidId)) continue;
     completionByTaskKid.set(`${c.taskId}:${c.kidId}`, c);
   }
 
-  const raw = eligibleTasks.map((t) => ({
+  // The shared schema brands taskId/kidId/rewardCents (zod `.brand<…>()`). Drizzle
+  // rows give us plain string/number, so we widen the variable to the unbranded
+  // shape and cast at the return. The route's response codec (Fastify +
+  // LoggableTasksResponseSchema) re-validates and applies the brands on the way out.
+  const result = eligibleTasks.map((t) => ({
     taskId: t.id,
     title: t.title,
     description: t.description,
@@ -196,8 +207,9 @@ export async function listLoggableTasks(householdId: string): Promise<LoggableTa
       }),
   }));
 
-  const result: LoggableTask[] = LoggableTasksResponseSchema.parse(raw);
-  return result.filter((r) => r.eligibleKids.some((k) => !k.alreadyCompletedToday));
+  return result.filter((r) =>
+    r.eligibleKids.some((k) => !k.alreadyCompletedToday),
+  ) as unknown as LoggableTask[];
 }
 
 export interface LogTaskCompletionParams {
@@ -205,6 +217,11 @@ export interface LogTaskCompletionParams {
   householdId: string;
   parentId: string;
   kidIds: string[];
+  /**
+   * Reserved for client correlation. Server-side idempotency is currently
+   * enforced by the (taskId, kidId, scheduledFor) unique index — same-day
+   * retries land on the existing row and skip with `alreadyCompleted`.
+   */
   idempotencyKey: string;
 }
 
