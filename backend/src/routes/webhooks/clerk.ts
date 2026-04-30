@@ -36,9 +36,10 @@ interface ClerkUserDeleted {
 // `data.slug` field tells us which template Clerk would have used; we
 // branch on it to pick our own. The OTP/code lives at `data.otp` (newer
 // payloads); some legacy flows put it at `data.token` or inside a nested
-// `data.data.{otp,token}` block. We try them in order and fall back to
-// a stringified body if nothing matches so the template still renders
-// something visible.
+// `data.data.{otp,token}` block. We do NOT fall back to the rendered
+// `data.body` HTML — that's Clerk's own email markup and would get
+// embedded as `{{code}}` inside our shell, defeating the point of
+// owning the template.
 interface ClerkEmailCreated {
   type: 'email.created';
   data: {
@@ -48,7 +49,6 @@ interface ClerkEmailCreated {
     user_id?: string | null;
     otp?: string | null;
     token?: string | null;
-    body?: string | null;
     subject?: string | null;
     data?: Record<string, unknown> | null;
   };
@@ -75,21 +75,32 @@ function templateForSlug(slug: string | undefined | null): 'password-reset' | 'e
 
 // Pull the human-visible code/OTP out of an `email.created` payload.
 // Clerk's payload shape has shifted between versions — try the most
-// common locations in order. Falls back to the rendered `body` string
-// (rather than blanking) so a template renders something meaningful
-// even if the schema changed underneath us.
-function extractCode(data: ClerkEmailCreated['data']): string {
-  if (typeof data.otp === 'string' && data.otp.length > 0) return data.otp;
-  if (typeof data.token === 'string' && data.token.length > 0) return data.token;
+// common locations in order. Returns null if nothing OTP-shaped is
+// found; the caller skips the Mailpace send rather than embed garbage
+// in the `{{code}}` slot. We deliberately do NOT fall back to
+// `data.body` — that field carries Clerk's own rendered HTML, which
+// would render-in-render inside our template (the bug that produced
+// the nested "Verification code" Clerk block inside our Kroni shell).
+function isOtpShaped(value: unknown): value is string {
+  if (typeof value !== 'string') return false;
+  if (value.length === 0 || value.length > 128) return false;
+  // OTPs and magic-link tokens are short, contiguous strings — no
+  // whitespace, no HTML markers. This excludes rendered email bodies
+  // without over-constraining future Clerk token shapes.
+  return !/[\s<>]/.test(value);
+}
+
+function extractCode(data: ClerkEmailCreated['data']): string | null {
+  if (isOtpShaped(data.otp)) return data.otp;
+  if (isOtpShaped(data.token)) return data.token;
   const nested = data.data;
   if (nested && typeof nested === 'object') {
     const otp = (nested as { otp?: unknown }).otp;
-    if (typeof otp === 'string' && otp.length > 0) return otp;
+    if (isOtpShaped(otp)) return otp;
     const token = (nested as { token?: unknown }).token;
-    if (typeof token === 'string' && token.length > 0) return token;
+    if (isOtpShaped(token)) return token;
   }
-  if (typeof data.body === 'string' && data.body.length > 0) return data.body;
-  return '';
+  return null;
 }
 
 export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
@@ -212,11 +223,16 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
         return reply.code(200).send({ ok: true, skipped: 'no recipient' });
       }
       const code = extractCode(ev.data);
-      if (!code) {
-        // Defensive: log but still attempt to send so the user sees
-        // something rather than a silent drop. Templates render `{{code}}`
-        // raw if we leave it unsubstituted.
-        req.log.warn({ slug: ev.data.slug }, 'clerk email.created had no extractable code');
+      if (code === null) {
+        // Skip the send rather than emailing a literal `{{code}}` or
+        // (worse) a Clerk-rendered HTML body. Re-enable Clerk's own
+        // delivery for this slug in the dashboard if codes start
+        // missing in production — this 200 also stops svix retries.
+        req.log.error(
+          { slug: ev.data.slug, user_id: ev.data.user_id ?? null },
+          'clerk email.created had no extractable OTP/token; skipping send',
+        );
+        return reply.code(200).send({ ok: true, skipped: 'no code' });
       }
       // Resolve recipient locale + display name from `parents` if we have
       // them; otherwise fall back to nb-NO + the email local part.

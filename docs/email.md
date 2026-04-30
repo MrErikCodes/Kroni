@@ -151,9 +151,13 @@ matched slugs so we don't double-send.
 
 The Clerk `email.created` payload-shape varies by version. The handler
 extracts the OTP from `data.otp` first, then `data.token`, then nested
-`data.data.{otp,token}`, finally falling back to the raw `data.body`
-string so the template still renders something visible if Clerk
-changes the field name.
+`data.data.{otp,token}`. Each candidate must be OTP-shaped (short,
+no whitespace, no HTML) — the handler intentionally does NOT fall
+back to `data.body`, since that field carries Clerk's own rendered
+HTML and would render-in-render inside our `{{code}}` slot. If
+nothing OTP-shaped is found we log + skip the send rather than email
+a literal `{{code}}` placeholder; toggle Clerk's own delivery back
+on for the slug from the dashboard if this starts firing.
 
 Email failures are independent of push notifications: each path is
 wrapped in its own try/catch in the RC webhook, so a Mailpace outage
