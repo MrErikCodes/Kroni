@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import { getDb } from '../db/index.js';
 import { tasks, taskCompletions, type TaskCompletionRow } from '../db/schema/tasks.js';
 import { todayInAppTz, dayOfWeekInAppTz } from '../lib/time.js';
-import type { TaskCompletionStatus } from '@kroni/shared';
+import { isEligibleToday, type DayOfWeek, type TaskCompletionStatus } from '@kroni/shared';
 
 // Idempotently create today's task_completions for the kid. Safe to call repeatedly:
 // the unique index on (taskId, kidId, scheduledFor) blocks duplicates and we ignore
@@ -25,17 +25,16 @@ export async function ensureTodayCompletions(kidId: string, householdId: string)
       ),
     );
 
-  const dueToday = candidateTasks.filter((t) => {
-    if (t.recurrence === 'daily') return true;
-    if (t.recurrence === 'weekly') {
-      return Array.isArray(t.daysOfWeek) && t.daysOfWeek.includes(dow);
-    }
-    if (t.recurrence === 'once') {
-      // 'once' tasks render until completed, then never again.
-      return true;
-    }
-    return false;
-  });
+  const dueToday = candidateTasks.filter((t) =>
+    isEligibleToday(
+      {
+        recurrence: t.recurrence as 'daily' | 'weekly' | 'once',
+        daysOfWeek: t.daysOfWeek,
+        active: t.active,
+      },
+      dow as DayOfWeek,
+    ),
+  );
 
   if (dueToday.length === 0) return;
 
