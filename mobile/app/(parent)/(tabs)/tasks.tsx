@@ -13,6 +13,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import { Plus, CheckSquare, ListChecks } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import * as Crypto from 'expo-crypto';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
@@ -32,14 +33,6 @@ const RECURRENCE_LABEL = () => ({
   weekly: t('parent.tasksList.recurrenceWeekly'),
   once: t('parent.tasksList.recurrenceOnce'),
 });
-
-function generateIdempotencyKey(): string {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
 
 function TaskRow({ task }: { task: Task }) {
   const theme = useTheme();
@@ -110,7 +103,7 @@ export default function TasksTab() {
     mutationFn: (input: { taskId: string; kidIds: string[] }) =>
       api.logTaskCompletion(input.taskId, {
         kidIds: input.kidIds as LogTaskCompletionRequest['kidIds'],
-        idempotencyKey: generateIdempotencyKey() as LogTaskCompletionRequest['idempotencyKey'],
+        idempotencyKey: Crypto.randomUUID() as LogTaskCompletionRequest['idempotencyKey'],
       }),
     onSuccess: (result, vars) => {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
