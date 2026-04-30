@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useUser } from '@clerk/clerk-expo';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import { useTheme } from '../../lib/theme';
@@ -32,12 +32,6 @@ export default function AccountScreen() {
   const qc = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
-
-  const { data: me } = useQuery({
-    queryKey: ['parent', 'me'],
-    queryFn: () => api.getMe(),
-    retry: false,
-  });
 
   // Inline banner replaces native Alert popups. Auto-hides after 3.5s.
   const [banner, setBanner] = useState<

@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import {
   View,
   Text,
@@ -89,8 +89,8 @@ export default function KidNew() {
     },
   });
 
-  const onSubmit = useCallback(
-    handleSubmit((data) => mutation.mutate(data)),
+  const onSubmit = useMemo(
+    () => handleSubmit((data) => mutation.mutate(data)),
     [handleSubmit, mutation],
   );
 

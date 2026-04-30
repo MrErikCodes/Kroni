@@ -88,7 +88,6 @@ function HistoryRow({ entry }: { entry: BalanceEntry }) {
 export default function BalanceScreen() {
   const theme = useTheme();
   const s = theme.surface;
-  const tx = theme.text;
 
   const {
     data: summary,

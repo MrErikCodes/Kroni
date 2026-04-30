@@ -565,7 +565,7 @@ function AdjustBalanceModal({
 
 const FREQUENCY_OPTIONS: AllowanceFrequency[] = ['none', 'weekly', 'biweekly', 'monthly'];
 // dayOfWeek convention: 0 = Sun … 6 = Sat. We render Mon → Sun for nb-NO.
-const DOW_ORDER: Array<{ value: number; key: string }> = [
+const DOW_ORDER: { value: number; key: string }[] = [
   { value: 1, key: 'mon' },
   { value: 2, key: 'tue' },
   { value: 3, key: 'wed' },

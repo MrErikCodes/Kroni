@@ -1,10 +1,8 @@
 import {
   Modal as RNModal,
-  View,
   TouchableOpacity,
   StyleSheet,
   useColorScheme,
-  ModalProps as RNModalProps,
 } from 'react-native';
 import { colors } from '../../lib/theme';
 

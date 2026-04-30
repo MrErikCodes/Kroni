@@ -13,12 +13,11 @@
 //   3. Otherwise → redirect to `/auth/kid-pair?code=<code>` with the
 //      sanitized 6-digit code. The pairing UI handles prefill + submit.
 import { useEffect, useState } from 'react';
-import { View, StyleSheet, useColorScheme } from 'react-native';
+import { View, StyleSheet, useColorScheme , TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, Redirect } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 import { ArrowLeft, Smartphone } from 'lucide-react-native';
-import { TouchableOpacity } from 'react-native';
 import { colors, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { getKidToken } from '../../lib/auth';

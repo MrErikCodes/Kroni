@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback } from 'react';
+import { useMemo } from 'react';
 import {
   View,
   Text,
@@ -34,7 +34,7 @@ const RECURRENCE_OPTIONS = [
 ];
 
 // dayOfWeek convention: 0 = Sunday … 6 = Saturday. Render Mon → Sun for nb-NO.
-const DOW_ORDER: Array<{ value: number; key: string }> = [
+const DOW_ORDER: { value: number; key: string }[] = [
   { value: 1, key: 'mon' },
   { value: 2, key: 'tue' },
   { value: 3, key: 'wed' },
@@ -88,8 +88,8 @@ export default function TaskNew() {
     },
   });
 
-  const onSubmit = useCallback(
-    handleSubmit((data) => mutation.mutate(data)),
+  const onSubmit = useMemo(
+    () => handleSubmit((data) => mutation.mutate(data)),
     [handleSubmit, mutation],
   );
 

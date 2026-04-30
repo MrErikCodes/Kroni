@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -72,8 +72,8 @@ export default function RewardDetail() {
     },
   });
 
-  const onSubmit = useCallback(
-    handleSubmit((data) => updateMutation.mutate(data)),
+  const onSubmit = useMemo(
+    () => handleSubmit((data) => updateMutation.mutate(data)),
     [handleSubmit, updateMutation],
   );
 

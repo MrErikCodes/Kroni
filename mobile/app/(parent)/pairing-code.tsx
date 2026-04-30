@@ -18,7 +18,6 @@ import { ArrowLeft, Copy, RefreshCw, Share2 } from 'lucide-react-native';
 import { useTheme } from '../../lib/theme';
 import { useParentApi } from '../../lib/useParentApi';
 import { t } from '../../lib/i18n';
-import { Button } from '../../components/ui/Button';
 import { Spinner } from '../../components/ui/Spinner';
 
 const EXPIRY_SECONDS = 15 * 60; // 15 min

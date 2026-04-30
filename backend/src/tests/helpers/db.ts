@@ -50,9 +50,31 @@ export async function setupTestDb(): Promise<TestDb> {
   return dbInstance;
 }
 
+function assertTestDatabase(url: string): void {
+  // Hard guard: refuse to TRUNCATE unless the database name unambiguously
+  // identifies itself as a test DB. Anything else (kroni_dev, kroni, prod
+  // names) aborts before we touch a single table. This is the second line
+  // of defence behind `_env.ts` forcing DATABASE_URL onto TEST_DATABASE_URL.
+  let dbName: string;
+  try {
+    const parsed = new URL(url);
+    dbName = parsed.pathname.replace(/^\//, '');
+  } catch {
+    throw new Error(`truncateAll(): refusing to run, unparseable DATABASE_URL`);
+  }
+  if (!dbName.endsWith('_test')) {
+    throw new Error(
+      `truncateAll(): refusing to truncate "${dbName}" — database name must end in "_test". ` +
+        `Set TEST_DATABASE_URL to a dedicated test DB (default: kroni_test).`,
+    );
+  }
+}
+
 export async function truncateAll(db?: TestDb): Promise<void> {
   const target = db ?? dbInstance;
   if (!target) throw new Error('truncateAll() called before setupTestDb()');
+
+  assertTestDatabase(resolveTestUrl());
 
   // Pull every public.* table and TRUNCATE in one statement with CASCADE so
   // FK ordering is irrelevant. drizzle's __drizzle_migrations metadata table

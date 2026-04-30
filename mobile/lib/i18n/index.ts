@@ -8,7 +8,7 @@ import da from './da.json';
 export type AppLocale = 'nb-NO' | 'en-US' | 'sv-SE' | 'da-DK';
 export type ShortLocale = 'nb' | 'en' | 'sv' | 'da';
 
-export const SUPPORTED_LOCALES: ReadonlyArray<{ code: AppLocale; label: string }> = [
+export const SUPPORTED_LOCALES: readonly { code: AppLocale; label: string }[] = [
   { code: 'nb-NO', label: 'Norsk (bokmål)' },
   { code: 'en-US', label: 'English' },
   { code: 'sv-SE', label: 'Svenska' },

@@ -76,7 +76,6 @@ export default function RewardsTab() {
   }, [router]);
 
   const s = theme.surface;
-  const tx = theme.text;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>

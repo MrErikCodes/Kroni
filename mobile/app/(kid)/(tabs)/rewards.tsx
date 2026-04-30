@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   RefreshControl,
-  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -14,7 +13,7 @@ import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
 import { Gift } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
-import { kidApi } from '../../../lib/api';
+import { kidApi , ApiError } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -22,7 +21,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
-import { ApiError } from '../../../lib/api';
 
 const formatNok = (ore: number) =>
   new Intl.NumberFormat('nb-NO', {

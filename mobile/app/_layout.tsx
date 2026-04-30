@@ -30,20 +30,13 @@ import {
   Inter_700Bold,
 } from '@expo-google-fonts/inter';
 import * as Localization from 'expo-localization';
-import { registerNavigate } from '../lib/api';
+import { registerNavigate , kidApi, parentApi } from '../lib/api';
 import {
   subscribeLocale,
   setAppLocale,
   getAppLocale,
   type ShortLocale,
 } from '../lib/i18n';
-
-const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
-  nb: clerkNb,
-  en: clerkEn,
-  sv: clerkSv,
-  da: clerkDa,
-};
 import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
 import { ensureInstallId } from '../lib/installInfo';
 import {
@@ -53,9 +46,22 @@ import {
   setParentLocale,
   clearParentLocale,
 } from '../lib/auth';
-import { kidApi, parentApi } from '../lib/api';
 import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
+// RevenueCat is parent-only; configured lazily inside the identity bridge
+// once a Clerk session appears.
+import {
+  configureRevenueCat,
+  loginRevenueCat,
+  logoutRevenueCat,
+} from '../lib/billing';
+
+const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
+  nb: clerkNb,
+  en: clerkEn,
+  sv: clerkSv,
+  da: clerkDa,
+};
 
 // Initialize Sentry at module load — before any React tree mounts — so
 // errors during component setup are captured. No-op if SENTRY_DSN isn't
@@ -96,13 +102,6 @@ void (async () => {
     setAppLocale(storedParentLocale);
   }
 })();
-// RevenueCat is parent-only; configured lazily inside the identity bridge
-// once a Clerk session appears.
-import {
-  configureRevenueCat,
-  loginRevenueCat,
-  logoutRevenueCat,
-} from '../lib/billing';
 
 // Keep splash screen visible until fonts are loaded
 SplashScreen.preventAutoHideAsync();

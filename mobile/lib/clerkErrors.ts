@@ -5,12 +5,12 @@
 // string and fall through to a generic message.
 
 interface ClerkLikeError {
-  errors?: Array<{
+  errors?: {
     code?: string;
     message?: string;
     longMessage?: string;
     meta?: { paramName?: string };
-  }>;
+  }[];
   message?: string;
 }
 

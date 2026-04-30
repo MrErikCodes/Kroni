@@ -16,19 +16,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check, LogOut, ChevronRight, Crown, Shield, FileText, HelpCircle, Info, ClipboardCopy, UserPlus } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
 import * as WebBrowser from 'expo-web-browser';
-
-const WEB_LINKS = {
-  privacy: 'https://kroni.no/personvern',
-  terms: 'https://kroni.no/vilkar',
-  support: 'https://kroni.no/support',
-} as const;
-
-function openLink(key: keyof typeof WEB_LINKS): void {
-  void WebBrowser.openBrowserAsync(WEB_LINKS[key], {
-    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
-    controlsColor: '#F5B015',
-  });
-}
 import { useTheme, fonts } from '../../lib/theme';
 import { useParentApi } from '../../lib/useParentApi';
 import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../lib/i18n';
@@ -42,6 +29,19 @@ import * as Application from 'expo-application';
 import { Modal as InAppModal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';
 import { getInstallInfo } from '../../lib/installInfo';
+
+const WEB_LINKS = {
+  privacy: 'https://kroni.no/personvern',
+  terms: 'https://kroni.no/vilkar',
+  support: 'https://kroni.no/support',
+} as const;
+
+function openLink(key: keyof typeof WEB_LINKS): void {
+  void WebBrowser.openBrowserAsync(WEB_LINKS[key], {
+    presentationStyle: WebBrowser.WebBrowserPresentationStyle.PAGE_SHEET,
+    controlsColor: '#F5B015',
+  });
+}
 
 // Read straight from the binary (Info.plist / AndroidManifest) so the row
 // always matches the installed build, including OTA updates that don't

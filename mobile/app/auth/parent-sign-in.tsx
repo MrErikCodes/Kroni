@@ -77,7 +77,7 @@ export default function ParentSignIn() {
         );
         const totp = supported.find((f) => f.strategy === 'totp');
         const phone = supported.find((f) => f.strategy === 'phone_code');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         const emailFactor = supported.find((f: any) => f.strategy === 'email_code') as
           | { strategy: 'email_code'; emailAddressId: string }
           | undefined;
@@ -95,9 +95,9 @@ export default function ParentSignIn() {
         } else if (emailFactor) {
           setTwoFactorStrategy('email_code');
           await signIn.prepareSecondFactor({
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             strategy: 'email_code' as any,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             emailAddressId: emailFactor.emailAddressId,
           } as any);
           setStep('twoFactor');
@@ -128,7 +128,7 @@ export default function ParentSignIn() {
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       const result = await signIn.attemptSecondFactor({
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+         
         strategy: twoFactorStrategy as any,
         code: twoFactorCode.trim(),
       });
