@@ -2,7 +2,7 @@
 import { Tabs, useRouter } from 'expo-router';
 import { useAuth } from '@clerk/clerk-expo';
 import { useEffect } from 'react';
-import { Users, CheckSquare, Gift, Settings, ClipboardCheck } from 'lucide-react-native';
+import { Users, CheckSquare, Gift, ClipboardCheck } from 'lucide-react-native';
 import { useTheme } from '../../../lib/theme';
 import { t } from '../../../lib/i18n';
 
@@ -84,16 +84,6 @@ export default function ParentTabsLayout() {
             <ClipboardCheck size={size} color={color} strokeWidth={1.75} />
           ),
           tabBarAccessibilityLabel: t('parent.approvals.title'),
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          title: t('parent.settings.title'),
-          tabBarIcon: ({ color, size }) => (
-            <Settings size={size} color={color} strokeWidth={1.75} />
-          ),
-          tabBarAccessibilityLabel: t('parent.settings.title'),
         }}
       />
     </Tabs>

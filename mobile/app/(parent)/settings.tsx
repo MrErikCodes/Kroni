@@ -29,19 +29,19 @@ function openLink(key: keyof typeof WEB_LINKS): void {
     controlsColor: '#F5B015',
   });
 }
-import { useTheme, fonts } from '../../../lib/theme';
-import { useParentApi } from '../../../lib/useParentApi';
-import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../../lib/i18n';
-import { setParentLocale } from '../../../lib/auth';
-import { Card } from '../../../components/ui/Card';
-import { KroniText } from '../../../components/ui/Text';
-import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
-import { HouseholdSection } from '../../../components/household/HouseholdSection';
+import { useTheme, fonts } from '../../lib/theme';
+import { useParentApi } from '../../lib/useParentApi';
+import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../lib/i18n';
+import { setParentLocale } from '../../lib/auth';
+import { Card } from '../../components/ui/Card';
+import { KroniText } from '../../components/ui/Text';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
+import { HouseholdSection } from '../../components/household/HouseholdSection';
 import Constants from 'expo-constants';
 import * as Application from 'expo-application';
-import { Modal as InAppModal } from '../../../components/ui/Modal';
-import { Button } from '../../../components/ui/Button';
-import { getInstallInfo } from '../../../lib/installInfo';
+import { Modal as InAppModal } from '../../components/ui/Modal';
+import { Button } from '../../components/ui/Button';
+import { getInstallInfo } from '../../lib/installInfo';
 
 // Read straight from the binary (Info.plist / AndroidManifest) so the row
 // always matches the installed build, including OTA updates that don't
