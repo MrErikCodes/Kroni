@@ -46,7 +46,13 @@ const CLERK_LOCALES: Record<ShortLocale, LocalizationResource> = {
 };
 import { initSentry, refreshSentryInstallTag, tagSentryUser } from '../lib/sentry';
 import { ensureInstallId } from '../lib/installInfo';
-import { getKidToken, getKidLocale } from '../lib/auth';
+import {
+  getKidToken,
+  getKidLocale,
+  getParentLocale,
+  setParentLocale,
+  clearParentLocale,
+} from '../lib/auth';
 import { kidApi, parentApi } from '../lib/api';
 import { Platform } from 'react-native';
 import * as Sentry from '@sentry/react-native';
@@ -63,22 +69,31 @@ initSentry();
 // right legal-domain (kroni.no/.se/.dk).
 //
 // Boot-order resolution: stored kid locale (if a kid session is active)
-// → server-stored parent locale (applied later in settings.tsx) → device
-// locale → 'nb' default. The kid override below is async since
-// SecureStore is async; the device fallback runs synchronously first so
-// the very first frame renders in *some* locale rather than blank.
+// → cached parent locale (SecureStore mirror of parents.locale) → device
+// locale → 'nb' default. Both stored reads are async since SecureStore
+// is async; the device fallback runs synchronously first so the very
+// first frame renders in *some* locale rather than blank, and the
+// stored value overrides as soon as it resolves.
+//
+// The cached parent locale matters because the previous build only
+// applied parents.locale once the parent opened Settings — anywhere
+// else (sign-in screens, paywall, kid list) rendered in device locale
+// until then. Mirroring to SecureStore means the next cold start
+// already knows the parent's preferred language without a network
+// round-trip; ParentLocaleBridge below keeps the cache in sync with
+// the server while the parent is signed in.
 const deviceLocale = Localization.getLocales()[0]?.languageCode ?? 'nb';
 setAppLocale(deviceLocale);
 void (async () => {
-  // Only honor the stored kid locale when a kid token is present —
-  // otherwise the parent is using the device and their server-stored
-  // `me.locale` should win once the settings screen mounts.
-  const [kidToken, storedKidLocale] = await Promise.all([
+  const [kidToken, storedKidLocale, storedParentLocale] = await Promise.all([
     getKidToken(),
     getKidLocale(),
+    getParentLocale(),
   ]);
   if (kidToken && storedKidLocale) {
     setAppLocale(storedKidLocale);
+  } else if (storedParentLocale) {
+    setAppLocale(storedParentLocale);
   }
 })();
 // RevenueCat is parent-only; configured lazily inside the identity bridge
@@ -203,6 +218,52 @@ function RevenueCatIdentityBridge() {
       void logoutRevenueCat();
     }
   }, [userId, isLoaded]);
+
+  return null;
+}
+
+/**
+ * Keeps the in-app locale aligned with the server-stored `parents.locale`
+ * regardless of which screen is open. Without this, the device-locale
+ * fallback applied at module load (line ~71) sticks until the parent
+ * navigates to Settings, which is where the `me` query was previously
+ * the only thing calling `setAppLocale(me.locale)`. Result: cold-start
+ * sign-in / paywall / kid list rendered in device locale (English on a
+ * fresh emulator) until the parent opened Settings.
+ *
+ * Strategy: as soon as Clerk reports a signed-in user, fetch parent.me,
+ * apply the locale, and mirror it to SecureStore so the next cold start
+ * picks it up before the network round-trip completes. On sign-out,
+ * drop the cache so a different parent on the same device starts from
+ * the device default rather than inheriting the previous parent's
+ * preference.
+ */
+function ParentLocaleBridge() {
+  const { userId, isLoaded, getToken } = useAuth();
+  const lastUserIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const previous = lastUserIdRef.current;
+    if (userId && previous !== userId) {
+      lastUserIdRef.current = userId;
+      void (async () => {
+        try {
+          const me = await parentApi.clientFor(() => getToken()).getMe();
+          if (me?.locale) {
+            setAppLocale(me.locale);
+            await setParentLocale(me.locale);
+          }
+        } catch {
+          // Network / unauthorized — boot-cached SecureStore value stays
+          // in effect. Surfaces no error to the user.
+        }
+      })();
+    } else if (!userId && previous !== null) {
+      lastUserIdRef.current = null;
+      void clearParentLocale();
+    }
+  }, [userId, isLoaded, getToken]);
 
   return null;
 }
@@ -340,6 +401,7 @@ function RootLayout() {
           <NavigationRegistrar />
           <SentryIdentityBridge />
           <RevenueCatIdentityBridge />
+          <ParentLocaleBridge />
           <ParentDevicePushBridge />
           <Stack key={localeKey} screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>

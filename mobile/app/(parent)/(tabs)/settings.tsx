@@ -32,6 +32,7 @@ function openLink(key: keyof typeof WEB_LINKS): void {
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../../lib/i18n';
+import { setParentLocale } from '../../../lib/auth';
 import { Card } from '../../../components/ui/Card';
 import { KroniText } from '../../../components/ui/Text';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
@@ -137,13 +138,19 @@ export default function SettingsTab() {
     household.household.premiumOwnerParentId === me.id;
 
   useEffect(() => {
-    if (me?.locale) setAppLocale(me.locale);
+    if (me?.locale) {
+      setAppLocale(me.locale);
+      // Mirror to SecureStore so the next cold start renders in the
+      // right locale before the `me` query has resolved.
+      void setParentLocale(me.locale);
+    }
   }, [me?.locale]);
 
   const localeMut = useMutation({
     mutationFn: (locale: AppLocale) => api.updateMe({ locale }),
     onSuccess: async (updated) => {
       setAppLocale(updated.locale);
+      await setParentLocale(updated.locale);
       await Haptics.selectionAsync();
       await qc.invalidateQueries({ queryKey: ['parent', 'me'] });
     },
@@ -261,7 +268,13 @@ export default function SettingsTab() {
                 >
                   <View style={styles.rowLeft}>
                     <Text style={styles.rowEmoji}>
-                      {opt.code === 'nb-NO' ? '🇳🇴' : '🇬🇧'}
+                      {opt.code === 'nb-NO'
+                        ? '🇳🇴'
+                        : opt.code === 'sv-SE'
+                          ? '🇸🇪'
+                          : opt.code === 'da-DK'
+                            ? '🇩🇰'
+                            : '🇬🇧'}
                     </Text>
                     <Text style={[styles.rowLabel, { color: tx.primary }]}>
                       {opt.label}

@@ -32,13 +32,21 @@ import { Spinner } from '../../components/ui/Spinner';
 import { Card } from '../../components/ui/Card';
 import { KroniText } from '../../components/ui/Text';
 
-const FEATURES_PRO = [
-  t('paywall.features.kids'),
-  t('paywall.features.tasks'),
-  t('paywall.features.rewards'),
-  t('paywall.features.notifications'),
-  t('paywall.features.history'),
-];
+// Feature labels are evaluated PER RENDER, not at module load. The
+// previous module-level array captured `t()` results before
+// ParentLocaleBridge had hydrated the parent's preferred locale, so
+// the rest of the screen was Norwegian while the bullet list was
+// stuck on whatever locale was active at the first JS evaluation
+// (typically the device locale, which on a fresh emulator is en).
+function buildFeatures(): string[] {
+  return [
+    t('paywall.features.kids'),
+    t('paywall.features.tasks'),
+    t('paywall.features.rewards'),
+    t('paywall.features.notifications'),
+    t('paywall.features.history'),
+  ];
+}
 
 type PackageRow = {
   pkg: PurchasesPackage;
@@ -207,7 +215,7 @@ export default function PaywallScreen() {
             {t('paywall.featuresEyebrow')}
           </KroniText>
           <View style={styles.featureList}>
-            {FEATURES_PRO.map((f) => (
+            {buildFeatures().map((f) => (
               <View key={f} style={styles.featureRow}>
                 <View
                   style={[
