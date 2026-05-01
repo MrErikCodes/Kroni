@@ -35,12 +35,12 @@ interface ClerkUserDeleted {
 // `email.created` fires whenever Clerk would otherwise send a transactional
 // email (verification code, magic link, password reset, etc.). The
 // `data.slug` field tells us which template Clerk would have used; we
-// branch on it to pick our own. The OTP/code lives at `data.otp` (newer
-// payloads); some legacy flows put it at `data.token` or inside a nested
-// `data.data.{otp,token}` block. We do NOT fall back to the rendered
-// `data.body` HTML — that's Clerk's own email markup and would get
-// embedded as `{{code}}` inside our shell, defeating the point of
-// owning the template.
+// branch on it to pick our own. The OTP/code lives at `data.data.otp_code`
+// — Clerk's outer payload `data` carries the event envelope, and the inner
+// `data` block carries the template variables (otp_code, action_url,
+// requested_at, app, …). We do NOT fall back to the rendered `data.body`
+// HTML — that's Clerk's own email markup and would get embedded as
+// `{{code}}` inside our shell, defeating the point of owning the template.
 interface ClerkEmailCreated {
   type: 'email.created';
   data: {
@@ -48,8 +48,6 @@ interface ClerkEmailCreated {
     to_email_address?: string | null;
     email_address?: string | null;
     user_id?: string | null;
-    otp?: string | null;
-    token?: string | null;
     subject?: string | null;
     data?: Record<string, unknown> | null;
   };
@@ -75,13 +73,13 @@ function templateForSlug(slug: string | undefined | null): 'password-reset' | 'e
 }
 
 // Pull the human-visible code/OTP out of an `email.created` payload.
-// Clerk's payload shape has shifted between versions — try the most
-// common locations in order. Returns null if nothing OTP-shaped is
-// found; the caller skips the Mailpace send rather than embed garbage
-// in the `{{code}}` slot. We deliberately do NOT fall back to
-// `data.body` — that field carries Clerk's own rendered HTML, which
-// would render-in-render inside our template (the bug that produced
-// the nested "Verification code" Clerk block inside our Kroni shell).
+// Clerk puts the template variables for verification_code and
+// reset_password_code at `data.data.otp_code`. Returns null if nothing
+// OTP-shaped is found; the caller skips the Mailpace send rather than
+// embed garbage in the `{{code}}` slot. We deliberately do NOT fall back
+// to `data.body` — that field carries Clerk's own rendered HTML, which
+// would render-in-render inside our template (the bug that produced the
+// nested "Verification code" Clerk block inside our Kroni shell).
 function isOtpShaped(value: unknown): value is string {
   if (typeof value !== 'string') return false;
   if (value.length === 0 || value.length > 128) return false;
@@ -92,14 +90,10 @@ function isOtpShaped(value: unknown): value is string {
 }
 
 function extractCode(data: ClerkEmailCreated['data']): string | null {
-  if (isOtpShaped(data.otp)) return data.otp;
-  if (isOtpShaped(data.token)) return data.token;
   const nested = data.data;
   if (nested && typeof nested === 'object') {
-    const otp = (nested as { otp?: unknown }).otp;
-    if (isOtpShaped(otp)) return otp;
-    const token = (nested as { token?: unknown }).token;
-    if (isOtpShaped(token)) return token;
+    const otpCode = (nested as { otp_code?: unknown }).otp_code;
+    if (isOtpShaped(otpCode)) return otpCode;
   }
   return null;
 }

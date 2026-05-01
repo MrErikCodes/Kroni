@@ -210,6 +210,95 @@ test('clerk — replayed user.created does NOT re-send welcome', async () => {
   }
 });
 
+function emailCreatedPayload(
+  slug: string,
+  recipient: string,
+  innerData: Record<string, unknown>,
+  userId?: string,
+): Record<string, unknown> {
+  return {
+    type: 'email.created',
+    data: {
+      slug,
+      to_email_address: recipient,
+      user_id: userId ?? null,
+      subject: 'irrelevant',
+      data: innerData,
+    },
+  };
+}
+
+test('clerk — email.created verification_code with otp_code at data.data.otp_code triggers Mailpace', async () => {
+  const app = await buildApp();
+  try {
+    const recipient = `t-${randomUUID()}@example.com`;
+    const body = JSON.stringify(
+      emailCreatedPayload('verification_code', recipient, { otp_code: '123456' }),
+    );
+    const headers = signPayload(body);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/webhooks/clerk',
+      headers,
+      payload: body,
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(
+      mailpaceCallCount,
+      1,
+      'verification_code with valid otp_code MUST hit Mailpace exactly once',
+    );
+  } finally {
+    await app.close();
+  }
+});
+
+test('clerk — email.created reset_password_code extracts otp_code from nested data block', async () => {
+  const app = await buildApp();
+  try {
+    const recipient = `t-${randomUUID()}@example.com`;
+    const body = JSON.stringify(
+      emailCreatedPayload('reset_password_code', recipient, { otp_code: '654321' }),
+    );
+    const headers = signPayload(body);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/webhooks/clerk',
+      headers,
+      payload: body,
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(mailpaceCallCount, 1, 'reset_password_code must send via Mailpace');
+  } finally {
+    await app.close();
+  }
+});
+
+test('clerk — email.created without otp_code skips Mailpace send', async () => {
+  const app = await buildApp();
+  try {
+    const recipient = `t-${randomUUID()}@example.com`;
+    // No otp_code anywhere — handler must skip rather than email garbage.
+    const body = JSON.stringify(
+      emailCreatedPayload('verification_code', recipient, { app: { name: 'Kroni' } }),
+    );
+    const headers = signPayload(body);
+
+    const res = await app.inject({
+      method: 'POST',
+      url: '/webhooks/clerk',
+      headers,
+      payload: body,
+    });
+    assert.equal(res.statusCode, 200);
+    assert.equal(mailpaceCallCount, 0, 'missing otp_code must skip the send');
+  } finally {
+    await app.close();
+  }
+});
+
 test('clerk — invalid svix signature returns 401', async () => {
   const app = await buildApp();
   try {
