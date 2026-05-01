@@ -18,7 +18,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "ngrok": "ngrok http http://localhost:3000 --domain=square-logically-shark.ngrok-free.app",
-    "test": "phase run \"tsx --import ./src/tests/_env.ts --test --test-concurrency=1 src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts src/tests/log-completion.test.ts\""
+    "test": "phase run \"tsx --import ./src/tests/_env.ts --test --test-concurrency=1 src/tests/health.test.ts src/tests/pairing.test.ts src/tests/balance.test.ts src/tests/allowance.test.ts src/tests/log-completion.test.ts src/tests/webhooks/revenuecat.test.ts src/tests/webhooks/clerk.test.ts\""
   },
   "dependencies": {
     "@clerk/backend": "^1.21.4",

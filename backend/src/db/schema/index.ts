@@ -7,3 +7,4 @@ export * from './pairing.js';
 export * from './tasks.js';
 export * from './balance.js';
 export * from './rewards.js';
+export * from './webhook-events.js';

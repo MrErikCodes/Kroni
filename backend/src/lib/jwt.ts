@@ -10,6 +10,11 @@ export interface KidJwtPayload {
   kind: 'kid';
   parent_id: string;
   device_id: string;
+  // Token-version revocation lever. Embedded at sign time from
+  // kids.token_version; the kid auth plugin compares this against the
+  // current DB row and 401s on mismatch. Optional in the type because
+  // pre-existing tokens won't carry it; missing claim is treated as 0.
+  tv?: number;
   iat: number;          // unix seconds
   exp: number;          // unix seconds
 }
@@ -43,6 +48,9 @@ export function signKidJwt(
   const now = Math.floor(Date.now() / 1000);
   const fullPayload: KidJwtPayload = {
     ...payload,
+    // Default tv to 0 so freshly-signed tokens always carry a numeric claim
+    // and the auth plugin can do a strict equality check.
+    tv: payload.tv ?? 0,
     kind: 'kid',
     iat: now,
     exp: now + ttlSeconds,
@@ -91,12 +99,15 @@ export function shouldRefreshKidJwt(payload: KidJwtPayload): boolean {
   return remainingSeconds < REFRESH_THRESHOLD_DAYS * 86_400;
 }
 
-// Re-issue a kid JWT with the same identity claims and fresh ttl.
+// Re-issue a kid JWT with the same identity claims and fresh ttl. Carries
+// the existing `tv` claim through unchanged — refresh is a TTL bump, not a
+// revocation event.
 export function refreshKidJwt(payload: KidJwtPayload): string {
   return signKidJwt({
     sub: payload.sub,
     parent_id: payload.parent_id,
     device_id: payload.device_id,
+    tv: payload.tv ?? 0,
   });
 }
 

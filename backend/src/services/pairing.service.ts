@@ -169,6 +169,9 @@ export async function redeemPairingCode(input: PairInput): Promise<PairOutput> {
     sub: result.id,
     parent_id: result.parentId,
     device_id: deviceId,
+    // Embed the kid's current token version so a parent-triggered revoke
+    // (which bumps kids.token_version) instantly invalidates this token.
+    tv: result.tokenVersion,
   });
 
   return {

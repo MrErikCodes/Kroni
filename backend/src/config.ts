@@ -42,6 +42,20 @@ const Env = z.object({
   // without flooding the project. Bump to 1.0 in dev for full visibility.
   SENTRY_TRACES_SAMPLE_RATE: z.coerce.number().min(0).max(1).default(0.1),
 
+}).superRefine((env, ctx) => {
+  // REVENUECAT_WEBHOOK_AUTH is optional in dev/test (so local doesn't break
+  // when the var is unset) but REQUIRED in production. Empty string also
+  // counts as missing — the timing-safe compare in the RC route would
+  // accept "Bearer " (no value) otherwise.
+  if (env.NODE_ENV === 'production') {
+    if (!env.REVENUECAT_WEBHOOK_AUTH || env.REVENUECAT_WEBHOOK_AUTH.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['REVENUECAT_WEBHOOK_AUTH'],
+        message: 'REVENUECAT_WEBHOOK_AUTH is required when NODE_ENV=production',
+      });
+    }
+  }
 });
 
 export type Config = z.infer<typeof Env>;

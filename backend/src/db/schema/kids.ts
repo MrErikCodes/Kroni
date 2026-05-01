@@ -26,6 +26,11 @@ export const kids = pgTable(
     allowanceDayOfWeek: integer(),
     allowanceDayOfMonth: integer(),
     allowanceLastPaidAt: timestamp({ withTimezone: true }),
+    // Bumped to invalidate every issued kid JWT for this kid. The kid auth
+    // plugin compares the `tv` claim in the token against this column; a
+    // mismatch is a 401. Parents can force-revoke by hitting
+    // POST /parent/kids/:id/revoke-tokens, which `tokenVersion += 1`.
+    tokenVersion: integer().notNull().default(0),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [index('idx_kids_household').on(t.householdId)],

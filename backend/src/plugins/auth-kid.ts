@@ -45,6 +45,13 @@ export const authKidPlugin = fp(async (app: FastifyInstance) => {
     if (kid.parentId !== null && kid.parentId !== payload.parent_id) {
       throw new UnauthorizedError('parent mismatch');
     }
+    // Token-version revocation. Tokens issued before the column existed
+    // omit `tv` (treated as 0); a bump on kids.token_version invalidates
+    // every previously issued token for this kid.
+    const tokenTv = payload.tv ?? 0;
+    if (tokenTv !== kid.tokenVersion) {
+      throw new UnauthorizedError('token revoked');
+    }
 
     req.kid = kid;
     req.kidJwt = payload;

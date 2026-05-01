@@ -27,16 +27,25 @@ export async function parentBalanceRoutes(app: FastifyInstance): Promise<void> {
     newBalanceCents: z.number().int(),
   });
 
+  // Cap per-call magnitude to 1000 NOK (100_000 øre) and rate-limit to
+  // 30/hour. Mirrors the per-route rateLimit config used by
+  // /parent/household/invites; protects the ledger from a compromised
+  // parent token / runaway client inflating balances arbitrarily.
+  const MAX_ADJUST_MAGNITUDE_CENTS = 100_000;
   r.post(
     '/parent/balance/adjust',
     {
       preHandler: app.requireParent,
+      config: { rateLimit: { max: 30, timeWindow: '1 hour' } },
       schema: { body: BalanceAdjustSchema, response: { 200: AdjustResponse } },
     },
     async (req) => {
       const parent = req.parent;
       const household = req.household;
       if (!parent || !household) throw new UnauthorizedError('household missing');
+      if (Math.abs(req.body.amountCents) > MAX_ADJUST_MAGNITUDE_CENTS) {
+        throw new BadRequestError('balance adjust exceeds per-call cap');
+      }
       const kidRows = await getDb()
         .select({ id: kids.id })
         .from(kids)

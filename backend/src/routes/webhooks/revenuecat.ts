@@ -1,14 +1,16 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
+import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt, or } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { households } from '../../db/schema/households.js';
 import { parents } from '../../db/schema/parents.js';
+import { processedWebhookEvents } from '../../db/schema/webhook-events.js';
 import { getConfig } from '../../config.js';
 import {
   BadRequestError,
-  ForbiddenError,
   NotFoundError,
+  UnauthorizedError,
 } from '../../lib/errors.js';
 import { sendPushToParent } from '../../services/notification.service.js';
 import { sendMail, MailpaceError } from '../../lib/mailpace.js';
@@ -224,20 +226,25 @@ const REVOKE_EVENTS = new Set(['EXPIRATION']);
 function authorized(req: FastifyRequest, expected: string | undefined): boolean {
   if (!expected) {
     // No auth configured — accept everything. Fine in dev; the prod
-    // expectation is that REVENUECAT_WEBHOOK_AUTH is set.
+    // expectation is that REVENUECAT_WEBHOOK_AUTH is required by config.ts.
     return true;
   }
   const header = req.headers.authorization;
   if (!header || typeof header !== 'string') return false;
   const value = header.startsWith('Bearer ') ? header.slice(7) : header;
-  return value === expected;
+  // Length-check before timingSafeEqual — that primitive throws on mismatched
+  // lengths. Pattern mirrors verifyKidJwt in lib/jwt.ts.
+  const a = Buffer.from(value);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }
 
 export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<void> {
   app.post('/webhooks/revenuecat', async (req, reply) => {
     const cfg = getConfig();
     if (!authorized(req, cfg.REVENUECAT_WEBHOOK_AUTH)) {
-      throw new ForbiddenError('invalid revenuecat webhook auth');
+      throw new UnauthorizedError('invalid revenuecat webhook auth');
     }
 
     const parsed = EventSchema.safeParse(req.body);
@@ -245,6 +252,29 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
       throw new BadRequestError('malformed webhook payload');
     }
     const ev = parsed.data.event;
+
+    const db = getDb();
+
+    // Idempotency: only the first delivery of a given event.id wins. The
+    // INSERT ... ON CONFLICT DO NOTHING returns no rows when an earlier
+    // delivery already wrote the row, so we ack 200 and stop here. RC
+    // retries on 5xx — bailing here keeps a retried event from re-applying
+    // tier flips, balance writes, or push notifications.
+    if (ev.id) {
+      const inserted = await db
+        .insert(processedWebhookEvents)
+        .values({ provider: 'revenuecat', eventId: ev.id })
+        .onConflictDoNothing()
+        .returning({ eventId: processedWebhookEvents.eventId });
+      if (inserted.length === 0) {
+        req.log.info(
+          { event_type: ev.type, event_id: ev.id },
+          'revenuecat event deduped',
+        );
+        void reply.code(200);
+        return { deduped: true } as const;
+      }
+    }
 
     // Resolve the parent. RC's `app_user_id` is set to the Clerk user id
     // by RevenueCatIdentityBridge in mobile. `aliases` covers the case
@@ -261,7 +291,6 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
       return { ok: true } as const;
     }
 
-    const db = getDb();
     const [parent] = await db
       .select()
       .from(parents)
@@ -297,6 +326,28 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
       } else {
         const expiresAt =
           ev.expiration_at_ms != null ? new Date(ev.expiration_at_ms) : null;
+        // Monotonicity: only advance subscription_expires_at forward. RC
+        // can deliver a delayed/duplicate-with-different-id RENEWAL after
+        // a newer one already pushed the expiry out; without this guard
+        // we'd shrink the household's access window. The existing-IS-NULL
+        // branch covers first-time grants (column starts NULL).
+        // For monotonic-only events (RENEWAL / INITIAL_PURCHASE /
+        // PRODUCT_CHANGE) we gate on the expiry; other GRANT_EVENTS
+        // (UNCANCELLATION, NON_RENEWING_PURCHASE, TRANSFER) always apply.
+        const monotonic =
+          ev.type === 'RENEWAL' ||
+          ev.type === 'INITIAL_PURCHASE' ||
+          ev.type === 'PRODUCT_CHANGE';
+        const where =
+          monotonic && expiresAt
+            ? and(
+                eq(households.id, householdId),
+                or(
+                  isNull(households.subscriptionExpiresAt),
+                  lt(households.subscriptionExpiresAt, expiresAt),
+                ),
+              )!
+            : eq(households.id, householdId);
         await db
           .update(households)
           .set({
@@ -306,7 +357,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
             premiumOwnerParentId: parent.id,
             updatedAt: new Date(),
           })
-          .where(eq(households.id, householdId));
+          .where(where);
       }
       req.log.info(
         {
@@ -325,6 +376,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
       const [row] = await db
         .select({
           lifetimePaid: households.lifetimePaid,
+          subscriptionExpiresAt: households.subscriptionExpiresAt,
           premiumOwnerParentId: households.premiumOwnerParentId,
         })
         .from(households)
@@ -332,6 +384,28 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
         .limit(1);
       if (row?.lifetimePaid) {
         req.log.info({ household_id: householdId }, 'expiration ignored — household has lifetime');
+      } else if (
+        // Skip stale expirations: if the event's expiry is older than the
+        // current subscription_expires_at on the household, this came from
+        // a previous billing period that a later RENEWAL has already
+        // moved past. Only flip to free when the event is current
+        // (new_expires_at >= current). When ev.expiration_at_ms is
+        // missing, fall through and revoke (RC always populates it on
+        // EXPIRATION, but we'd rather over-revoke than ignore the
+        // signal entirely if a payload omits it).
+        ev.expiration_at_ms != null &&
+        row?.subscriptionExpiresAt != null &&
+        new Date(ev.expiration_at_ms) < row.subscriptionExpiresAt
+      ) {
+        req.log.info(
+          {
+            event_type: ev.type,
+            household_id: householdId,
+            event_expires_at: new Date(ev.expiration_at_ms).toISOString(),
+            current_expires_at: row.subscriptionExpiresAt.toISOString(),
+          },
+          'revenuecat revoke ignored — stale expiration',
+        );
       } else {
         await db
           .update(households)

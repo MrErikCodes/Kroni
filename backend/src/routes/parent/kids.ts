@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { z } from 'zod';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import bcrypt from 'bcryptjs';
 import {
   CreateKidSchema,
@@ -205,6 +205,33 @@ export async function parentKidsRoutes(app: FastifyInstance): Promise<void> {
       if (deleted.length === 0) throw new NotFoundError('kid not found');
       void reply.code(204);
       return null;
+    },
+  );
+
+  // Revoke every kid token for a kid in this parent's household.
+  // Bumps kids.token_version atomically; the kid auth plugin compares
+  // the embedded `tv` claim against the new value and 401s.
+  // Owner-or-coparent: any parent in the same household as the kid is
+  // authorized, mirroring how DELETE /parent/kids/:id is scoped via
+  // household.id (not parent.id).
+  const RevokeResponse = z.object({ tokenVersion: z.number().int() });
+  r.post(
+    '/parent/kids/:id/revoke-tokens',
+    {
+      preHandler: app.requireParent,
+      schema: { params: IdParam, response: { 200: RevokeResponse } },
+    },
+    async (req) => {
+      const household = req.household;
+      if (!household) throw new UnauthorizedError('household missing');
+      const updated = await getDb()
+        .update(kids)
+        .set({ tokenVersion: sql`${kids.tokenVersion} + 1` })
+        .where(and(eq(kids.id, req.params.id), eq(kids.householdId, household.id)))
+        .returning({ tokenVersion: kids.tokenVersion });
+      const row = updated[0];
+      if (!row) throw new NotFoundError('kid not found');
+      return { tokenVersion: row.tokenVersion };
     },
   );
 }

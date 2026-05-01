@@ -136,10 +136,13 @@ export const authClerkPlugin = fp(async (app: FastifyInstance) => {
 
     // Mirror the same identifiers onto the Sentry isolation scope so any
     // event captured during this request lands with the same join keys.
+    // Email intentionally omitted from Sentry scope — same PII-minimization
+    // pass that already removed it from setUser identity (todo.md
+    // 2026-04-29). Keep the join keys (parent_id, household_id) so support
+    // can still pivot from a Sentry event to logs.
     tagSentryScope(req, {
       appRole: 'parent',
       userId: parent.id,
-      email: parent.email,
       householdId: household.id,
       installId,
       appVersion,

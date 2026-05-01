@@ -3,6 +3,7 @@ import { Webhook } from 'svix';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { parents } from '../../db/schema/parents.js';
+import { processedWebhookEvents } from '../../db/schema/webhook-events.js';
 import { ensureHouseholdForParent } from '../../services/household.service.js';
 import { getConfig } from '../../config.js';
 import { UnauthorizedError, BadRequestError } from '../../lib/errors.js';
@@ -173,7 +174,26 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
       // Welcome email — only on first creation, not user.updated. Failure
       // here MUST NOT trigger Clerk retries (would re-send the welcome
       // email on every retry); we swallow + log + Sentry.
-      if (event.type === 'user.created') {
+      //
+      // Idempotency guard: the upsert above no-ops on retry but we'd still
+      // resend the welcome on every retry. Insert into
+      // processed_webhook_events keyed on the svix message id; on conflict
+      // the event was already handled and we skip the email entirely.
+      let alreadyProcessed = false;
+      try {
+        const insertedEvent = await db
+          .insert(processedWebhookEvents)
+          .values({ provider: 'clerk', eventId: id })
+          .onConflictDoNothing()
+          .returning({ eventId: processedWebhookEvents.eventId });
+        alreadyProcessed = insertedEvent.length === 0;
+      } catch (err) {
+        // Don't block the webhook on a dedup-table failure — log and
+        // continue. Retries with the same svix-id remain harmless on the
+        // upsert above; the worst case is a duplicate welcome email.
+        req.log.warn({ err, svix_id: id }, 'clerk dedup insert failed');
+      }
+      if (event.type === 'user.created' && !alreadyProcessed) {
         const metaLocale = ev.data.public_metadata?.locale;
         const locale: SupportedLocale = isSupportedLocale(metaLocale) ? metaLocale : 'nb-NO';
         const firstName = ev.data.first_name?.trim() || email.split('@')[0] || 'there';

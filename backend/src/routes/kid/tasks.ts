@@ -29,6 +29,12 @@ export async function kidTasksRoutes(app: FastifyInstance): Promise<void> {
     async (req, reply) => {
       const kid = req.kid;
       if (!kid) throw new UnauthorizedError('kid missing');
+      // Defense-in-depth idempotency: client-supplied Idempotency-Key
+      // scoped to (kid.id, completionId) and stored in Redis with the
+      // 24h TTL set in lib/idempotency.ts. The DB transaction below
+      // already enforces single-application via the
+      // approvedAt/rejectedAt/completedAt state machine, so this is the
+      // outer cache that returns the prior response on retry.
       const idemKey = req.headers['idempotency-key'];
       if (typeof idemKey !== 'string' || idemKey.length < 8) {
         throw new BadRequestError('idempotency-key header required');
