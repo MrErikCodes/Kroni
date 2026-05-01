@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npm --workspace=@kroni/shared run build",
     "dev": "phase run \"next dev --webpack --port 3001\"",
     "dev:turbo": "phase run \"next dev --turbopack --port 3001\"",
+    "prebuild": "npm --workspace=@kroni/shared run build",
     "build": "phase run \"next build\"",
     "start": "phase run \"next start\"",
     "lint": "eslint",
