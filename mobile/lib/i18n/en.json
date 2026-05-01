@@ -356,7 +356,18 @@
           "parent": "Role: parent",
           "kid": "Role: kid"
         },
-        "platformLine": "Platform: %{platform} %{osVersion}"
+        "platformLine": "Platform: %{platform} %{osVersion}",
+        "installIdLabel": "Install ID",
+        "parentIdLabel": "Parent ID",
+        "emailLabel": "Email",
+        "householdIdLabel": "Household ID",
+        "ownerLabel": "Owner",
+        "ownerYes": "yes",
+        "ownerNo": "no",
+        "subscriptionLabel": "Subscription",
+        "languageLabel": "Language",
+        "timestampLabel": "Timestamp",
+        "kidNameLabel": "Name"
       },
       "householdSection": "Household",
       "addKid": "Add child",
@@ -539,7 +550,11 @@
         "roleLine": {
           "kid": "Role: kid"
         },
-        "platformLine": "Platform: %{platform} %{osVersion}"
+        "platformLine": "Platform: %{platform} %{osVersion}",
+        "installIdLabel": "Install ID",
+        "parentIdLabel": "Parent ID",
+        "kidNameLabel": "Name",
+        "timestampLabel": "Timestamp"
       }
     },
     "celebrate": {
@@ -553,8 +568,10 @@
       "loadFailedBody": "Something went wrong. Check your connection and try again.",
       "retry": "Try again",
       "completeFailed": "Couldn't mark this task done. Please try again.",
-      "uncompleteFailed": "Couldn't undo that. Please try again."
-    }
+      "uncompleteFailed": "Couldn't undo that. Please try again.",
+      "subscriptionLapsed": "Your family needs to renew the subscription before the app works again."
+    },
+    "dayLabelsShort": ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]
   },
   "paywall": {
     "title": "Kroni Family",

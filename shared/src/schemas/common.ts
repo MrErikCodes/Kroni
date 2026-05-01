@@ -42,3 +42,10 @@ export const AvatarKey = z.enum([
   'dog', 'unicorn', 'dragon', 'astronaut',
 ]);
 export type AvatarKey = z.infer<typeof AvatarKey>;
+
+/**
+ * Source-of-truth ordered array of avatar keys. The mobile parent + kid
+ * pickers iterate this so the catalog stays in lockstep with the zod
+ * enum — adding a key here automatically exposes it to both screens.
+ */
+export const AVATAR_KEYS: readonly AvatarKey[] = AvatarKey.options;

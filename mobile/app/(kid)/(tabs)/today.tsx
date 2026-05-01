@@ -22,7 +22,7 @@ import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import { CheckCircle, Clock, XCircle } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
-import { kidApi } from '../../../lib/api';
+import { kidApi, isSubscriptionLapsedError } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
 import { ProgressRing } from '../../../components/ui/ProgressRing';
 import { BalanceText } from '../../../components/ui/BalanceText';
@@ -428,11 +428,22 @@ export default function TodayScreen() {
     data: tasks,
     isLoading,
     isError,
+    error: tasksError,
     refetch,
   } = useQuery({
     queryKey: ['kid', 'today'],
     queryFn: () => kidApi.getTodayTasks(),
+    // 402 means the household subscription lapsed — kids can't fix this
+    // themselves, so retrying the request just churns. Render the banner
+    // and let the parent handle billing.
+    retry: (_count, err) => !isSubscriptionLapsedError(err),
   });
+
+  // Surface a friendly banner instead of the generic "Couldn't load" state
+  // when the backend returns 402 Payment Required. Kids can't open the
+  // paywall (only the parent owner can manage billing), so the message
+  // tells them to ask the parent to renew.
+  const subscriptionLapsed = isSubscriptionLapsedError(tasksError);
 
   // Surface mutation failures inline (matches the rewards modal pattern):
   // a previous "silent fall-through to common.error" hid network blips when
@@ -529,6 +540,22 @@ export default function TodayScreen() {
         {isLoading ? (
           <View style={styles.center}>
             <Spinner size={36} />
+          </View>
+        ) : subscriptionLapsed ? (
+          <View
+            style={[
+              styles.mutationError,
+              { backgroundColor: theme.colors.semantic.warning + '22' },
+            ]}
+            accessibilityLiveRegion="polite"
+            accessibilityRole="alert"
+          >
+            <KroniText
+              variant="small"
+              style={{ color: theme.colors.semantic.warning, flex: 1 }}
+            >
+              {t('kid.errors.subscriptionLapsed')}
+            </KroniText>
           </View>
         ) : isError ? (
           <View style={styles.center}>

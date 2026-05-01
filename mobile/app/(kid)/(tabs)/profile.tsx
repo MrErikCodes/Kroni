@@ -15,14 +15,16 @@ import * as Clipboard from 'expo-clipboard';
 import * as Application from 'expo-application';
 import { Check, ClipboardCopy, LogOut } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
-import { kidApi } from '../../../lib/api';
+import { kidApi, isSubscriptionLapsedError } from '../../../lib/api';
 import { clearKidToken, setKidLocale } from '../../../lib/auth';
 import {
   t,
   setAppLocale,
   SUPPORTED_LOCALES,
   getAppLocale,
+  i18n,
   type AppLocale,
+  type ShortLocale,
 } from '../../../lib/i18n';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
@@ -32,21 +34,25 @@ import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Modal as InAppModal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { getInstallInfo } from '../../../lib/installInfo';
-import type { AvatarKey, BalanceEntry, Kid } from '@kroni/shared';
+import { AVATAR_KEYS, type AvatarKey, type BalanceEntry, type Kid } from '@kroni/shared';
+
+// Map the short app locale back onto the BCP-47 tag Intl expects so the
+// currency formatter respects the user's region (decimal mark, grouping).
+// Currency stays NOK because the backend is NOK-only — we localize the
+// digit grouping, not the unit.
+const INTL_LOCALE: Record<ShortLocale, string> = {
+  nb: 'nb-NO',
+  sv: 'sv-SE',
+  da: 'da-DK',
+  en: 'en-US',
+};
 
 const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
+  new Intl.NumberFormat(INTL_LOCALE[getAppLocale()], {
     style: 'currency',
     currency: 'NOK',
     maximumFractionDigits: 0,
   }).format(ore / 100);
-
-// Mirror the parent picker's order in `(parent)/kids/new.tsx`. Kept in
-// lockstep with the shared `AvatarKey` zod enum.
-const AVATAR_KEYS: readonly AvatarKey[] = [
-  'fox', 'bear', 'rabbit', 'owl', 'penguin', 'lion',
-  'panda', 'cat', 'dog', 'unicorn', 'dragon', 'astronaut',
-];
 
 // Mini bar chart — last 7 days earnings
 function MiniBarChart({ entries }: { entries: BalanceEntry[] }) {
@@ -67,7 +73,13 @@ function MiniBarChart({ entries }: { entries: BalanceEntry[] }) {
   });
 
   const maxVal = Math.max(...buckets, 1);
-  const DAY_LABELS = ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'];
+  // Localized 7-day labels, Monday-first to match the chart bucket layout.
+  // i18n-js returns the underlying array when the key resolves to one;
+  // fall back to en short labels if the bundle is missing the entry.
+  const localizedDayLabels: unknown = i18n.t('kid.dayLabelsShort');
+  const DAY_LABELS: string[] = Array.isArray(localizedDayLabels)
+    ? (localizedDayLabels as string[])
+    : ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
   // Figure out which day of week today is (0=Sun) and map to labels
   const todayIdx = (now.getDay() + 6) % 7; // Mon=0
   const labels = Array(7)
@@ -118,10 +130,15 @@ export default function KidProfileScreen() {
   const s = theme.surface;
   const tx = theme.text;
 
-  const { data: me, isLoading } = useQuery({
+  const { data: me, isLoading, error: meError } = useQuery({
     queryKey: ['kid', 'me'],
     queryFn: () => kidApi.getMe(),
+    // 402 means the household subscription lapsed — retrying just churns
+    // because only the parent owner can fix billing. Render the banner
+    // and let them ask their parent to renew.
+    retry: (_count, err) => !isSubscriptionLapsedError(err),
   });
+  const subscriptionLapsed = isSubscriptionLapsedError(meError);
 
   // Avatar picker — kid can change their own avatar from the kid app. The
   // parent's create flow uses the same grid layout in `(parent)/kids/new.tsx`;
@@ -207,11 +224,10 @@ export default function KidProfileScreen() {
         (info.appBuild != null ? ` (${info.appBuild})` : ''),
       `Bundle: ${Application.applicationId ?? 'unknown'}`,
       t('kid.profileScreen.appInfo.platformLine', { platform: info.platform, osVersion: info.osVersion }),
-      `Installasjons-ID: ${info.installId ?? 'unknown'}`,
-      `Barn-ID: ${me?.id ?? 'unknown'}`,
-      `Navn: ${me?.name ?? 'unknown'}`,
-      `Forelder-ID: ${me?.parentId ?? 'unknown'}`,
-      `Tidspunkt: ${new Date().toISOString()}`,
+      `${t('kid.profileScreen.appInfo.installIdLabel')}: ${info.installId ?? 'unknown'}`,
+      `${t('kid.profileScreen.appInfo.kidNameLabel')}: ${me?.name ?? 'unknown'}`,
+      `${t('kid.profileScreen.appInfo.parentIdLabel')}: ${me?.parentId ?? 'unknown'}`,
+      `${t('kid.profileScreen.appInfo.timestampLabel')}: ${new Date().toISOString()}`,
     ];
     const text = lines.join('\n');
     await Clipboard.setStringAsync(text);
@@ -248,6 +264,25 @@ export default function KidProfileScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
+        {subscriptionLapsed ? (
+          <View
+            style={[
+              styles.subscriptionBanner,
+              { backgroundColor: theme.colors.semantic.warning + '22' },
+            ]}
+            accessibilityLiveRegion="polite"
+            accessibilityRole="alert"
+          >
+            <Text
+              style={[
+                styles.subscriptionBannerText,
+                { color: theme.colors.semantic.warning },
+              ]}
+            >
+              {t('kid.errors.subscriptionLapsed')}
+            </Text>
+          </View>
+        ) : null}
         {/* Editorial profile block — italic name as the visual signature.
             Avatar is tappable; opens the picker modal so the kid can change
             their figure from the kid app. */}
@@ -526,4 +561,10 @@ const styles = StyleSheet.create({
   langLabel: { fontSize: 15, fontWeight: '500' },
   langDivider: { height: 1, marginHorizontal: 16 },
   langHelp: { fontSize: 12, paddingHorizontal: 8, marginTop: 6, lineHeight: 16 },
+  subscriptionBanner: {
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+  },
+  subscriptionBannerText: { fontSize: 13, fontWeight: '500' },
 });

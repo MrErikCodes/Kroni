@@ -48,9 +48,21 @@ export function initSentry(): void {
     apiHost = /localhost/;
   }
 
+  // Preview EAS builds run in release mode (so __DEV__ is false) but are
+  // not production. Tag them as their own Sentry environment so issues
+  // from internal beta builds don't pollute the production dashboard.
+  const easBuildProfile =
+    (Constants.expoConfig?.extra?.['easBuildProfile'] as string | undefined) ??
+    '';
+  const sentryEnvironment: 'development' | 'preview' | 'production' = __DEV__
+    ? 'development'
+    : easBuildProfile === 'preview'
+      ? 'preview'
+      : 'production';
+
   Sentry.init({
     dsn,
-    environment: __DEV__ ? 'development' : 'production',
+    environment: sentryEnvironment,
     release,
     dist: Application.nativeBuildVersion ?? undefined,
     tracesSampleRate: __DEV__ ? 1.0 : 0.2,

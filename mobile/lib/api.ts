@@ -544,7 +544,20 @@ async function kidRequest(path: string, init: RequestInit = {}): Promise<unknown
     throw new ApiError(401, problem);
   }
 
+  // 402 Payment Required — household subscription has lapsed. Kids can't
+  // open the paywall (only the parent owner can manage billing), so we
+  // surface a typed error the kid screens render as a friendly banner.
+  if (res.status === 402) {
+    const problem = await parseErrorBody(res);
+    throw new ApiError(402, problem);
+  }
+
   return handleResponse(res);
+}
+
+/** True when an unknown error is a typed 402 from the kid client. */
+export function isSubscriptionLapsedError(err: unknown): boolean {
+  return err instanceof ApiError && err.status === 402;
 }
 
 export const kidApi = {

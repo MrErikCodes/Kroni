@@ -8,12 +8,24 @@ import { ExpoConfig, ConfigContext } from 'expo/config';
 // enforced in EAS Build (EAS_BUILD=true) so local Expo Go without phase
 // run still works.
 const isEasBuild = process.env.EAS_BUILD === 'true';
+const easBuildProfile = process.env.EAS_BUILD_PROFILE;
 const requiredEasEnv = [
   'EXPO_PUBLIC_API_URL',
   'EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY',
 ];
+// RevenueCat keys are only required in production builds. preview/dev are
+// allowed to ship without them — the paywall just shows the empty-offering
+// retry card so QA can still run the rest of the app without a Sandbox
+// purchase setup.
+const requiredProductionEasEnv = [
+  ...requiredEasEnv,
+  'EXPO_PUBLIC_RC_IOS_KEY',
+  'EXPO_PUBLIC_RC_ANDROID_KEY',
+];
 if (isEasBuild) {
-  const missing = requiredEasEnv.filter((k) => !process.env[k]);
+  const required =
+    easBuildProfile === 'production' ? requiredProductionEasEnv : requiredEasEnv;
+  const missing = required.filter((k) => !process.env[k]);
   if (missing.length) {
     throw new Error(
       `Missing required EAS Build environment variables: ${missing.join(', ')}. ` +
@@ -142,6 +154,10 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     // Sentry's threat model — safe to ship in the bundle.
     sentryDsn:
       process.env.SENTRY_DSN ?? process.env.EXPO_PUBLIC_SENTRY_DSN ?? '',
+    // Surfaced at runtime via Constants.expoConfig?.extra so Sentry can tag
+    // events with the build channel. Production EAS builds are the only
+    // ones tagged 'production' in Sentry; 'preview' becomes its own env.
+    easBuildProfile: process.env.EAS_BUILD_PROFILE ?? '',
   },
   owner: 'nilsenkonsult',
 });

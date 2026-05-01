@@ -13,13 +13,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as Linking from 'expo-linking';
-import Constants from 'expo-constants';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Button } from '../../components/ui/Button';
 import { KroniText } from '../../components/ui/Text';
 import { publicApi, ApiError } from '../../lib/api';
 import { setKidToken } from '../../lib/auth';
+import { ensureInstallId } from '../../lib/installInfo';
 
 const CODE_LENGTH = 6;
 
@@ -129,10 +129,11 @@ export default function KidPair() {
     setLoading(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    // Use a stable device ID from expo constants
-    const deviceId: string =
-      (Constants.expoConfig?.extra?.['eas']?.projectId as string | undefined) ??
-      'unknown-device';
+    // Use a stable per-install device ID. `ensureInstallId()` prefers the
+    // platform-vendor id (iOS IDFV / Android ID) and falls back to a UUID
+    // cached in SecureStore — unique per install, unlike the EAS projectId
+    // which would collapse every install onto the same value.
+    const deviceId: string = await ensureInstallId();
 
     try {
       const result = await publicApi.pair({ code, deviceId });

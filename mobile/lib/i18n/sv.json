@@ -356,7 +356,18 @@
           "parent": "Roll: förälder",
           "kid": "Roll: barn"
         },
-        "platformLine": "Plattform: %{platform} %{osVersion}"
+        "platformLine": "Plattform: %{platform} %{osVersion}",
+        "installIdLabel": "Installations-ID",
+        "parentIdLabel": "Förälder-ID",
+        "emailLabel": "E-post",
+        "householdIdLabel": "Hushålls-ID",
+        "ownerLabel": "Ägare",
+        "ownerYes": "ja",
+        "ownerNo": "nej",
+        "subscriptionLabel": "Prenumeration",
+        "languageLabel": "Språk",
+        "timestampLabel": "Tidpunkt",
+        "kidNameLabel": "Namn"
       },
       "householdSection": "Hushåll",
       "addKid": "Lägg till barn",
@@ -539,7 +550,11 @@
         "roleLine": {
           "kid": "Roll: barn"
         },
-        "platformLine": "Plattform: %{platform} %{osVersion}"
+        "platformLine": "Plattform: %{platform} %{osVersion}",
+        "installIdLabel": "Installations-ID",
+        "parentIdLabel": "Förälder-ID",
+        "kidNameLabel": "Namn",
+        "timestampLabel": "Tidpunkt"
       }
     },
     "celebrate": {
@@ -553,8 +568,10 @@
       "loadFailedBody": "Något gick fel. Kontrollera anslutningen och försök igen.",
       "retry": "Försök igen",
       "completeFailed": "Kunde inte markera uppgiften som klar. Försök igen.",
-      "uncompleteFailed": "Kunde inte ångra. Försök igen."
-    }
+      "uncompleteFailed": "Kunde inte ångra. Försök igen.",
+      "subscriptionLapsed": "Familjen måste förnya prenumerationen för att appen ska fungera."
+    },
+    "dayLabelsShort": ["Må", "Ti", "On", "To", "Fr", "Lö", "Sö"]
   },
   "paywall": {
     "title": "Kroni Familj",

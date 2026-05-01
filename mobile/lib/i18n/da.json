@@ -356,7 +356,18 @@
           "parent": "Rolle: forælder",
           "kid": "Rolle: barn"
         },
-        "platformLine": "Platform: %{platform} %{osVersion}"
+        "platformLine": "Platform: %{platform} %{osVersion}",
+        "installIdLabel": "Installations-ID",
+        "parentIdLabel": "Forælder-ID",
+        "emailLabel": "E-mail",
+        "householdIdLabel": "Husstands-ID",
+        "ownerLabel": "Ejer",
+        "ownerYes": "ja",
+        "ownerNo": "nej",
+        "subscriptionLabel": "Abonnement",
+        "languageLabel": "Sprog",
+        "timestampLabel": "Tidspunkt",
+        "kidNameLabel": "Navn"
       },
       "householdSection": "Husstand",
       "addKid": "Tilføj barn",
@@ -539,7 +550,11 @@
         "roleLine": {
           "kid": "Rolle: barn"
         },
-        "platformLine": "Platform: %{platform} %{osVersion}"
+        "platformLine": "Platform: %{platform} %{osVersion}",
+        "installIdLabel": "Installations-ID",
+        "parentIdLabel": "Forælder-ID",
+        "kidNameLabel": "Navn",
+        "timestampLabel": "Tidspunkt"
       }
     },
     "celebrate": {
@@ -553,8 +568,10 @@
       "loadFailedBody": "Noget gik galt. Tjek forbindelsen og prøv igen.",
       "retry": "Prøv igen",
       "completeFailed": "Kunne ikke registrere opgaven. Prøv igen.",
-      "uncompleteFailed": "Kunne ikke fortryde. Prøv igen."
-    }
+      "uncompleteFailed": "Kunne ikke fortryde. Prøv igen.",
+      "subscriptionLapsed": "Familien skal forny abonnementet, før appen virker igen."
+    },
+    "dayLabelsShort": ["Ma", "Ti", "On", "To", "Fr", "Lø", "Sø"]
   },
   "paywall": {
     "title": "Kroni Familie",

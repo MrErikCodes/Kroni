@@ -185,14 +185,14 @@ export default function SettingsTab() {
         (info.appBuild != null ? ` (${info.appBuild})` : ''),
       `Bundle: ${Application.applicationId ?? 'unknown'}`,
       t('parent.settings.appInfo.platformLine', { platform: info.platform, osVersion: info.osVersion }),
-      `Installasjons-ID: ${info.installId ?? 'unknown'}`,
-      `Forelder-ID: ${me?.id ?? 'unknown'}`,
-      `E-post: ${me?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'unknown'}`,
-      `Husholdning-ID: ${household?.household.id ?? 'unknown'}`,
-      `Eier: ${isOwner ? 'ja' : 'nei'}`,
-      `Abonnement: ${billing?.tier ?? 'unknown'}`,
-      `Språk: ${me?.locale ?? 'unknown'}`,
-      `Tidspunkt: ${new Date().toISOString()}`,
+      `${t('parent.settings.appInfo.installIdLabel')}: ${info.installId ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.parentIdLabel')}: ${me?.id ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.emailLabel')}: ${me?.email ?? user?.primaryEmailAddress?.emailAddress ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.householdIdLabel')}: ${household?.household.id ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.ownerLabel')}: ${isOwner ? t('parent.settings.appInfo.ownerYes') : t('parent.settings.appInfo.ownerNo')}`,
+      `${t('parent.settings.appInfo.subscriptionLabel')}: ${billing?.tier ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.languageLabel')}: ${me?.locale ?? 'unknown'}`,
+      `${t('parent.settings.appInfo.timestampLabel')}: ${new Date().toISOString()}`,
     ];
     const text = lines.join('\n');
     await Clipboard.setStringAsync(text);
