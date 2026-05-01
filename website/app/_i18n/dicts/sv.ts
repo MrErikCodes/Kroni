@@ -302,6 +302,20 @@ export const sv: typeof nb = {
     translationNotice:
       "Den här sidan är översatt från norska. Den norska versionen är juridiskt bindande. Översättningsfel kan förekomma — meddela oss på support@kroni.no om du hittar några.",
   },
+  notFound: {
+    eyebrow: "404",
+    title: "Vi hittar inte sidan du letar efter.",
+    body: "Länken kan vara föråldrad, eller så har vi flyttat något. Du kan gå tillbaka till startsidan eller skriva till oss om du tror något är trasigt.",
+    ctaHome: "Till startsidan",
+    ctaSupport: "Kontakta oss",
+  },
+  error: {
+    eyebrow: "Något gick fel",
+    title: "Förlåt — något gick fel i bakgrunden.",
+    body: "Du kan försöka igen eller gå tillbaka till startsidan. Om problemet fortsätter hör vi gärna från dig.",
+    retry: "Försök igen",
+    ctaHome: "Till startsidan",
+  },
   pair: {
     metaTitle: "Öppna Kroni Familj",
     metaDescription:

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Mail, Clock, MessageCircle } from "lucide-react";
 import { hasLocale } from "../../_i18n/locales";
 import { getDictionary } from "../../_i18n/dict";
+import { localizedAlternates } from "../../_lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,7 +16,10 @@ export async function generateMetadata({
   return {
     title: dict.meta.support.title,
     description: dict.meta.support.description,
-    alternates: { canonical: `/${lang}/support` },
+    alternates: {
+      canonical: `/${lang}/support`,
+      languages: localizedAlternates("support"),
+    },
   };
 }
 

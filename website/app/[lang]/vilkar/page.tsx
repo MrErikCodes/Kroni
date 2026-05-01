@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import PolicyShell from "../../_components/PolicyShell";
 import { hasLocale, type Locale } from "../../_i18n/locales";
 import { getDictionary } from "../../_i18n/dict";
+import { localizedAlternates } from "../../_lib/seo";
 import { vilkarNb } from "../../_legal/vilkar/nb";
 import { vilkarEn } from "../../_legal/vilkar/en";
 import { vilkarSv } from "../../_legal/vilkar/sv";
@@ -27,7 +28,10 @@ export async function generateMetadata({
   return {
     title: dict.meta.terms.title,
     description: dict.meta.terms.description,
-    alternates: { canonical: `/${lang}/vilkar` },
+    alternates: {
+      canonical: `/${lang}/vilkar`,
+      languages: localizedAlternates("vilkar"),
+    },
   };
 }
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import PolicyShell from "../../_components/PolicyShell";
 import { hasLocale, type Locale } from "../../_i18n/locales";
 import { getDictionary } from "../../_i18n/dict";
+import { localizedAlternates } from "../../_lib/seo";
 import { personvernNb } from "../../_legal/personvern/nb";
 import { personvernEn } from "../../_legal/personvern/en";
 import { personvernSv } from "../../_legal/personvern/sv";
@@ -27,7 +28,10 @@ export async function generateMetadata({
   return {
     title: dict.meta.privacy.title,
     description: dict.meta.privacy.description,
-    alternates: { canonical: `/${lang}/personvern` },
+    alternates: {
+      canonical: `/${lang}/personvern`,
+      languages: localizedAlternates("personvern"),
+    },
   };
 }
 

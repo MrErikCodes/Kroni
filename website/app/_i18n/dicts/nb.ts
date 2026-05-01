@@ -301,6 +301,20 @@ export const nb = {
     translationNotice:
       "Denne siden er oversatt fra norsk. Den norske versjonen er rettslig bindende. Det kan forekomme oversettelsesfeil — gi oss beskjed på support@kroni.no hvis du finner noen.",
   },
+  notFound: {
+    eyebrow: "404",
+    title: "Vi finner ikke siden du leter etter.",
+    body: "Lenken kan være utdatert, eller så har vi flyttet noe. Du kan gå tilbake til forsiden eller skrive til oss om du tror noe er ødelagt.",
+    ctaHome: "Til forsiden",
+    ctaSupport: "Kontakt oss",
+  },
+  error: {
+    eyebrow: "Noe gikk galt",
+    title: "Beklager — noe feilet i bakgrunnen.",
+    body: "Du kan prøve igjen, eller gå tilbake til forsiden. Hvis problemet fortsetter, hører vi gjerne fra deg.",
+    retry: "Prøv igjen",
+    ctaHome: "Til forsiden",
+  },
   pair: {
     metaTitle: "Åpne Kroni Familie",
     metaDescription:

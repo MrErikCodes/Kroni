@@ -302,6 +302,20 @@ export const en: typeof nb = {
     translationNotice:
       "This page has been translated from Norwegian. The Norwegian version is the legally binding one. Translation errors may occur — please let us know at support@kroni.no if you find any.",
   },
+  notFound: {
+    eyebrow: "404",
+    title: "We can't find the page you're looking for.",
+    body: "The link may be out of date, or we've moved something. You can head back to the home page or write to us if you think something's broken.",
+    ctaHome: "Back to home",
+    ctaSupport: "Contact us",
+  },
+  error: {
+    eyebrow: "Something went wrong",
+    title: "Sorry — something failed in the background.",
+    body: "You can try again, or head back to the home page. If the issue continues, we'd love to hear from you.",
+    retry: "Try again",
+    ctaHome: "Back to home",
+  },
   pair: {
     metaTitle: "Open Kroni Family",
     metaDescription:

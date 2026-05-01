@@ -13,6 +13,7 @@ import {
   type Locale,
 } from "../_i18n/locales";
 import { getDictionary } from "../_i18n/dict";
+import { localizedAlternates } from "../_lib/seo";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -46,9 +47,7 @@ export async function generateMetadata(
   const base = CANONICAL_DOMAIN[lang];
   const alternates: Metadata["alternates"] = {
     canonical: `${base}/${lang}`,
-    languages: Object.fromEntries(
-      LOCALES.map((l) => [l, `${CANONICAL_DOMAIN[l]}/${l}`]),
-    ),
+    languages: localizedAlternates(""),
   };
   return {
     metadataBase: new URL(base),
@@ -59,7 +58,8 @@ export async function generateMetadata(
       title: dict.meta.home.title,
       description: dict.meta.home.og,
       url: `${base}/${lang}`,
-      images: [{ url: "/og-image.png" }],
+      // Open Graph image is provided by `app/opengraph-image.tsx` and is
+      // injected automatically by Next.js — no explicit `images` needed.
     },
   };
 }
