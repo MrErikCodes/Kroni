@@ -6,6 +6,7 @@ import Purchases, {
   PurchasesOffering,
 } from 'react-native-purchases';
 import { Platform } from 'react-native';
+import * as Sentry from '@sentry/react-native';
 
 const ENTITLEMENT_ID = 'kroni_family';
 
@@ -21,6 +22,15 @@ export function configureRevenueCat(): void {
     Purchases.configure({ apiKey: iosKey });
   } else if (Platform.OS === 'android' && androidKey) {
     Purchases.configure({ apiKey: androidKey });
+  } else {
+    // No key for this platform — paywall + identity bridge will silently no-op
+    // unless we surface it. Capture so we can see it in the dashboard instead
+    // of debugging the symptom (no customer record in RC).
+    Sentry.captureMessage('RevenueCat not configured: missing API key', {
+      level: 'warning',
+      tags: { area: 'billing', platform: Platform.OS },
+      extra: { hasIosKey: Boolean(iosKey), hasAndroidKey: Boolean(androidKey) },
+    });
   }
 }
 
@@ -123,8 +133,11 @@ export async function purchasePackage(pkg: PurchasesPackage): Promise<PurchaseRe
 export async function identifyUser(userId: string): Promise<void> {
   try {
     await Purchases.logIn(userId);
-  } catch {
-    // Non-fatal — proceed without identification
+  } catch (e) {
+    Sentry.captureException(e, {
+      tags: { area: 'billing', op: 'identifyUser' },
+      extra: { userId },
+    });
   }
 }
 
@@ -136,8 +149,11 @@ export async function identifyUser(userId: string): Promise<void> {
 export async function loginRevenueCat(userId: string): Promise<void> {
   try {
     await Purchases.logIn(userId);
-  } catch {
-    // Non-fatal — proceed without identification
+  } catch (e) {
+    Sentry.captureException(e, {
+      tags: { area: 'billing', op: 'loginRevenueCat' },
+      extra: { userId },
+    });
   }
 }
 
