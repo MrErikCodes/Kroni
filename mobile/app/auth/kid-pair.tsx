@@ -8,11 +8,13 @@ import {
   Platform,
   ScrollView,
   TextInput,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import * as Linking from 'expo-linking';
+import { ArrowLeft } from 'lucide-react-native';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { Button } from '../../components/ui/Button';
@@ -162,6 +164,17 @@ export default function KidPair() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          hitSlop={12}
+          style={styles.backBtn}
+        >
+          <ArrowLeft size={24} color={tx.primary} strokeWidth={1.75} />
+        </TouchableOpacity>
+      </View>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -253,6 +266,16 @@ export default function KidPair() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
+  topBar: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   content: {
     flexGrow: 1,
     paddingHorizontal: 24,
