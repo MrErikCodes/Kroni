@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useSignUp, useAuth } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
+import { ArrowLeft } from 'lucide-react-native';
 import { useTheme, fonts } from '../../lib/theme';
 import { t, legalUrl } from '../../lib/i18n';
 import { formatClerkError } from '../../lib/clerkErrors';
@@ -48,6 +49,11 @@ export default function ParentSignUp() {
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Set true when the user explicitly backs out of the verify step. Clerk's
+  // SignUp resource still says `missing_requirements`, so the resume effect
+  // below would immediately bounce them back to verify without this guard.
+  const userExitedVerifyRef = useRef(false);
 
   // Resend-code state. Cooldown ticks down once per second after a successful
   // resend so impatient users can't hammer Clerk's prepare endpoint.
@@ -85,6 +91,7 @@ export default function ParentSignUp() {
     });
     if (!isLoaded || !signUp) return;
     if (step !== 'form') return;
+    if (userExitedVerifyRef.current) return;
     const pendingEmail = signUp.emailAddress ?? '';
     const emailUnverified =
       signUp.verifications?.emailAddress?.status === 'unverified';
@@ -156,6 +163,7 @@ export default function ParentSignUp() {
       console.log('[sign-up] signUp.create OK', { status: signUp.status });
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
       console.log('[sign-up] prepare OK, switching to verify step');
+      userExitedVerifyRef.current = false;
       setStep('verify');
     } catch (err: unknown) {
       console.log('[sign-up] handleSignUp error', err);
@@ -240,11 +248,42 @@ export default function ParentSignUp() {
     }
   }, [isLoaded, signUp, resending, resendCooldown]);
 
+  const handleBack = useCallback(() => {
+    if (step === 'verify') {
+      // Drop everything tied to the verify step. Email/password are also
+      // wiped so a re-entry starts clean — Clerk's persisted SignUp will
+      // be replaced when the user submits again.
+      userExitedVerifyRef.current = true;
+      setStep('form');
+      setVerificationCode('');
+      setEmail('');
+      setPassword('');
+      setError(null);
+      setResendNotice(null);
+      setResendCooldown(0);
+      setJoinDigits(Array(CODE_LENGTH).fill(''));
+      setShowJoinCode(false);
+      return;
+    }
+    router.back();
+  }, [step, router]);
+
   const s = theme.surface;
   const tx = theme.text;
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
+      <View style={styles.topBar}>
+        <TouchableOpacity
+          onPress={handleBack}
+          accessibilityRole="button"
+          accessibilityLabel={t('common.back')}
+          hitSlop={12}
+          style={styles.backBtn}
+        >
+          <ArrowLeft size={24} color={tx.primary} strokeWidth={1.75} />
+        </TouchableOpacity>
+      </View>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -479,6 +518,16 @@ export default function ParentSignUp() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
+  topBar: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  backBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   content: {
     flexGrow: 1,
     paddingHorizontal: 24,
