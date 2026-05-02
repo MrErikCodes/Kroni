@@ -22,6 +22,9 @@ set -euo pipefail
 LOCALE="${1:-nb}"
 OUT_DIR="screenshots/ios/${LOCALE}"
 mkdir -p "${OUT_DIR}"
+# xcrun simctl resolves output paths against the simulator's cwd, not the
+# calling shell's. Convert to absolute so the screenshot lands where we want.
+OUT_DIR="$(cd "${OUT_DIR}" && pwd)"
 
 # 1. Verify a simulator is booted.
 if ! xcrun simctl list devices booted | grep -q "Booted"; then
