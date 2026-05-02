@@ -81,11 +81,19 @@ export function registerNavigate(fn: NavigateFn): void {
   _navigate = fn;
 }
 
-function navigateToRoot(): void {
+function navigateToRoot(reason: string): void {
+  console.log('[api] navigateToRoot', {
+    reason,
+    stack: new Error().stack?.split('\n').slice(1, 6).join(' | '),
+  });
   _navigate?.('/');
 }
 
 export function navigateTo(path: string): void {
+  console.log('[api] navigateTo', {
+    path,
+    stack: new Error().stack?.split('\n').slice(1, 6).join(' | '),
+  });
   _navigate?.(path);
 }
 
@@ -141,7 +149,7 @@ async function handleResponse(res: Response): Promise<unknown> {
   const problem = await parseErrorBody(res);
   const err = new ApiError(res.status, problem);
   if (res.status === 401) {
-    navigateToRoot();
+    navigateToRoot(`401 from ${res.url}`);
   }
   throw err;
 }
@@ -203,9 +211,11 @@ const KidMeSchema = KidSchema;
 
 export function clientFor(getToken: GetToken) {
   async function request(path: string, init: RequestInit = {}): Promise<unknown> {
+    console.log('[api:parent] request', { path, method: init.method ?? 'GET' });
     const token = await getToken();
     if (!token) {
-      navigateToRoot();
+      console.log('[api:parent] no token for', { path });
+      navigateToRoot(`parent: no token for ${path}`);
       throw new ApiError(401, {
         type: 'about:blank',
         title: 'Unauthorized',
@@ -518,9 +528,11 @@ export const parentApi = { clientFor };
 // ── Kid API ───────────────────────────────────────────────────────────────────
 
 async function kidRequest(path: string, init: RequestInit = {}): Promise<unknown> {
+  console.log('[api:kid] request', { path, method: init.method ?? 'GET' });
   const token = await getKidToken();
   if (!token) {
-    navigateToRoot();
+    console.log('[api:kid] no token for', { path });
+    navigateToRoot(`kid: no token for ${path}`);
     throw new ApiError(401, {
       type: 'about:blank',
       title: 'Unauthorized',
@@ -538,8 +550,9 @@ async function kidRequest(path: string, init: RequestInit = {}): Promise<unknown
   }
 
   if (res.status === 401) {
+    console.log('[api:kid] 401 from server', { path });
     await clearKidToken();
-    navigateToRoot();
+    navigateToRoot(`kid: 401 from ${path}`);
     const problem = await parseErrorBody(res);
     throw new ApiError(401, problem);
   }
