@@ -107,11 +107,8 @@ export default function RoleChooser() {
             style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
-            <KroniText variant="eyebrow" tone="tertiary">
+            <KroniText variant="eyebrow" tone="primary" style={styles.cardLabel}>
               {t('roleChooser.parentEyebrow')}
-            </KroniText>
-            <KroniText variant="display" tone="primary" style={styles.cardTitle}>
-              {t('roleChooser.parentHeadline')}
             </KroniText>
             <KroniText variant="small" tone="secondary" style={styles.cardBody}>
               {t('roleChooser.parentBody')}
@@ -123,14 +120,11 @@ export default function RoleChooser() {
             accessibilityRole="button"
             accessibilityLabel={t('roleChooser.kidAccessibility')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            style={[styles.card, styles.kidCard, { backgroundColor: cardBg, borderColor: border }]}
+            style={[styles.card, { backgroundColor: cardBg, borderColor: border }]}
             activeOpacity={0.85}
           >
-            <KroniText variant="eyebrow" tone="tertiary">
+            <KroniText variant="eyebrow" tone="primary" style={styles.cardLabel}>
               {t('roleChooser.kidEyebrow')}
-            </KroniText>
-            <KroniText variant="display" tone="primary" style={styles.cardTitle}>
-              {t('roleChooser.kidHeadline')}
             </KroniText>
             <KroniText variant="small" tone="secondary" style={styles.cardBody}>
               {t('roleChooser.kidBody')}
@@ -210,13 +204,10 @@ const styles = StyleSheet.create({
     minHeight: 44,
     gap: 10,
   },
-  kidCard: {
-    minHeight: 56,
-  },
-  cardTitle: {
-    fontSize: 26,
-    lineHeight: 30,
-    letterSpacing: -0.6,
+  cardLabel: {
+    fontSize: 13,
+    lineHeight: 16,
+    letterSpacing: 1.4,
   },
   cardBody: {
     lineHeight: 20,
