@@ -67,7 +67,16 @@ export function subscribeLocale(fn: LocaleListener): () => void {
 
 export function setAppLocale(locale: string | null | undefined): void {
   const next = normalize(locale);
-  if (i18n.locale === next) return;
+  if (i18n.locale === next) {
+    console.log('[locale] setAppLocale noop', { locale, current: i18n.locale });
+    return;
+  }
+  console.log('[locale] setAppLocale FIRE', {
+    from: i18n.locale,
+    to: next,
+    raw: locale,
+    listeners: listeners.size,
+  });
   i18n.locale = next;
   for (const fn of listeners) fn(next);
 }

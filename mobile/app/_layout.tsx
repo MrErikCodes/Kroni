@@ -46,7 +46,7 @@ import {
   setParentLocale,
   clearParentLocale,
 } from '../lib/auth';
-import { Platform } from 'react-native';
+import { Platform, AppState } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 // RevenueCat is parent-only; configured lazily inside the identity bridge
 // once a Clerk session appears.
@@ -89,6 +89,7 @@ initSentry();
 // round-trip; ParentLocaleBridge below keeps the cache in sync with
 // the server while the parent is signed in.
 const deviceLocale = Localization.getLocales()[0]?.languageCode ?? 'nb';
+console.log('[boot] module load', { deviceLocale });
 setAppLocale(deviceLocale);
 void (async () => {
   const [kidToken, storedKidLocale, storedParentLocale] = await Promise.all([
@@ -96,6 +97,11 @@ void (async () => {
     getKidLocale(),
     getParentLocale(),
   ]);
+  console.log('[boot] async locale resolution', {
+    hasKidToken: !!kidToken,
+    storedKidLocale,
+    storedParentLocale,
+  });
   if (kidToken && storedKidLocale) {
     setAppLocale(storedKidLocale);
   } else if (storedParentLocale) {
@@ -155,10 +161,22 @@ function NavigationRegistrar() {
   useEffect(() => {
     // Wire API client navigate calls to expo-router
     registerNavigate((path) => {
+      console.log('[nav] router.replace from api', { path });
       router.replace(path as Parameters<typeof router.replace>[0]);
     });
   }, [router]);
 
+  return null;
+}
+
+function AppStateLogger() {
+  useEffect(() => {
+    console.log('[appstate] mount, current=', AppState.currentState);
+    const sub = AppState.addEventListener('change', (next) => {
+      console.log('[appstate] change', { next });
+    });
+    return () => sub.remove();
+  }, []);
   return null;
 }
 
@@ -187,6 +205,7 @@ function SentryIdentityBridge() {
 
   // Parent identity follows Clerk: tag on sign-in, clear on sign-out.
   useEffect(() => {
+    console.log('[bridge:sentry] effect', { isLoaded, clerkUserId });
     if (!isLoaded) return;
     if (clerkUserId) {
       tagSentryUser({
@@ -221,6 +240,11 @@ function RevenueCatIdentityBridge() {
   const configuredRef = useRef(false);
 
   useEffect(() => {
+    console.log('[bridge:revenuecat] effect', {
+      isLoaded,
+      userId,
+      previous: lastUserIdRef.current,
+    });
     if (!isLoaded) return;
     const previous = lastUserIdRef.current;
     if (userId && previous !== userId) {
@@ -261,6 +285,11 @@ function ParentLocaleBridge() {
   const lastUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
+    console.log('[bridge:locale] effect', {
+      isLoaded,
+      userId,
+      previous: lastUserIdRef.current,
+    });
     if (!isLoaded) return;
     const previous = lastUserIdRef.current;
     if (userId && previous !== userId) {
@@ -269,6 +298,10 @@ function ParentLocaleBridge() {
         try {
           const client = parentApi.clientFor(() => getToken());
           const me = await client.getMe();
+          console.log('[bridge:locale] me', {
+            locale: me?.locale,
+            createdAt: me?.createdAt,
+          });
           // Fresh-parent path: row younger than 5 min AND server still at
           // default 'nb'. Push the device locale UP to the server instead
           // of pulling 'nb' DOWN — otherwise a sign-up on an English/SE/DK
@@ -426,8 +459,18 @@ function RootLayout() {
   const [shortLocale, setShortLocale] = useState<ShortLocale>(() =>
     getAppLocale(),
   );
+  const renderCounter = useRef(0);
+  renderCounter.current += 1;
+  console.log('[layout] RootLayout render', {
+    n: renderCounter.current,
+    shortLocale,
+  });
   useEffect(
-    () => subscribeLocale((next) => setShortLocale(next)),
+    () =>
+      subscribeLocale((next) => {
+        console.log('[layout] locale subscriber fired', { next });
+        setShortLocale(next);
+      }),
     [],
   );
 
@@ -466,6 +509,7 @@ function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationRegistrar />
+          <AppStateLogger />
           <SentryIdentityBridge />
           <RevenueCatIdentityBridge />
           <ParentLocaleBridge />

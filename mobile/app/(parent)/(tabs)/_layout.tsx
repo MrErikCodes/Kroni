@@ -11,8 +11,12 @@ export default function ParentTabsLayout() {
   const router = useRouter();
   const theme = useTheme();
 
+  console.log('[parent-tabs] render', { isLoaded, isSignedIn });
+
   useEffect(() => {
+    console.log('[parent-tabs] auth-guard effect', { isLoaded, isSignedIn });
     if (isLoaded && !isSignedIn) {
+      console.log('[parent-tabs] redirecting to /auth/parent-sign-in');
       router.replace('/auth/parent-sign-in');
     }
   }, [isLoaded, isSignedIn, router]);

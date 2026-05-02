@@ -23,9 +23,12 @@ export default function KidTabsLayout() {
   });
 
   useEffect(() => {
+    console.log('[kid-tabs] auth-guard effect');
     // Verify kid token exists; redirect to pair if not
     void getKidToken().then((token) => {
+      console.log('[kid-tabs] token check', { hasToken: !!token });
       if (!token) {
+        console.log('[kid-tabs] redirecting -> /auth/kid-pair');
         router.replace('/auth/kid-pair');
       }
     });

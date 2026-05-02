@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { useAuth, useSignIn } from '@clerk/clerk-expo';
+import { useAuth, useSignIn, useSignUp } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import * as Sentry from '@sentry/react-native';
 import { useTheme, fonts } from '../../lib/theme';
@@ -24,17 +24,59 @@ export default function ParentSignIn() {
   const theme = useTheme();
   const router = useRouter();
   const { signIn, setActive, isLoaded } = useSignIn();
+  const { signUp, isLoaded: signUpLoaded } = useSignUp();
   const { isSignedIn, isLoaded: authLoaded } = useAuth();
+
+  console.log('[sign-in] render', {
+    authLoaded,
+    isSignedIn,
+    signInLoaded: isLoaded,
+    signUpLoaded,
+    pendingSignUpEmail: signUp?.emailAddress,
+    pendingSignUpStatus: signUp?.status,
+  });
 
   // Already-signed-in guard. Without this Clerk throws 'You're already
   // signed in' when the user lands on the sign-in screen with a live
   // session (e.g. opens the app after a previous sign-in survived in
   // the secure-store token cache).
   useEffect(() => {
+    console.log('[sign-in] already-signed-in effect', { authLoaded, isSignedIn });
     if (authLoaded && isSignedIn) {
+      console.log('[sign-in] redirecting -> /(parent)/(tabs)/kids');
       router.replace('/(parent)/(tabs)/kids');
     }
   }, [authLoaded, isSignedIn, router]);
+
+  // Pending-verification guard. If Clerk's tokenCache rehydrates an
+  // in-progress SignUp resource (status `missing_requirements` with the
+  // email still unverified), the user almost certainly closed the app
+  // while looking up the verification code. Bounce them back into the
+  // sign-up screen which has its own resume-effect to land them on the
+  // code entry step.
+  useEffect(() => {
+    if (!signUpLoaded || !signUp) return;
+    const pendingEmail = signUp.emailAddress ?? '';
+    const emailUnverified =
+      signUp.verifications?.emailAddress?.status === 'unverified';
+    const unverifiedFields = signUp.unverifiedFields ?? [];
+    const needsEmailVerify =
+      emailUnverified || unverifiedFields.includes('email_address');
+    console.log('[sign-in] pending-signup guard', {
+      pendingEmail,
+      status: signUp.status,
+      needsEmailVerify,
+    });
+    if (
+      pendingEmail &&
+      signUp.status === 'missing_requirements' &&
+      needsEmailVerify &&
+      !isSignedIn
+    ) {
+      console.log('[sign-in] redirecting -> /auth/parent-sign-up (resume verify)');
+      router.replace('/auth/parent-sign-up');
+    }
+  }, [signUpLoaded, signUp, isSignedIn, router]);
 
   // Surface a real error if Clerk's frontend API never finishes initialising
   // (bad publishable key, FAPI unreachable, throttled network). Without this
@@ -132,6 +174,7 @@ export default function ParentSignIn() {
   }, [isLoaded, signIn, setActive, email, password, router]);
 
   const handleTwoFactor = useCallback(async () => {
+    console.log('[sign-in:2fa] press', { strategy: twoFactorStrategy });
     if (!isLoaded || !signIn) return;
     setError(null);
     setLoading(true);

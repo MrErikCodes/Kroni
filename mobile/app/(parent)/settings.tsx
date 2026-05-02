@@ -145,6 +145,7 @@ export default function SettingsTab() {
     household.household.premiumOwnerParentId === me.id;
 
   useEffect(() => {
+    console.log('[settings] me.locale effect', { meLocale: me?.locale });
     if (me?.locale) {
       setAppLocale(me.locale);
       // Mirror to SecureStore so the next cold start renders in the

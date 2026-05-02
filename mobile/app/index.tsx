@@ -26,12 +26,17 @@ export default function RoleChooser() {
   // we don't auto-resume them here — Clerk's tokenCache handles that.
   const [resolved, setResolved] = useState(false);
 
+  console.log('[index] render', { resolved });
+
   useEffect(() => {
+    console.log('[index] resolve-effect mount');
     let cancelled = false;
     void (async () => {
       const token = await getKidToken();
+      console.log('[index] kid token check', { hasToken: !!token, cancelled });
       if (cancelled) return;
       if (token) {
+        console.log('[index] redirect -> /(kid)/(tabs)/today');
         router.replace('/(kid)/(tabs)/today');
         return;
       }

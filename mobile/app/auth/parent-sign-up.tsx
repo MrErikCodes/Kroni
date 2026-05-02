@@ -31,6 +31,13 @@ export default function ParentSignUp() {
   const { signUp, setActive, isLoaded } = useSignUp();
   const { getToken } = useAuth();
 
+  console.log('[sign-up] render', {
+    isLoaded,
+    hasSignUp: !!signUp,
+    status: signUp?.status,
+    emailAddress: signUp?.emailAddress,
+  });
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
@@ -63,6 +70,15 @@ export default function ParentSignUp() {
   // resend button below is wired to `signUp.prepareEmailAddressVerification`
   // so they can request a fresh code if the original expired.
   useEffect(() => {
+    console.log('[sign-up] resume-effect', {
+      isLoaded,
+      hasSignUp: !!signUp,
+      step,
+      status: signUp?.status,
+      emailAddress: signUp?.emailAddress,
+      emailVerStatus: signUp?.verifications?.emailAddress?.status,
+      unverifiedFields: signUp?.unverifiedFields,
+    });
     if (!isLoaded || !signUp) return;
     if (step !== 'form') return;
     const pendingEmail = signUp.emailAddress ?? '';
@@ -76,6 +92,7 @@ export default function ParentSignUp() {
       signUp.status === 'missing_requirements' &&
       needsEmailVerify
     ) {
+      console.log('[sign-up] resuming verify step', { pendingEmail });
       setEmail(pendingEmail);
       setStep('verify');
     }
@@ -125,15 +142,19 @@ export default function ParentSignUp() {
   }, []);
 
   const handleSignUp = useCallback(async () => {
+    console.log('[sign-up] handleSignUp press', { isLoaded, hasSignUp: !!signUp, email });
     if (!isLoaded || !signUp) return;
     setError(null);
     setLoading(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     try {
       await signUp.create({ emailAddress: email.trim(), password });
+      console.log('[sign-up] signUp.create OK', { status: signUp.status });
       await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      console.log('[sign-up] prepare OK, switching to verify step');
       setStep('verify');
     } catch (err: unknown) {
+      console.log('[sign-up] handleSignUp error', err);
       const message = formatClerkError(err);
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -143,6 +164,7 @@ export default function ParentSignUp() {
   }, [isLoaded, signUp, email, password]);
 
   const handleVerify = useCallback(async () => {
+    console.log('[sign-up] handleVerify press', { hasSignUp: !!signUp, code: verificationCode });
     if (!isLoaded || !signUp) return;
     setError(null);
     setLoading(true);
@@ -150,7 +172,9 @@ export default function ParentSignUp() {
       const result = await signUp.attemptEmailAddressVerification({
         code: verificationCode.trim(),
       });
+      console.log('[sign-up] attemptEmail result', { status: result.status });
       if (result.status === 'complete') {
+        console.log('[sign-up] setActive', { session: result.createdSessionId });
         await setActive({ session: result.createdSessionId });
 
         // If the user supplied a family join code, attempt to join the
@@ -180,9 +204,11 @@ export default function ParentSignUp() {
             return;
           }
         }
+        console.log('[sign-up] post-verify -> /(parent)/(tabs)/kids');
         router.replace('/(parent)/(tabs)/kids');
       }
     } catch (err: unknown) {
+      console.log('[sign-up] handleVerify error', err);
       const message = formatClerkError(err);
       setError(message);
       await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
