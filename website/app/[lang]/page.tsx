@@ -10,7 +10,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import PhoneMock from "../_components/PhoneMock";
-import PhotoPlaceholder from "../_components/PhotoPlaceholder";
+import AppShot from "../_components/AppShot";
 import Reveal from "../_components/Reveal";
 import { hasLocale, type Locale } from "../_i18n/locales";
 import { getDictionary } from "../_i18n/dict";
@@ -45,19 +45,19 @@ export default async function HomePage({
 
   const featureImages = [
     {
-      alt: "Photo of a child looking at the Kroni app on a Monday morning.",
-      caption: "[REVIEW] photo placeholder — kid checking the balance on a Monday morning, soft light.",
-      aspect: "portrait" as const,
+      src: "/marketing/app/feature-allowance.png",
+      tone: "sand" as const,
+      crop: "full" as const,
     },
     {
-      alt: "Photo of a parent and child planning rewards together.",
-      caption: "[REVIEW] photo placeholder — parent and kid at the kitchen table choosing rewards.",
-      aspect: "landscape" as const,
+      src: "/marketing/app/feature-rewards.png",
+      tone: "gold" as const,
+      crop: "top" as const,
     },
     {
-      alt: "Still life of coins and a notebook on a wooden table.",
-      caption: "[REVIEW] photo placeholder — still life of coins, pencil and a small notebook on light oak.",
-      aspect: "landscape" as const,
+      src: "/marketing/app/feature-safe.png",
+      tone: "sand" as const,
+      crop: "full" as const,
     },
   ];
 
@@ -210,11 +210,12 @@ export default async function HomePage({
                       </p>
                     </div>
                     <div className="lg:col-span-5">
-                      <PhotoPlaceholder
-                        alt={img.alt}
-                        caption={img.caption}
-                        aspect={img.aspect}
-                        tone={i === 1 ? "gold" : "sand"}
+                      <AppShot
+                        src={img.src}
+                        alt={f.imageAlt}
+                        aspect="portrait"
+                        tone={img.tone}
+                        crop={img.crop}
                       />
                     </div>
                   </div>

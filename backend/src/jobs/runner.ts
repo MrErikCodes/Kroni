@@ -6,6 +6,7 @@ import { runDailyReset } from './daily-reset.js';
 import { runAllowance } from './allowance.js';
 import { runApprovalReminders } from './approval-reminders.js';
 import { runCleanup } from './cleanup.js';
+import { runHouseholdReaper } from './household-reaper.js';
 
 const APP_TZ = 'Europe/Oslo';
 
@@ -22,6 +23,8 @@ const schedule: CronJob[] = [
   { name: 'allowance', pattern: '0 8 * * *', handler: runAllowance },
   { name: 'approval-reminders', pattern: '*/30 * * * *', handler: runApprovalReminders },
   { name: 'cleanup', pattern: '0 * * * *', handler: runCleanup },
+  // Daily 04:00 Oslo. Off-peak from daily-reset (00:05) and allowance (08:00).
+  { name: 'household-reaper', pattern: '0 4 * * *', handler: runHouseholdReaper },
 ];
 
 async function main(): Promise<void> {

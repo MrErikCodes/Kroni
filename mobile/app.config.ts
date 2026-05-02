@@ -73,20 +73,23 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    // App Links for the "share kid login link" feature. Android verifies
-    // this against `https://kroni.no/.well-known/assetlinks.json`. The file
-    // is served by the marketing site and **must contain the upload key +
-    // Play App Signing SHA-256 fingerprints** before Play release — until
-    // then, taps on https://kroni.no/pair/<code> open the chooser instead
-    // of deep-linking into the app. The custom-scheme fallback
-    // (`kroni://pair?code=…`) works without verified app links. kroni.se
-    // and kroni.dk are marketing aliases and intentionally NOT wired here.
+    // App Links for the "share kid login link" + co-parent invite features.
+    // Android verifies this against
+    // `https://kroni.no/.well-known/assetlinks.json`. The file is served by
+    // the marketing site and **must contain the upload key + Play App
+    // Signing SHA-256 fingerprints** before Play release — until then,
+    // taps on https://kroni.no/pair/<code> or /invite/<code> open the
+    // chooser instead of deep-linking into the app. The custom-scheme
+    // fallbacks (`kroni://pair?code=…`, `kroni://invite?code=…`) work
+    // without verified app links. kroni.se and kroni.dk are marketing
+    // aliases and intentionally NOT wired here.
     intentFilters: [
       {
         action: 'VIEW',
         autoVerify: true,
         data: [
           { scheme: 'https', host: 'kroni.no', pathPrefix: '/pair/' },
+          { scheme: 'https', host: 'kroni.no', pathPrefix: '/invite/' },
         ],
         category: ['BROWSABLE', 'DEFAULT'],
       },

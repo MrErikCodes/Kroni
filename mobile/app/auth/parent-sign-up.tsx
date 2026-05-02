@@ -12,7 +12,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSignUp, useAuth } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
 import { ArrowLeft } from 'lucide-react-native';
@@ -111,11 +111,23 @@ export default function ParentSignUp() {
 
   // Optional family-join code: when a parent has been invited by a co-parent,
   // they can paste the 6-digit code here. After Clerk verification we call
-  // joinHousehold(code) before routing to the parent shell.
-  const [showJoinCode, setShowJoinCode] = useState(false);
-  const [joinDigits, setJoinDigits] = useState<string[]>(
-    Array(CODE_LENGTH).fill(''),
+  // joinHousehold(code) before routing to the parent shell. The
+  // `?join=<code>` query is set by the invite share-link router
+  // (`components/invite/InviteLinkRouter.tsx`) when an unauthenticated user
+  // taps an /invite/<code> universal link or kroni://invite?code=<code>
+  // custom-scheme URL — we expand the join field and prefill the digits so
+  // the user only needs to set their email + password.
+  const { join: joinFromQuery } = useLocalSearchParams<{ join?: string }>();
+  const initialJoinDigits = ((): string[] => {
+    if (typeof joinFromQuery !== 'string') return Array(CODE_LENGTH).fill('');
+    const cleaned = joinFromQuery.replace(/\D/g, '').slice(0, CODE_LENGTH);
+    if (cleaned.length !== CODE_LENGTH) return Array(CODE_LENGTH).fill('');
+    return cleaned.split('');
+  })();
+  const [showJoinCode, setShowJoinCode] = useState(
+    initialJoinDigits.some((d) => d.length > 0),
   );
+  const [joinDigits, setJoinDigits] = useState<string[]>(initialJoinDigits);
   const joinInputRefs = useRef<(TextInput | null)[]>([]);
   const joinCode = joinDigits.join('');
 

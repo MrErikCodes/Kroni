@@ -25,6 +25,10 @@ export const households = pgTable('households', {
   // parents.householdId — both tables are populated together in the
   // ensureHouseholdForParent flow).
   premiumOwnerParentId: uuid(),
+  // Set when the last parent leaves and cleared when a parent rejoins. The
+  // household-reaper job hard-deletes households whose emptied_at is older
+  // than the cooldown window. See jobs/household-reaper.ts.
+  emptiedAt: timestamp({ withTimezone: true }),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
 });

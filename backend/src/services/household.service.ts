@@ -195,6 +195,12 @@ export async function acceptHouseholdInvite(
       .set({ usedAt: new Date(), usedByParentId: parentId })
       .where(eq(householdInvites.code, code));
 
+    // Joined household has at least one parent again; clear any reaper stamp.
+    await tx
+      .update(households)
+      .set({ emptiedAt: null, updatedAt: new Date() })
+      .where(eq(households.id, invite.householdId));
+
     return { householdId: invite.householdId };
   });
 }

@@ -6,14 +6,15 @@ import {
   StyleSheet,
   TouchableOpacity,
   Linking,
+  Share,
 } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import * as Clipboard from 'expo-clipboard';
-import { Copy, Trash2 } from 'lucide-react-native';
+import { Copy, RefreshCw, Share2, Trash2 } from 'lucide-react-native';
 import type { HouseholdInvite, HouseholdMember } from '@kroni/shared';
 import { useTheme, fonts } from '../../lib/theme';
-import { t } from '../../lib/i18n';
+import { t, getAppLocale } from '../../lib/i18n';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
@@ -241,6 +242,35 @@ function InviteModal({ visible, onClose, api }: InviteModalProps) {
     setTimeout(() => setCopied(false), 2000);
   }, [issued]);
 
+  // Universal-link share — kroni.no is the canonical hub domain. The website
+  // route is /[lang]/invite/[code]; iOS AASA + Android App Links bounce the
+  // URL straight into the mobile app for already-installed users.
+  const handleShare = useCallback(async () => {
+    if (!issued) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const url = `https://kroni.no/${getAppLocale()}/invite/${issued.code}`;
+    try {
+      await Share.share({
+        title: t('parent.household.inviteModal.shareTitle'),
+        message: t('parent.household.inviteModal.shareBody', {
+          code: issued.code,
+          url,
+        }),
+        url,
+      });
+    } catch {
+      // User cancelled / share sheet failed — code is still valid on screen.
+    }
+  }, [issued]);
+
+  const handleRegenerate = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setError(null);
+    setIssued(null);
+    setCopied(false);
+    mutation.mutate();
+  }, [mutation]);
+
   const handleMailto = useCallback(async () => {
     if (!issued) return;
     const subject = t('parent.household.inviteModal.mailtoSubject');
@@ -305,6 +335,23 @@ function InviteModal({ visible, onClose, api }: InviteModalProps) {
             </View>
 
             <TouchableOpacity
+              onPress={() => {
+                void handleShare();
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={t('parent.household.inviteModal.share')}
+              style={[
+                inviteModalStyles.primaryBtn,
+                { backgroundColor: theme.colors.gold[500] },
+              ]}
+            >
+              <Share2 size={18} color="#FFFFFF" strokeWidth={2} />
+              <Text style={inviteModalStyles.primaryLabel}>
+                {t('parent.household.inviteModal.share')}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               onPress={handleCopy}
               accessibilityRole="button"
               accessibilityLabel={t('parent.household.inviteModal.copyButton')}
@@ -339,12 +386,30 @@ function InviteModal({ visible, onClose, api }: InviteModalProps) {
               </TouchableOpacity>
             ) : null}
 
-            <Button
-              label={t('parent.household.inviteModal.close')}
-              variant="secondary"
-              onPress={onClose}
-              size="sm"
-            />
+            <View style={inviteModalStyles.footerRow}>
+              <TouchableOpacity
+                onPress={handleRegenerate}
+                disabled={mutation.isPending}
+                accessibilityRole="button"
+                accessibilityLabel={t('parent.household.inviteModal.regenerate')}
+                style={[
+                  inviteModalStyles.regenBtn,
+                  { borderColor: theme.surface.border, opacity: mutation.isPending ? 0.5 : 1 },
+                ]}
+              >
+                <RefreshCw size={14} color={tx.secondary} strokeWidth={2} />
+                <Text style={[inviteModalStyles.regenLabel, { color: tx.secondary }]}>
+                  {t('parent.household.inviteModal.regenerate')}
+                </Text>
+              </TouchableOpacity>
+
+              <Button
+                label={t('parent.household.inviteModal.close')}
+                variant="secondary"
+                onPress={onClose}
+                size="sm"
+              />
+            </View>
           </View>
         ) : (
           <View style={inviteModalStyles.formWrap}>
@@ -442,8 +507,39 @@ const inviteModalStyles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   copyLabel: { fontSize: 15, fontWeight: '600' },
+  primaryBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 999,
+    minHeight: 44,
+    alignSelf: 'stretch',
+  },
+  primaryLabel: { fontSize: 15, fontWeight: '700', color: '#FFFFFF' },
   mailtoLink: { paddingVertical: 8 },
   mailtoText: { fontSize: 14, fontWeight: '600', textDecorationLine: 'underline' },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    alignSelf: 'stretch',
+    gap: 12,
+    marginTop: 4,
+  },
+  regenBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    borderWidth: 1,
+    minHeight: 44,
+  },
+  regenLabel: { fontSize: 13, fontWeight: '600' },
 });
 
 interface InviteRowProps {

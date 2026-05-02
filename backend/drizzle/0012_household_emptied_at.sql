@@ -1,0 +1,1 @@
+ALTER TABLE "households" ADD COLUMN "emptied_at" timestamp with time zone;

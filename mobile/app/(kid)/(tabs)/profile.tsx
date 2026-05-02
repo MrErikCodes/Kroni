@@ -242,20 +242,14 @@ export default function KidProfileScreen() {
       .reduce((sum, e) => sum + e.amountCents, 0) ?? 0;
 
   return (
-    <SafeAreaView
-      edges={['top', 'left', 'right']}
-      style={[
-        styles.container,
-        { backgroundColor: s.background, paddingBottom: tabBarHeight },
-      ]}
-    >
+    <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={styles.header}>
         <KroniText variant="eyebrow" tone="gold">
           {t('kid.profileScreen.eyebrow')}
         </KroniText>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}>
         {subscriptionLapsed ? (
           <View
             style={[

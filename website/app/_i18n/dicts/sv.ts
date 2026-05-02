@@ -105,18 +105,21 @@ export const sv: typeof nb = {
         title: "Veckopeng som faktiskt är pedagogisk.",
         body: "Du bestämmer beloppet. Måndag morgon landar det på barnets saldo — utan påminnelser, utan bråk. Pausa under semestern, justera när lönen ändras.",
         side: "right",
+        imageAlt: "Skärmbild av Kroni-appen som visar barnets saldo och senaste utbetalning.",
       },
       {
         eyebrow: "Belöningar",
         title: "Belöningar som betyder något för familjen.",
         body: "Skärmtid, biokvällar, en helg utan disk — du bestämmer vad som är värt något i ert hem. Barnen sparar mot ett mål de själva valt.",
         side: "left",
+        imageAlt: "Skärmbild av belöningslistan i Kroni — skärmtid, biokvällar och andra familjevalda mål.",
       },
       {
         eyebrow: "Tryggt",
         title: "Tryggt för hela familjen.",
         body: "Inga riktiga pengar flödar. Inga köp i appen. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.",
         side: "right",
+        imageAlt: "Skärmbild av föräldrainställningar i Kroni — full kontroll över barnets profil.",
       },
     ],
     twoSides: {
@@ -330,6 +333,24 @@ export const sv: typeof nb = {
     playStore: "Ladda ner för Android",
     autoOpen:
       "Vi försöker öppna appen automatiskt om några sekunder. Händer ingenting? Tryck på knappen ovan.",
+    helpLine: "Behöver du hjälp? Skriv till support@kroni.no.",
+  },
+  invite: {
+    metaTitle: "Gå med i Kroni-familjen",
+    metaDescription:
+      "Du har bjudits in som medförälder på Kroni. Öppna appen för att gå med.",
+    eyebrow: "Familjeinbjudan",
+    title: "Gå med som medförälder",
+    body: "Du har bjudits in att dela ett hushåll på Kroni. Tryck på knappen för att öppna appen och slutföra inbjudan — eller skriv in koden manuellt när du har installerat Kroni.",
+    codeLabel: "Inbjudningskod",
+    openButton: "Öppna i Kroni-appen",
+    notInstalled: "Har du inte appen ännu?",
+    appStore: "Ladda ner för iOS",
+    playStore: "Ladda ner för Android",
+    autoOpen:
+      "Vi försöker öppna appen automatiskt om några sekunder. Händer ingenting? Tryck på knappen ovan.",
+    fallbackHint:
+      "Efter installation: skapa ett konto eller logga in, och klistra in koden under «Gå med i en familj» när du blir tillfrågad.",
     helpLine: "Behöver du hjälp? Skriv till support@kroni.no.",
   },
 };

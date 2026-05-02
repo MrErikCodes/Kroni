@@ -458,6 +458,9 @@
         "mailtoLink": "Send på e-post",
         "expiresIn": "Utløper om %{time}",
         "share": "Del",
+        "shareTitle": "Bli med i Kroni-familien",
+        "shareBody": "Bli med i familien vår på Kroni. Bruk koden %{code} eller åpne lenken: %{url}",
+        "regenerate": "Lag ny kode",
         "close": "Lukk"
       },
       "invitesList": {
@@ -715,6 +718,17 @@
       "body": "Du er logget inn som forelder på denne telefonen. Innlogging-lenken må åpnes på telefonen barnet skal bruke.",
       "tipEyebrow": "Slik gjør du",
       "tipBody": "Del lenken igjen med barnet ditt — for eksempel via melding eller e-post — og åpne den på deres telefon. Lenken er gyldig i noen minutter til.",
+      "backCta": "Tilbake"
+    }
+  },
+  "invite": {
+    "kidDevice": {
+      "eyebrow": "Feil enhet",
+      "headlineA": "Åpne invitasjonen på",
+      "headlineB": "din egen telefon",
+      "body": "Denne telefonen er logget inn som barn. En invitasjon til medforelder må åpnes på din egen telefon, ikke på barnets enhet.",
+      "tipEyebrow": "Slik gjør du",
+      "tipBody": "Be om at invitasjonen sendes på nytt — for eksempel på e-post — og åpne lenken på din egen telefon. Koden er gyldig i 7 dager.",
       "backCta": "Tilbake"
     }
   }

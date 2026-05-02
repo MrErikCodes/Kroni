@@ -105,18 +105,21 @@ export const en: typeof nb = {
         title: "Weekly allowance that actually teaches.",
         body: "You set the amount. Monday morning it lands in your child's balance — no reminders, no arguments. Pause when you're on holiday, adjust when life changes.",
         side: "right",
+        imageAlt: "Screenshot of the Kroni kid app showing the balance and latest payout.",
       },
       {
         eyebrow: "Rewards",
         title: "Rewards that mean something to your family.",
         body: "Screen time, movie nights, a weekend off dishes — you decide what's worth saving for. Kids work toward a goal they chose themselves.",
         side: "left",
+        imageAlt: "Screenshot of the Kroni rewards list — screen time, movie nights and other family-defined goals.",
       },
       {
         eyebrow: "Safe",
         title: "Safe for the whole family.",
         body: "No real money moves. No in-app purchases. The kid profile only sees what it should. You stay in control, all the time.",
         side: "right",
+        imageAlt: "Screenshot of the Kroni parent settings — full control over the child profile.",
       },
     ],
     twoSides: {
@@ -330,6 +333,24 @@ export const en: typeof nb = {
     playStore: "Download for Android",
     autoOpen:
       "We'll try to open the app automatically in a few seconds. Nothing happening? Tap the button above.",
+    helpLine: "Need help? Email support@kroni.no.",
+  },
+  invite: {
+    metaTitle: "Join the Kroni family",
+    metaDescription:
+      "You've been invited as a co-parent on Kroni. Open the app to accept.",
+    eyebrow: "Family invitation",
+    title: "Join as a co-parent",
+    body: "You've been invited to share a household on Kroni. Tap the button to open the app and accept — or enter the code manually after installing Kroni.",
+    codeLabel: "Invitation code",
+    openButton: "Open in Kroni app",
+    notInstalled: "Don't have the app yet?",
+    appStore: "Download for iOS",
+    playStore: "Download for Android",
+    autoOpen:
+      "We'll try to open the app automatically in a few seconds. Nothing happening? Tap the button above.",
+    fallbackHint:
+      "Once installed: create an account or sign in, and paste the code under \"Join a family\" when prompted.",
     helpLine: "Need help? Email support@kroni.no.",
   },
 };

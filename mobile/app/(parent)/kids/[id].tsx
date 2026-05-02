@@ -242,12 +242,9 @@ export default function KidDetail() {
             )}
           </View>
 
-          {/* TODO co-parent: place "Inviter forelder" button here once
-              parents↔household relation, invite tokens, and the accept flow
-              ship. Out of scope for this pass. */}
-
           {/* Generer paringskode — full-screen view shows code, copy,
-              share-link, and regenerate. */}
+              share-link, and regenerate. Co-parent invites live in
+              Settings → Family (household-scoped, not kid-scoped). */}
           <Button
             label={t('parent.kidDetail.generatePairingCode')}
             onPress={handlePairingCode}

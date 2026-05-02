@@ -3,6 +3,7 @@ import { Webhook } from 'svix';
 import { eq } from 'drizzle-orm';
 import { getDb } from '../../db/index.js';
 import { parents } from '../../db/schema/parents.js';
+import { households } from '../../db/schema/households.js';
 import { processedWebhookEvents } from '../../db/schema/webhook-events.js';
 import { ensureHouseholdForParent } from '../../services/household.service.js';
 import { getConfig } from '../../config.js';
@@ -194,8 +195,14 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
         try {
           const tpl = loadTemplate('welcome', locale, {
             firstName,
-            // [TODO email] swap in a real universal-link once mobile ships
-            // its `/pair` deep-link landing page on kroni.no.
+            // The welcome email's CTA opens the marketing home rather than
+            // a per-user deep link — there's nothing user-specific to
+            // resume here, just an invitation to launch the freshly
+            // installed app. Universal-link landings live at
+            // `https://kroni.no/pair/<code>` (kid share-link) and
+            // `https://kroni.no/invite/<code>` (co-parent invite) and are
+            // composed by the routes that issue those codes, not by
+            // welcome.
             appOpenUrl: 'https://kroni.no',
           });
           await sendMail({
@@ -296,11 +303,28 @@ export async function clerkWebhookRoutes(app: FastifyInstance): Promise<void> {
     }
     if (event.type === 'user.deleted') {
       const ev = event as ClerkUserDeleted;
-      // Delete the parent row only. Households intentionally have no FK back
-      // to parents, so the household survives even if this was the last
-      // member — last-member cleanup is a separate concern handled by a
-      // future job ([TODO household] reaper for empty households).
-      await db.delete(parents).where(eq(parents.clerkUserId, ev.data.id));
+      // Delete the parent and stamp emptied_at on any household this was
+      // the last parent of. The actual hard-delete of empty households is
+      // deferred to backend/src/jobs/household-reaper.ts (daily; cooldown).
+      await db.transaction(async (tx) => {
+        const removed = await tx
+          .delete(parents)
+          .where(eq(parents.clerkUserId, ev.data.id))
+          .returning({ householdId: parents.householdId });
+        const householdId = removed[0]?.householdId;
+        if (!householdId) return;
+        const remaining = await tx
+          .select({ id: parents.id })
+          .from(parents)
+          .where(eq(parents.householdId, householdId))
+          .limit(1);
+        if (remaining.length === 0) {
+          await tx
+            .update(households)
+            .set({ emptiedAt: new Date(), updatedAt: new Date() })
+            .where(eq(households.id, householdId));
+        }
+      });
       return reply.code(200).send({ ok: true });
     }
     // Unknown event types are no-ops with 200 to avoid Clerk retries.

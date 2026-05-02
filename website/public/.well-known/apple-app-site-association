@@ -4,7 +4,8 @@
       {
         "appIDs": ["V992VUTLR2.no.nilsenkonsult.kroni"],
         "components": [
-          { "/": "/pair/*", "comment": "kid pairing deep link" }
+          { "/": "/pair/*", "comment": "kid pairing deep link" },
+          { "/": "/invite/*", "comment": "co-parent household invite deep link" }
         ]
       }
     ]

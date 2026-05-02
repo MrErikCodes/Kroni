@@ -25,10 +25,12 @@ import {
   type SupportedLocale,
 } from '../../lib/email-templates.js';
 
-// Universal-link landing for an invite. The website strips the
-// `code` param and offers an "Open in Kroni" button that triggers
-// the deep link. [TODO email] swap to the real /invite landing once
-// the website ships it; for now we point at the home page.
+// Universal-link landing for an invite. The website at
+// `website/app/[lang]/invite/[code]/page.tsx` extracts the `code` segment,
+// shows the invite UI, and bounces the browser to `kroni://invite?code=…`
+// (custom-scheme fallback) while iOS AASA / Android App Links route the
+// same URL straight into `mobile/app/invite/[code].tsx`. kroni.no is the
+// canonical brand domain — kroni.se / kroni.dk are not deep-link hosts.
 const INVITE_ACCEPT_BASE_URL = 'https://kroni.no/invite';
 
 const CodeParam = z.object({

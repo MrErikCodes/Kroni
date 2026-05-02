@@ -458,6 +458,9 @@
         "mailtoLink": "Send by email",
         "expiresIn": "Expires in %{time}",
         "share": "Share",
+        "shareTitle": "Join the Kroni family",
+        "shareBody": "Join our family on Kroni. Use code %{code} or open the link: %{url}",
+        "regenerate": "New code",
         "close": "Close"
       },
       "invitesList": {
@@ -715,6 +718,17 @@
       "body": "You're signed in as a parent on this phone. The login link needs to open on the phone the kid is going to use.",
       "tipEyebrow": "What to do",
       "tipBody": "Share the link with your kid — for example over message or email — and open it on their phone. The link is valid for a few more minutes.",
+      "backCta": "Back"
+    }
+  },
+  "invite": {
+    "kidDevice": {
+      "eyebrow": "Wrong device",
+      "headlineA": "Open the invite on",
+      "headlineB": "your own phone",
+      "body": "This phone is signed in as a kid. A co-parent invite needs to open on your own phone, not on the child's device.",
+      "tipEyebrow": "What to do",
+      "tipBody": "Have the invite resent — for example by email — and open the link on your own phone. The code is valid for 7 days.",
       "backCta": "Back"
     }
   }

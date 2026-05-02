@@ -104,18 +104,21 @@ export const nb = {
         title: "Ukepenger som faktisk er pedagogiske.",
         body: "Du bestemmer beløpet. Mandag morgen lander det på barnets balanse — uten påminnelser, uten krangling. Pause når familien er på ferie, juster når lønna går opp.",
         side: "right",
+        imageAlt: "Skjermbilde av Kroni-appen som viser barnets saldo og siste utbetaling.",
       },
       {
         eyebrow: "Belønninger",
         title: "Belønninger som gir mening for familien.",
         body: "Skjermtid, kinokvelder, en helg uten oppvask — du bestemmer hva som er verdt noe i deres hjem. Barna sparer mot et mål de selv valgte.",
         side: "left",
+        imageAlt: "Skjermbilde av belønningslisten i Kroni — skjermtid, kinokveld og andre familievalg.",
       },
       {
         eyebrow: "Trygt",
         title: "Trygt for hele familien.",
         body: "Ingen ekte penger flyter. Ingen kjøp i appen. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.",
         side: "right",
+        imageAlt: "Skjermbilde av foreldreinnstillinger i Kroni — full kontroll over barnets profil.",
       },
     ],
     twoSides: {
@@ -330,5 +333,23 @@ export const nb = {
     autoOpen:
       "Vi prøver å åpne appen automatisk om noen sekunder. Skjer ingenting? Trykk på knappen over.",
     helpLine: "Treng hjelp? Skriv til support@kroni.no.",
+  },
+  invite: {
+    metaTitle: "Bli med i Kroni-familien",
+    metaDescription:
+      "Du er invitert som medforelder i Kroni. Åpne appen for å bli med.",
+    eyebrow: "Familieinvitasjon",
+    title: "Bli med som medforelder",
+    body: "Du er invitert til å dele en husstand i Kroni. Trykk på knappen for å åpne appen og fullføre invitasjonen — eller skriv inn koden manuelt etter at du har installert Kroni.",
+    codeLabel: "Invitasjonskode",
+    openButton: "Åpne i Kroni-appen",
+    notInstalled: "Har du ikke appen ennå?",
+    appStore: "Last ned for iOS",
+    playStore: "Last ned for Android",
+    autoOpen:
+      "Vi prøver å åpne appen automatisk om noen sekunder. Skjer ingenting? Trykk på knappen over.",
+    fallbackHint:
+      "Etter installasjon: opprett en konto eller logg inn, og lim inn koden under «Bli med i en familie» når du blir bedt om det.",
+    helpLine: "Trenger du hjelp? Skriv til support@kroni.no.",
   },
 };
