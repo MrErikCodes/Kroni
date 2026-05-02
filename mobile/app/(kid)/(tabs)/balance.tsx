@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import { Wallet } from 'lucide-react-native';
@@ -85,6 +86,7 @@ export default function BalanceScreen() {
   const theme = useTheme();
   const s = theme.surface;
   const currency = useCurrency();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const {
     data: summary,
@@ -225,6 +227,7 @@ export default function BalanceScreen() {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <HistoryRow entry={item} />}
           ListHeaderComponent={ListHeader}
+          contentContainerStyle={{ paddingBottom: tabBarHeight + 16 }}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}

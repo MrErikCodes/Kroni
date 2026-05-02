@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
@@ -79,6 +80,7 @@ export default function TasksTab() {
   const api = useParentApi();
   const queryClient = useQueryClient();
   const currency = useCurrency();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const [logMode, setLogMode] = useState(false);
   const [pickerTask, setPickerTask] = useState<LoggableTask | null>(null);
@@ -302,7 +304,7 @@ export default function TasksTab() {
                 </Card>
               </TouchableOpacity>
             )}
-            contentContainerStyle={styles.list}
+            contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
             refreshControl={
               <RefreshControl
                 refreshing={isLoggableLoading}

@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
@@ -64,6 +65,7 @@ export default function RewardsTab() {
   const theme = useTheme();
   const router = useRouter();
   const api = useParentApi();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const { data: rewards, isLoading, isError, refetch } = useQuery({
     queryKey: ['parent', 'rewards'],
@@ -137,7 +139,7 @@ export default function RewardsTab() {
           data={rewards ?? []}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <RewardRow reward={item} />}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}

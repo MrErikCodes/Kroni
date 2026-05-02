@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Animated, {
@@ -342,6 +343,7 @@ export default function TodayScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const s = theme.surface;
+  const tabBarHeight = useBottomTabBarHeight();
 
   // null when the sheet is closed; set to the task whose details to show.
   const [detailTask, setDetailTask] = useState<TodayTask | null>(null);
@@ -470,7 +472,7 @@ export default function TodayScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}
         refreshControl={
           <RefreshControl
             refreshing={isLoading}

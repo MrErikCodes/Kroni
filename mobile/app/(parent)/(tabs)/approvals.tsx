@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import Animated, {
@@ -170,6 +171,7 @@ export default function ApprovalsScreen() {
   const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
+  const tabBarHeight = useBottomTabBarHeight();
 
   // Local state for optimistic removal animation
   const [removedIds, setRemovedIds] = useState<Set<string>>(new Set());
@@ -296,7 +298,7 @@ export default function ApprovalsScreen() {
               isRejecting={rejectMutation.isPending}
             />
           )}
-          contentContainerStyle={styles.list}
+          contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + 16 }]}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}

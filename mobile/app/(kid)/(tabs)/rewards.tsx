@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
 import * as Haptics from 'expo-haptics';
@@ -86,6 +87,7 @@ export default function KidRewardsScreen() {
   const s = theme.surface;
   const tx = theme.text;
   const currency = useCurrency();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const [confirmReward, setConfirmReward] = useState<Reward | null>(null);
   const [redeemError, setRedeemError] = useState<string | null>(null);
@@ -208,7 +210,7 @@ export default function KidRewardsScreen() {
             />
           )}
           numColumns={2}
-          contentContainerStyle={styles.grid}
+          contentContainerStyle={[styles.grid, { paddingBottom: tabBarHeight + 12 }]}
           refreshControl={
             <RefreshControl
               refreshing={isLoading}

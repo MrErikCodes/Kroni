@@ -470,14 +470,15 @@ function ParentDevicePushBridge() {
 }
 
 function RootLayout() {
-  // Locale state — bumping it re-renders this layout, which propagates
-  // through every non-memoised descendant so `t(...)` calls re-evaluate
-  // against the new locale. Previously this also keyed `<Stack>` to force
-  // a remount, but that nuked the navigation stack and screen state on
-  // every locale change (and was visible to the user as the app
-  // "refreshing" after sign-in). React's normal re-render cascade is
-  // enough: function components re-run when their parent re-renders, so
-  // the active screen picks up the new locale without losing its state.
+  // Locale state — bumping it re-renders this layout AND re-keys the
+  // <Stack> below so every mounted screen unmounts and remounts with the
+  // new locale. We need the re-key because expo-router/react-navigation
+  // owns the screen tree internally; a parent re-render alone doesn't
+  // propagate to the screens, so `t(...)` strings stay stale (the picker
+  // logs `setAppLocale FIRE` and the layout re-renders, but the visible
+  // screen still shows the old language). Losing nav stack state on a
+  // language flip is the cost — language changes are rare and the user
+  // is in a settings screen at the moment of change anyway.
   const [shortLocale, setShortLocale] = useState<ShortLocale>(() =>
     getAppLocale(),
   );
@@ -543,7 +544,7 @@ function RootLayout() {
           <RevenueCatIdentityBridge />
           <ParentLocaleBridge />
           <ParentDevicePushBridge />
-          <Stack screenOptions={{ headerShown: false }} />
+          <Stack key={shortLocale} screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>
       </QueryClientProvider>
     </ClerkProvider>

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useRouter } from 'expo-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
@@ -113,6 +114,7 @@ export default function KidProfileScreen() {
   const s = theme.surface;
   const tx = theme.text;
   const currency = useCurrency();
+  const tabBarHeight = useBottomTabBarHeight();
 
   const { data: me, isLoading, error: meError } = useQuery({
     queryKey: ['kid', 'me'],
@@ -247,7 +249,7 @@ export default function KidProfileScreen() {
         </KroniText>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: tabBarHeight + 24 }]}>
         {subscriptionLapsed ? (
           <View
             style={[
