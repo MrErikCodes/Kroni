@@ -141,10 +141,12 @@ function resolveTheme(colorScheme: 'light' | 'dark') {
     },
     text: {
       primary:   isDark ? '#F5F5F0'         : colors.sand[900],
-      // Body / muted text — sand-500 on light, neutral grey on dark.
-      secondary: isDark ? '#9AA0AA'         : colors.sand[500],
-      // Tertiary used for trust-strip and meta rows.
-      tertiary:  isDark ? '#6E7682'         : colors.sand[700],
+      // Body / muted text — must clear WCAG AA (4.5:1) on the light surface.
+      // sand-500 (#8B8472) was 3.6:1; #6E6552 measures ~5.5:1 on sand-50.
+      secondary: isDark ? '#9AA0AA'         : '#6E6552',
+      // Tertiary used for trust-strip and meta rows. Dark-side bumped from
+      // #6E7682 (3.9:1) to #878E99 (~5.7:1) on ink-900 to clear AA.
+      tertiary:  isDark ? '#878E99'         : colors.sand[700],
       inverse:   isDark ? colors.sand[900]  : colors.sand[50],
     },
   } as const;

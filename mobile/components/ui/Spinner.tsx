@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useReducedMotion,
   withRepeat,
   withTiming,
   Easing,
@@ -16,14 +17,16 @@ interface SpinnerProps {
 
 export function Spinner({ size = 24, color = colors.gold[500] }: SpinnerProps) {
   const rotation = useSharedValue(0);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reduceMotion) return;
     rotation.value = withRepeat(
       withTiming(360, { duration: 800, easing: Easing.linear }),
       -1,
       false,
     );
-  }, [rotation]);
+  }, [rotation, reduceMotion]);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${rotation.value}deg` }],

@@ -124,10 +124,12 @@ export function KroniText({
       color = isDark ? '#F5F5F0' : colors.sand[900];
       break;
     case 'secondary':
-      color = isDark ? '#9AA0AA' : colors.sand[500];
+      // WCAG AA: bumped light value from sand-500 (#8B8472, 3.6:1) to #6E6552 (~5.5:1) on sand-50.
+      color = isDark ? '#9AA0AA' : '#6E6552';
       break;
     case 'tertiary':
-      color = isDark ? '#6E7682' : colors.sand[700];
+      // WCAG AA: bumped dark value from #6E7682 (3.9:1) to #878E99 (~5.7:1) on ink-900.
+      color = isDark ? '#878E99' : colors.sand[700];
       break;
     case 'inverse':
       color = isDark ? colors.sand[900] : colors.sand[50];

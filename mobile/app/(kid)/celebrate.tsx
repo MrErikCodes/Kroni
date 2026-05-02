@@ -11,6 +11,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useReducedMotion,
   withSpring,
   withRepeat,
   withSequence,
@@ -118,19 +119,23 @@ export default function CelebrateScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const currency = useCurrency();
+  const reduceMotion = useReducedMotion();
   const { amountCents } = useLocalSearchParams<{ amountCents: string }>();
   const amount = parseInt(amountCents ?? '0', 10);
 
   // Coin bounce animation — toned down ~15% on displacement.
-  const coinScale = useSharedValue(0);
+  const coinScale = useSharedValue(reduceMotion ? 1 : 0);
   const coinBounce = useSharedValue(1);
 
   // Title slide up
-  const titleY = useSharedValue(40);
-  const titleOpacity = useSharedValue(0);
+  const titleY = useSharedValue(reduceMotion ? 0 : 40);
+  const titleOpacity = useSharedValue(reduceMotion ? 1 : 0);
 
   useEffect(() => {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
+
+    if (reduceMotion) return;
 
     coinScale.value = withSpring(1, { damping: 7, stiffness: 120 });
     coinBounce.value = withDelay(
@@ -147,9 +152,7 @@ export default function CelebrateScreen() {
 
     titleY.value = withDelay(300, withSpring(0, { damping: 12 }));
     titleOpacity.value = withDelay(300, withTiming(1, { duration: 400 }));
-
-    void queryClient.invalidateQueries({ queryKey: ['kid', 'balance'] });
-  }, [coinBounce, coinScale, queryClient, titleOpacity, titleY]);
+  }, [coinBounce, coinScale, queryClient, titleOpacity, titleY, reduceMotion]);
 
   const coinStyle = useAnimatedStyle(() => ({
     transform: [{ scale: coinScale.value * coinBounce.value }],
@@ -173,12 +176,14 @@ export default function CelebrateScreen() {
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.ink[900] }]}
     >
-      {/* Confetti */}
-      <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        {PARTICLES.map((p, i) => (
-          <ConfettiParticle key={i} {...p} />
-        ))}
-      </View>
+      {/* Confetti — skipped entirely when the user has Reduce Motion enabled. */}
+      {!reduceMotion && (
+        <View style={StyleSheet.absoluteFill} pointerEvents="none">
+          {PARTICLES.map((p, i) => (
+            <ConfettiParticle key={i} {...p} />
+          ))}
+        </View>
+      )}
 
       <View style={styles.content}>
         <Animated.Text style={[styles.coin, coinStyle]}>🪙</Animated.Text>

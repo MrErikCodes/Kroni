@@ -324,7 +324,7 @@ Ukepenger, oppgaver og belønninger som lærer barn å mestre — uten mas.
 **Promotional Text** (155 / 170)
 
 ```
-Lommepenger som lærer barn å mestre, ikke å forvente. Sett oppgaver, godkjenn med ett trykk — kronene tikker inn. Uten ekte penger og uten mas.
+Lommepenger som lærer barn å mestre, ikke å forvente. Sett oppgaver, godkjenn med ett trykk — og kronene tikker inn. Uten mas.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -353,7 +353,7 @@ BELØNNINGER SOM GIR MENING
 Skjermtid, kinokvelder, en helg uten oppvask — du bestemmer hva som er verdt noe i deres hjem. Barna sparer mot et mål de selv valgte.
 
 TRYGT FOR HELE FAMILIEN
-Ingen ekte penger flyter. Ingen kjøp inne i barnets app. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.
+Ingen kjøp inne i barnets app. Barneprofilen ser bare det den skal se. Du har full kontroll, hele tiden.
 
 PRISER
 • Gratis for alltid: 1 barn, 5 aktive oppgaver, ukepenger
@@ -410,7 +410,7 @@ Allowance, chores and rewards that teach kids to master, not to expect.
 **Promotional Text** (152 / 170)
 
 ```
-Pocket money that teaches kids to master, not to expect. Set chores, approve with one tap, watch the kroner roll in. No real money, no nagging.
+Pocket money that teaches kids to master, not to expect. Set chores, approve with one tap, and watch the kroner roll in. No nagging.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -439,7 +439,7 @@ REWARDS THAT MEAN SOMETHING
 Screen time, movie nights, a weekend off dishes — you decide what's worth saving for. Kids work toward a goal they chose themselves.
 
 SAFE FOR THE WHOLE FAMILY
-No real money moves. No in-app purchases inside the kid app. The kid profile only sees what it should. You stay in control, always.
+No in-app purchases inside the kid app. The kid profile only sees what it should. You stay in control, always.
 
 PRICING
 • Free forever: 1 child, 5 active chores, weekly allowance
@@ -496,7 +496,7 @@ Veckopeng, sysslor och belöningar som lär barn att bemästra — utan tjat.
 **Promotional Text** (152 / 170)
 
 ```
-Veckopeng som lär barn att bemästra, inte att förvänta. Skapa sysslor, godkänn med ett tryck, se kronorna trilla in. Inga riktiga pengar, inget tjat.
+Veckopeng som lär barn att bemästra, inte att förvänta. Skapa sysslor, godkänn med ett tryck, se kronorna trilla in. Inget tjat.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -525,7 +525,7 @@ BELÖNINGAR SOM BETYDER NÅGOT
 Skärmtid, biokvällar, en helg utan disk — du bestämmer vad som är värt något i ert hem. Barnen sparar mot ett mål de själva valt.
 
 TRYGGT FÖR HELA FAMILJEN
-Inga riktiga pengar flödar. Inga köp inne i barnets app. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.
+Inga köp inne i barnets app. Barnets profil ser bara det den ska se. Du har full kontroll, hela tiden.
 
 PRISER
 • Gratis för alltid: 1 barn, 5 aktiva sysslor, veckopeng
@@ -582,7 +582,7 @@ Lommepenge, opgaver og belønninger der lærer børn at mestre — uden pjat.
 **Promotional Text** (152 / 170)
 
 ```
-Lommepenge der lærer børn at mestre, ikke at forvente. Lav opgaver, godkend med ét tryk, og se kronerne tikke ind. Ingen rigtige penge, intet pjat.
+Lommepenge der lærer børn at mestre, ikke at forvente. Lav opgaver, godkend med ét tryk, og se kronerne tikke ind. Intet pjat.
 ```
 
 **Description** (~1 950 / 4 000)
@@ -611,7 +611,7 @@ BELØNNINGER DER BETYDER NOGET
 Skærmtid, biografaftener, en weekend uden opvask — du bestemmer hvad der er værd noget i jeres hjem. Børnene sparer mod et mål, de selv har valgt.
 
 TRYGT FOR HELE FAMILIEN
-Ingen rigtige penge flyder. Ingen køb inde i barnets app. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.
+Ingen køb inde i barnets app. Barneprofilen ser kun det, den skal se. Du har fuld kontrol, hele tiden.
 
 PRISER
 • Gratis for altid: 1 barn, 5 aktive opgaver, lommepenge

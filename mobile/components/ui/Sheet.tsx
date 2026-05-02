@@ -9,7 +9,9 @@ import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
+  useReducedMotion,
   withSpring,
+  ReduceMotion,
   runOnJS,
 } from 'react-native-reanimated';
 import { colors } from '../../lib/theme';
@@ -23,6 +25,7 @@ interface SheetProps {
 export function Sheet({ visible, onClose, children }: SheetProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
+  const reduceMotion = useReducedMotion();
   const translateY = useSharedValue(0);
 
   const panGesture = Gesture.Pan()
@@ -35,7 +38,7 @@ export function Sheet({ visible, onClose, children }: SheetProps) {
       if (e.translationY > 100) {
         runOnJS(onClose)();
       } else {
-        translateY.value = withSpring(0);
+        translateY.value = withSpring(0, { reduceMotion: ReduceMotion.System });
       }
     });
 
@@ -47,7 +50,7 @@ export function Sheet({ visible, onClose, children }: SheetProps) {
     <RNModal
       visible={visible}
       transparent
-      animationType="slide"
+      animationType={reduceMotion ? 'fade' : 'slide'}
       onRequestClose={onClose}
       statusBarTranslucent
     >
