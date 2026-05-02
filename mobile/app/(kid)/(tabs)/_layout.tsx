@@ -64,6 +64,11 @@ export default function KidTabsLayout() {
         tabBarActiveTintColor: activeTint,
         tabBarInactiveTintColor: inactiveTint,
         tabBarStyle: {
+          // `position: 'relative'` makes the tab bar reserve its own space
+          // instead of floating over content. Without it, the last items in
+          // each tab's ScrollView/FlashList scroll under the bar and only the
+          // top edge peeks above (looked like a stuck banner on Profil).
+          position: 'relative',
           backgroundColor: tabBarBg,
           borderTopColor: borderColor,
           borderTopWidth: 1,

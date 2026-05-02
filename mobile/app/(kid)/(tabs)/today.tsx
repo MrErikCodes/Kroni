@@ -16,7 +16,6 @@ import Animated, {
   useAnimatedStyle,
   withSpring,
   withSequence,
-  withTiming,
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
@@ -80,7 +79,7 @@ function generateIdempotencyKey(): string {
 
 interface TaskCardProps {
   task: TodayTask;
-  onComplete: (completionId: string) => void;
+  onComplete: (task: TodayTask) => void;
   onUncomplete: (completionId: string) => void;
   onOpenDetails: (task: TodayTask) => void;
   isCompleting: boolean;
@@ -99,8 +98,6 @@ function TaskCard({
   const currency = useCurrency();
 
   const scale = useSharedValue(1);
-  const overlayOpacity = useSharedValue(0);
-  const [showOverlay, setShowOverlay] = useState(false);
 
   const isDone =
     task.status === 'completed_pending_approval' ||
@@ -123,13 +120,6 @@ function TaskCard({
 
     if (!isPending) return;
 
-    setShowOverlay(true);
-    overlayOpacity.value = withSequence(
-      withTiming(1, { duration: 100 }),
-      withTiming(1, { duration: 150 }),
-      withTiming(0, { duration: 200 }),
-    );
-
     // Spring sequence — kept as the heartbeat of the kid app, but the
     // displacement is toned down ~15% (0.96/1.04 vs the original 0.95/1.05).
     scale.value = withSequence(
@@ -139,17 +129,12 @@ function TaskCard({
     );
 
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setTimeout(() => setShowOverlay(false), 500);
 
-    onComplete(task.completionId);
+    onComplete(task);
   }
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: overlayOpacity.value,
   }));
 
   let statusIcon: React.ReactNode = null;
@@ -203,25 +188,6 @@ function TaskCard({
         },
       ]}
     >
-      {/* "Bra jobba!" overlay */}
-      {showOverlay ? (
-        <Animated.View
-          style={[
-            styles.overlay,
-            { backgroundColor: theme.colors.gold[500] },
-            overlayStyle,
-          ]}
-        >
-          <KroniText
-            variant="displayItalic"
-            tone="primary"
-            style={styles.overlayText}
-          >
-            {t('kid.todayScreen.completedOverlay')}
-          </KroniText>
-        </Animated.View>
-      ) : null}
-
       <View style={styles.taskCardInner}>
         {/* Only the circle marks the task done / undoes it. Tap targets are
             split so a curious kid can read the description without
@@ -474,10 +440,18 @@ export default function TodayScreen() {
   });
 
   const handleComplete = useCallback(
-    (completionId: string) => {
-      completeMutation.mutate({ completionId });
+    (task: TodayTask) => {
+      completeMutation.mutate({ completionId: task.completionId });
+      // Navigate optimistically — the celebrate screen owns its own
+      // lifetime, so the confetti/coin animation isn't cut short by the
+      // list refetch that moves this card from `pending` → `done` and
+      // unmounts the source TaskCard.
+      router.push({
+        pathname: '/(kid)/celebrate',
+        params: { amountCents: String(task.rewardCents) },
+      });
     },
-    [completeMutation],
+    [completeMutation, router],
   );
 
   const handleUncomplete = useCallback(
@@ -733,18 +707,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uiBold,
     fontSize: 13,
     letterSpacing: -0.1,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 10,
-    borderRadius: 22,
-  },
-  overlayText: {
-    fontSize: 30,
-    lineHeight: 34,
-    letterSpacing: -0.6,
   },
   progressSection: {
     alignItems: 'center',

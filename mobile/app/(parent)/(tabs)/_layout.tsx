@@ -56,6 +56,11 @@ export default function ParentTabsLayout() {
         tabBarActiveTintColor: activeTint,
         tabBarInactiveTintColor: inactiveTint,
         tabBarStyle: {
+          // `position: 'relative'` makes the tab bar reserve its own space
+          // instead of floating over content. Without it, scroll content in
+          // each tab gets clipped under the bar (last row peeks above as a
+          // stuck banner). Mirrors the same fix in the kid tabs layout.
+          position: 'relative',
           backgroundColor: tabBarBg,
           borderTopColor: borderColor,
           borderTopWidth: 1,

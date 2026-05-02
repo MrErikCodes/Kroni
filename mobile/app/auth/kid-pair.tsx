@@ -166,7 +166,7 @@ export default function KidPair() {
     <SafeAreaView style={[styles.container, { backgroundColor: s.background }]}>
       <View style={styles.topBar}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => router.replace('/')}
           accessibilityRole="button"
           accessibilityLabel={t('common.back')}
           hitSlop={12}
