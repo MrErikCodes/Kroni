@@ -1,12 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" role="img" aria-label="Kroni">
-  <title>Kroni</title>
-  <defs>
-    <style type="text/css">
-      @import url('https://fonts.googleapis.com/css2?family=Newsreader:wght@600&amp;display=block');
-      .wordmark { font-family: 'Newsreader', 'Times New Roman', serif; font-weight: 600; font-size: 160px; letter-spacing: -0.02em; fill: #1F1C14; }
-    </style>
-  </defs>
-
-  <text class="wordmark" x="40" y="148">Kroni</text>
-  <circle cx="540" cy="138" r="14" fill="#F5B015"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" aria-label="Kroni" role="img" viewBox="0 0 720 200"><title>Kroni</title><defs><style type="text/css">@import url(https://fonts.googleapis.com/css2?family=Newsreader:wght@600&amp;display=block);.wordmark{font-family:&apos;Newsreader&apos;,&apos;Times New Roman&apos;,serif;font-weight:600;font-size:160px;letter-spacing:-.02em;fill:#1f1c14}</style></defs><text x="40" y="148" class="wordmark">Kroni</text><circle cx="540" cy="138" r="14" fill="#F5B015"/></svg>
