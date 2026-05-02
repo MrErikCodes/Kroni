@@ -19,6 +19,8 @@ import { nextPaymentDate as computeNextPaymentDate } from '@kroni/shared';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { ApiError } from '../../../lib/api';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
@@ -30,21 +32,6 @@ import { Modal } from '../../../components/ui/Modal';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
 import { Input } from '../../../components/ui/Input';
 import { Label } from '../../../components/ui/Label';
-
-const formatNok = (ore: number): string =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
-
-const formatSignedNok = (ore: number): string =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-    signDisplay: 'always',
-  }).format(ore / 100);
 
 function formatRelativeDate(iso: string): string {
   const now = new Date();
@@ -88,6 +75,7 @@ export default function KidDetail() {
   const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
 
   const [adjustOpen, setAdjustOpen] = useState(false);
   const [allowanceOpen, setAllowanceOpen] = useState(false);
@@ -188,7 +176,7 @@ export default function KidDetail() {
             <BalanceText
               amountOre={balance?.balanceCents ?? 0}
               large
-              accessibilityLabel={`Saldo: ${formatNok(balance?.balanceCents ?? 0)}`}
+              accessibilityLabel={`Saldo: ${formatMoney(balance?.balanceCents ?? 0, currency)}`}
             />
             <View style={styles.cardCta}>
               <Button
@@ -208,7 +196,7 @@ export default function KidDetail() {
               </KroniText>
               <Text style={[styles.allowanceValue, { color: tx.primary }]}>
                 {kid.allowanceFrequency !== 'none' && kid.allowanceCents > 0
-                  ? `${formatNok(kid.allowanceCents)} · ${t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}`
+                  ? `${formatMoney(kid.allowanceCents, currency)} · ${t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}`
                   : t('parent.kidDetail.allowanceOff')}
               </Text>
               <KroniText variant="caption" tone="secondary">
@@ -319,6 +307,7 @@ export default function KidDetail() {
 function HistoryRow({ entry, isLast }: { entry: BalanceEntry; isLast: boolean }) {
   const theme = useTheme();
   const tx = theme.text;
+  const currency = useCurrency();
   const isPositive = entry.amountCents >= 0;
   return (
     <View
@@ -360,7 +349,7 @@ function HistoryRow({ entry, isLast }: { entry: BalanceEntry; isLast: boolean })
           },
         ]}
       >
-        {formatSignedNok(entry.amountCents)}
+        {formatMoney(entry.amountCents, currency, { signed: true })}
       </Text>
     </View>
   );
@@ -386,6 +375,7 @@ function AdjustBalanceModal({
   const theme = useTheme();
   const tx = theme.text;
   const api = useParentApi();
+  const currency = useCurrency();
   const [amount, setAmount] = useState('');
   const [reason, setReason] = useState<AdjustReason>('adjustment');
   const [note, setNote] = useState('');
@@ -473,7 +463,7 @@ function AdjustBalanceModal({
             </KroniText>
             {previewNew !== null ? (
               <KroniText variant="small" tone="tertiary" style={styles.helpText}>
-                {`${formatNok(currentBalanceCents)} → ${formatNok(previewNew)}`}
+                {`${formatMoney(currentBalanceCents, currency)} → ${formatMoney(previewNew, currency)}`}
               </KroniText>
             ) : null}
           </View>

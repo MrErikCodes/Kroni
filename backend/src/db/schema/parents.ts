@@ -7,6 +7,10 @@ export const parents = pgTable('parents', {
   email: text().notNull(),
   displayName: text(),
   locale: text().notNull().default('nb-NO'),
+  // ISO 4217 — one of NOK, SEK, DKK. Default NOK; the mobile client
+  // patches this to SEK/DKK on first sign-in based on device region
+  // when the parent is freshly created.
+  currency: text().notNull().default('NOK'),
   // Household this parent belongs to. Nullable so a freshly-inserted parent
   // (Clerk webhook) can briefly exist before ensureHouseholdForParent runs.
   householdId: uuid().references(() => households.id, { onDelete: 'set null' }),

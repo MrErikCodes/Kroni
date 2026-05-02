@@ -15,19 +15,14 @@ import { Gift } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi , ApiError } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
 
 interface RewardCardProps {
   reward: Reward;
@@ -40,6 +35,7 @@ function RewardCard({ reward, balanceCents, onRedeem, isRedeeming }: RewardCardP
   const theme = useTheme();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
   const canAfford = balanceCents >= reward.costCents;
   const needMore = reward.costCents - balanceCents;
 
@@ -49,7 +45,7 @@ function RewardCard({ reward, balanceCents, onRedeem, isRedeeming }: RewardCardP
       disabled={!canAfford || isRedeeming}
       activeOpacity={canAfford ? 0.8 : 1}
       accessibilityRole="button"
-      accessibilityLabel={`${reward.title}: ${formatNok(reward.costCents)}`}
+      accessibilityLabel={`${reward.title}: ${formatMoney(reward.costCents, currency)}`}
       accessibilityState={{ disabled: !canAfford }}
       style={[
         styles.card,
@@ -67,12 +63,12 @@ function RewardCard({ reward, balanceCents, onRedeem, isRedeeming }: RewardCardP
         {reward.title}
       </Text>
       <Text style={[styles.rewardCost, { color: canAfford ? theme.colors.gold[500] : tx.secondary }]}>
-        {formatNok(reward.costCents)}
+        {formatMoney(reward.costCents, currency)}
       </Text>
       {!canAfford ? (
         <View style={[styles.needMoreBadge, { backgroundColor: s.background }]}>
           <Text style={[styles.needMoreText, { color: tx.secondary }]}>
-            {t('kid.rewardsScreen.needMore', { amount: formatNok(needMore) })}
+            {t('kid.rewardsScreen.needMore', { amount: formatMoney(needMore, currency) })}
           </Text>
         </View>
       ) : (
@@ -89,6 +85,7 @@ export default function KidRewardsScreen() {
   const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
 
   const [confirmReward, setConfirmReward] = useState<Reward | null>(null);
   const [redeemError, setRedeemError] = useState<string | null>(null);
@@ -177,7 +174,7 @@ export default function KidRewardsScreen() {
           variant="mono"
           style={[styles.balanceSub, { color: theme.colors.gold[700] }]}
         >
-          {formatNok(balanceCents)}
+          {formatMoney(balanceCents, currency)}
         </KroniText>
       </View>
 
@@ -244,7 +241,7 @@ export default function KidRewardsScreen() {
         <Text style={[styles.modalTitle, { color: tx.primary }]}>
           {t('kid.rewardsScreen.confirmRedeem', {
             title: confirmReward?.title ?? '',
-            amount: formatNok(confirmReward?.costCents ?? 0),
+            amount: formatMoney(confirmReward?.costCents ?? 0, currency),
           })}
         </Text>
         {redeemError ? (

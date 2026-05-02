@@ -15,6 +15,7 @@ import type {
   HouseholdMember as HouseholdMemberDto,
   HouseholdInvite as HouseholdInviteDto,
   Locale,
+  Currency,
   SubscriptionTier,
   AvatarKey,
   Recurrence,
@@ -28,6 +29,7 @@ export function serializeParent(p: ParentRow): ParentDto {
     email: p.email,
     displayName: p.displayName,
     locale: p.locale as Locale,
+    currency: p.currency as Currency,
     subscriptionTier: p.subscriptionTier as SubscriptionTier,
     subscriptionExpiresAt: p.subscriptionExpiresAt
       ? (p.subscriptionExpiresAt.toISOString() as ParentDto['subscriptionExpiresAt'])

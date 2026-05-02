@@ -24,6 +24,8 @@ import { CheckCircle, Clock, XCircle } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi, isSubscriptionLapsedError } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { ProgressRing } from '../../../components/ui/ProgressRing';
 import { BalanceText } from '../../../components/ui/BalanceText';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -67,13 +69,6 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
-
 function generateIdempotencyKey(): string {
   // Simple uuid-like key using Math.random as crypto not always available on RN
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
@@ -101,6 +96,7 @@ function TaskCard({
   const theme = useTheme();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
 
   const scale = useSharedValue(1);
   const overlayOpacity = useSharedValue(0);
@@ -310,7 +306,7 @@ function TaskCard({
                 { color: theme.colors.sand[900] },
               ]}
             >
-              {formatNok(task.rewardCents)}
+              {formatMoney(task.rewardCents, currency)}
             </Text>
           </View>
         </TouchableOpacity>
@@ -327,12 +323,13 @@ interface TaskDetailSheetProps {
 function TaskDetailSheet({ task, onClose }: TaskDetailSheetProps) {
   const theme = useTheme();
   const tx = theme.text;
+  const currency = useCurrency();
   return (
     <Sheet visible={task !== null} onClose={onClose}>
       {task ? (
         <View style={styles.sheetContent}>
           <KroniText variant="eyebrow" tone="gold">
-            {formatNok(task.rewardCents)}
+            {formatMoney(task.rewardCents, currency)}
           </KroniText>
           <KroniText variant="display" tone="primary" style={styles.sheetTitle}>
             {task.title}

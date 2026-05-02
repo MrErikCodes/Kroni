@@ -24,8 +24,9 @@ import {
   getAppLocale,
   i18n,
   type AppLocale,
-  type ShortLocale,
 } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -35,24 +36,6 @@ import { Modal as InAppModal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { getInstallInfo } from '../../../lib/installInfo';
 import { AVATAR_KEYS, type AvatarKey, type BalanceEntry, type Kid } from '@kroni/shared';
-
-// Map the short app locale back onto the BCP-47 tag Intl expects so the
-// currency formatter respects the user's region (decimal mark, grouping).
-// Currency stays NOK because the backend is NOK-only — we localize the
-// digit grouping, not the unit.
-const INTL_LOCALE: Record<ShortLocale, string> = {
-  nb: 'nb-NO',
-  sv: 'sv-SE',
-  da: 'da-DK',
-  en: 'en-US',
-};
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat(INTL_LOCALE[getAppLocale()], {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
 
 // Mini bar chart — last 7 days earnings
 function MiniBarChart({ entries }: { entries: BalanceEntry[] }) {
@@ -129,6 +112,7 @@ export default function KidProfileScreen() {
   const queryClient = useQueryClient();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
 
   const { data: me, isLoading, error: meError } = useQuery({
     queryKey: ['kid', 'me'],
@@ -308,7 +292,7 @@ export default function KidProfileScreen() {
               { color: theme.colors.gold[700], fontFamily: fonts.uiBold },
             ]}
           >
-            {formatNok(balance?.balanceCents ?? 0)}
+            {formatMoney(balance?.balanceCents ?? 0, currency)}
           </Text>
         </View>
 
@@ -318,7 +302,7 @@ export default function KidProfileScreen() {
             {t('kid.profileScreen.weeklyEarnings')}
           </Text>
           <Text style={[styles.chartTotal, { color: theme.colors.gold[500] }]}>
-            +{formatNok(last7DaysEarned)}
+            +{formatMoney(last7DaysEarned, currency)}
           </Text>
           {history && history.length > 0 ? (
             <MiniBarChart entries={history} />

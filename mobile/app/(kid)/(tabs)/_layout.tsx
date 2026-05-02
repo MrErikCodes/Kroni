@@ -1,14 +1,26 @@
 // [REVIEW] Norwegian tab labels — verify with native speaker
 import { useEffect } from 'react';
 import { Tabs, useRouter } from 'expo-router';
+import { useQuery } from '@tanstack/react-query';
 import { Sun, Wallet, Gift, User } from 'lucide-react-native';
 import { useTheme } from '../../../lib/theme';
 import { getKidToken } from '../../../lib/auth';
 import { t } from '../../../lib/i18n';
+import { kidApi } from '../../../lib/api';
 
 export default function KidTabsLayout() {
   const theme = useTheme();
   const router = useRouter();
+
+  // Mount the kid me query at the layout root so every tab inherits the
+  // kid's currency in cache. `useCurrency()` reads from this — without it
+  // the balance/rewards screens would format in NOK on first render until
+  // a child screen happened to fetch /kid/me independently.
+  useQuery({
+    queryKey: ['kid', 'me'],
+    queryFn: () => kidApi.getMe(),
+    staleTime: 1000 * 60 * 5,
+  });
 
   useEffect(() => {
     // Verify kid token exists; redirect to pair if not

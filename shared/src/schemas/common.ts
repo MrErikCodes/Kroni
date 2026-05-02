@@ -24,6 +24,12 @@ export type SignedCents = z.infer<typeof SignedCents>;
 export const Locale = z.enum(['nb-NO', 'sv-SE', 'da-DK', 'en-US']);
 export type Locale = z.infer<typeof Locale>;
 
+// Currency is independent of UI locale. Defaults derive from registration
+// region (NO→NOK, SE→SEK, DK→DKK), but a parent who switches the app to
+// English keeps their currency — language and money are decoupled.
+export const Currency = z.enum(['NOK', 'SEK', 'DKK']);
+export type Currency = z.infer<typeof Currency>;
+
 // One paid tier; `family` is the only entitlement we sell. A future
 // higher tier would be a new value here (and a corresponding RC product).
 export const SubscriptionTier = z.enum(['free', 'family']);

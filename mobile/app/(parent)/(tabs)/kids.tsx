@@ -15,6 +15,8 @@ import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { Avatar } from '../../../components/ui/Avatar';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -22,14 +24,8 @@ import { Spinner } from '../../../components/ui/Spinner';
 import { KroniText } from '../../../components/ui/Text';
 import type { Kid } from '@kroni/shared';
 
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
-
 function KidRow({ kid }: { kid: Kid }) {
+  const currency = useCurrency();
   const theme = useTheme();
   const router = useRouter();
 
@@ -51,7 +47,7 @@ function KidRow({ kid }: { kid: Kid }) {
           </KroniText>
           {kid.allowanceFrequency !== 'none' && kid.allowanceCents > 0 ? (
             <KroniText variant="small" tone="secondary">
-              {formatNok(kid.allowanceCents)} · {t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}
+              {formatMoney(kid.allowanceCents, currency)} · {t(`parent.kidDetail.allowanceFrequencyLabel.${kid.allowanceFrequency}`)}
             </KroniText>
           ) : (
             <KroniText variant="small" tone="secondary">

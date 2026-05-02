@@ -116,6 +116,36 @@ test('rc — INITIAL_PURCHASE of kroni_lifetime sets lifetime_paid=true', async 
   }
 });
 
+test('rc — NON_RENEWING_PURCHASE of kroni_family_lifetime sets lifetime_paid=true', async () => {
+  // Play Store + RC Test Store ship the lifetime IAP as `kroni_family_lifetime`,
+  // not `kroni_lifetime`. Without it in the lifetime set, the handler falls
+  // into the recurring-sub branch, leaves `lifetime_paid=false`, and the
+  // subscription detail screen renders the free blurb.
+  const { householdId, clerkUserId } = await seedParent();
+  const app = await buildApp();
+  try {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/webhooks/revenuecat',
+      headers: AUTH,
+      payload: rcEvent({
+        type: 'NON_RENEWING_PURCHASE',
+        app_user_id: clerkUserId,
+        product_id: 'kroni_family_lifetime',
+      }),
+    });
+    assert.equal(res.statusCode, 200);
+    const db = getDb();
+    const [row] = await db.select().from(households).where(eq(households.id, householdId)).limit(1);
+    assert.equal(row?.lifetimePaid, true);
+    assert.equal(row?.subscriptionTier, 'family');
+    assert.equal(row?.subscriptionExpiresAt, null);
+    assert.equal(row?.subscriptionPeriodType, null);
+  } finally {
+    await app.close();
+  }
+});
+
 test('rc — replayed event with same event.id returns deduped 200 and does not double-write', async () => {
   const { householdId, clerkUserId } = await seedParent();
   const app = await buildApp();

@@ -10,6 +10,7 @@
     "prebuild": "npm --workspace=@kroni/shared run build",
     "build": "phase run tsc",
     "release:sentry": "phase run \"node scripts/sentry-release.mjs\"",
+    "rc:webhook": "phase run -- node scripts/test-rc-webhook.mjs",
     "start": "phase run \"node --enable-source-maps dist/server.js\"",
     "start:jobs": "phase run \"node --enable-source-maps dist/jobs/runner.js\"",
     "db:generate": "drizzle-kit generate",

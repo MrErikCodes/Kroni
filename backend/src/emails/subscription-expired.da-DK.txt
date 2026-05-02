@@ -8,7 +8,8 @@ Dit Kroni Family-abonnement er slut. Husstanden er tilbage på
 gratisplanen — børn og data er sikkert gemt, men medforældre og
 flere børn er sat på pause, indtil du fornyer.
 
-Forny Kroni Family: {{renewUrl}}
+Åbn Kroni-appen og gå til Indstillinger → Abonnement for at forny
+Kroni Family.
 
 Brug for hjælp? Svar bare på denne mail — vi læser alle selv.
 
@@ -27,7 +28,8 @@ Your Kroni Family subscription has ended. The household is back on
 the free plan — kids and data are safely stored, but co-parents and
 extra kids are paused until you renew.
 
-Renew Kroni Family: {{renewUrl}}
+Open the Kroni app and go to Settings → Subscription to renew Kroni
+Family.
 
 Need help? Just reply to this email — we read every one ourselves.
 

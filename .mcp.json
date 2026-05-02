@@ -19,6 +19,14 @@
         "--connection-string",
         "postgres://postgres:Muck6G%40-YPN%3Drf7D%3Ehw%2Cf6xD%5DmyCg%5Dn%29FR%7DHgHphydes%213Vu96.y~Wmqr%40YZ8%3Aeb@77.42.92.233:5432/kroni_dev"
       ]
+    },
+    "expo-mcp": {
+      "type": "http",
+      "url": "https://mcp.expo.dev/mcp"
+    },
+    "revenuecat-mcp": {
+      "type": "http",
+      "url": "https://mcp.revenuecat.ai/mcp"
     }
   }
 }

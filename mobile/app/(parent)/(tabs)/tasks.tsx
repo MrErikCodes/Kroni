@@ -17,6 +17,8 @@ import * as Crypto from 'expo-crypto';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
@@ -24,9 +26,6 @@ import { Spinner } from '../../../components/ui/Spinner';
 import { KroniText } from '../../../components/ui/Text';
 import { KidPickerSheet } from '../../../components/parent/KidPickerSheet';
 import type { LoggableTask, LogTaskCompletionRequest, Task } from '@kroni/shared';
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(ore / 100);
 
 const RECURRENCE_LABEL = () => ({
   daily: t('parent.tasksList.recurrenceDaily'),
@@ -38,6 +37,7 @@ function TaskRow({ task }: { task: Task }) {
   const theme = useTheme();
   const router = useRouter();
   const tx = theme.text;
+  const currency = useCurrency();
 
   return (
     <TouchableOpacity
@@ -55,7 +55,7 @@ function TaskRow({ task }: { task: Task }) {
             {task.title}
           </Text>
           <Text style={[styles.taskReward, { color: theme.colors.gold[500] }]}>
-            {formatNok(task.rewardCents)}
+            {formatMoney(task.rewardCents, currency)}
           </Text>
         </View>
         <View style={styles.taskMeta}>
@@ -78,6 +78,7 @@ export default function TasksTab() {
   const router = useRouter();
   const api = useParentApi();
   const queryClient = useQueryClient();
+  const currency = useCurrency();
 
   const [logMode, setLogMode] = useState(false);
   const [pickerTask, setPickerTask] = useState<LoggableTask | null>(null);
@@ -287,7 +288,7 @@ export default function TasksTab() {
                       {item.title}
                     </Text>
                     <Text style={[styles.taskReward, { color: theme.colors.gold[500] }]}>
-                      {formatNok(item.rewardCents)}
+                      {formatMoney(item.rewardCents, currency)}
                     </Text>
                   </View>
                   {confirmation?.taskId === item.taskId ? (

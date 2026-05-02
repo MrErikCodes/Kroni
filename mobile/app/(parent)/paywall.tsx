@@ -137,7 +137,7 @@ export default function PaywallScreen() {
       const result = await purchasePackage(selectedRow.pkg);
       if (result.kind === 'purchased') {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        void queryClient.invalidateQueries({ queryKey: ['billing'] });
+        void queryClient.invalidateQueries({ queryKey: ['parent', 'billing'] });
         router.back();
       } else if (result.kind === 'error') {
         setErrorMessage(t(`paywall.purchaseErrors.${result.code}` satisfies `paywall.purchaseErrors.${PurchaseErrorCode}`));
@@ -155,7 +155,7 @@ export default function PaywallScreen() {
       const restored = await restorePurchases();
       if (restored) {
         await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        void queryClient.invalidateQueries({ queryKey: ['billing'] });
+        void queryClient.invalidateQueries({ queryKey: ['parent', 'billing'] });
         router.back();
       }
     } finally {

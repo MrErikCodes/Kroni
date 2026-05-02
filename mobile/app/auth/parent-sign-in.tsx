@@ -12,6 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useAuth, useSignIn } from '@clerk/clerk-expo';
 import * as Haptics from 'expo-haptics';
+import * as Sentry from '@sentry/react-native';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
 import { formatClerkError } from '../../lib/clerkErrors';
@@ -35,6 +36,21 @@ export default function ParentSignIn() {
     }
   }, [authLoaded, isSignedIn, router]);
 
+  // Surface a real error if Clerk's frontend API never finishes initialising
+  // (bad publishable key, FAPI unreachable, throttled network). Without this
+  // the buttons stay greyed out forever with no explanation. 6 s is generous
+  // enough for a cold-start fetch on flaky LTE but short enough that users
+  // aren't left guessing.
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (isLoaded) return;
+    const timer = setTimeout(() => {
+      Sentry.captureMessage('clerk init timeout (6s)', { level: 'warning' });
+      setError(t('auth.parentSignIn.twoFactor.errorNotLoaded'));
+    }, 6000);
+    return () => clearTimeout(timer);
+  }, [isLoaded]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'credentials' | 'twoFactor'>('credentials');
@@ -43,18 +59,12 @@ export default function ParentSignIn() {
     'totp' | 'phone_code' | 'backup_code' | 'email_code'
   >('totp');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = useCallback(async () => {
     console.log('[sign-in] press', { isLoaded, hasSignIn: !!signIn, email });
-    if (!isLoaded) {
-      setError(t('auth.parentSignIn.twoFactor.errorNotLoaded'));
-      return;
-    }
-    if (!signIn) {
-      setError(t('auth.parentSignIn.twoFactor.errorUnavailable'));
-      return;
-    }
+    // Defense-in-depth: button is gated on isLoaded so this branch shouldn't
+    // be reachable, but keep a silent return in case something races.
+    if (!isLoaded || !signIn) return;
     setError(null);
     setLoading(true);
     await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -235,7 +245,7 @@ export default function ParentSignIn() {
                   label={loading ? t('common.loading') : t('auth.parent.signIn')}
                   onPress={handleSignIn}
                   loading={loading}
-                  disabled={!email || !password}
+                  disabled={!isLoaded || !email || !password}
                   size="sm"
                 />
 
@@ -279,7 +289,7 @@ export default function ParentSignIn() {
                   label={loading ? t('common.loading') : t('auth.parentSignIn.twoFactor.confirmButton')}
                   onPress={handleTwoFactor}
                   loading={loading}
-                  disabled={twoFactorCode.length < 6}
+                  disabled={!isLoaded || twoFactorCode.length < 6}
                   size="sm"
                 />
                 <TouchableOpacity

@@ -1,17 +1,18 @@
 import { Text, TextProps, useColorScheme } from 'react-native';
 import { colors, fonts } from '../../lib/theme';
+import { formatMoney } from '../../lib/format';
+import { useCurrency } from '../../lib/useCurrency';
 
 interface BalanceTextProps extends TextProps {
   /** Amount in øre (integer) */
   amountOre: number;
   /** Show big headline variant — uses Newsreader display serif. */
   large?: boolean;
-  /** Locale for formatting — defaults to nb-NO */
-  locale?: string;
 }
 
-/** Formats integer øre to localized NOK currency string.
+/** Formats integer minor-unit balance to the household's currency.
  *  Money math stays integer; display formatting only happens here.
+ *  Currency is read from the cached me query — see lib/useCurrency.ts.
  *
  *  The large variant renders in Newsreader so the balance reads as the
  *  editorial centerpiece of the kid's home screen — the same role the
@@ -19,12 +20,12 @@ interface BalanceTextProps extends TextProps {
 export function BalanceText({
   amountOre,
   large = false,
-  locale = 'nb-NO',
   style,
   ...rest
 }: BalanceTextProps) {
   const scheme = useColorScheme() ?? 'light';
   const isDark = scheme === 'dark';
+  const currency = useCurrency();
   const textColor = large
     ? isDark
       ? '#F5F5F0'
@@ -33,11 +34,7 @@ export function BalanceText({
       ? '#F5F5F0'
       : colors.sand[900];
 
-  const formatted = new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(amountOre / 100);
+  const formatted = formatMoney(amountOre, currency);
 
   return (
     <Text

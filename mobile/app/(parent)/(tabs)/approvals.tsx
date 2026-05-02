@@ -22,6 +22,8 @@ import { CheckCircle, XCircle, ClipboardList } from 'lucide-react-native';
 import { useTheme } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
 import { ConfirmDialog } from '../../../components/ui/ConfirmDialog';
@@ -36,13 +38,6 @@ import type {
 type ApprovalRow =
   | { kind: 'task'; id: string; data: PendingApprovalItem }
   | { kind: 'reward'; id: string; data: PendingRedemptionItem };
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
 
 function formatRelativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -67,6 +62,7 @@ function ApprovalCard({ row, onApprove, onReject, isApproving, isRejecting }: Ap
   const theme = useTheme();
   const s = theme.surface;
   const tx = theme.text;
+  const currency = useCurrency();
 
   const isReward = row.kind === 'reward';
   const kidName = row.data.kidName;
@@ -124,7 +120,7 @@ function ApprovalCard({ row, onApprove, onReject, isApproving, isRejecting }: Ap
               <Text style={[styles.kidName, { color: tx.secondary }]}>{kidName}</Text>
             </View>
             <Text style={[styles.reward, { color: tx.primary }]}>
-              {isReward ? `−${formatNok(amountCents)}` : formatNok(amountCents)}
+              {isReward ? `−${formatMoney(amountCents, currency)}` : formatMoney(amountCents, currency)}
             </Text>
           </View>
           <Text style={[styles.taskTitle, { color: tx.primary }]}>

@@ -57,7 +57,7 @@ Create three products in RC → Products. The IDs MUST match what's in App Store
 |---|---|---|---|
 | `kroni_family_monthly` | Auto-renewing subscription | iOS + Android | 49 NOK / month |
 | `kroni_family_yearly`  | Auto-renewing subscription | iOS + Android | 399 NOK / year |
-| `kroni_lifetime`       | Non-consumable (iOS) / Managed product (Android) | iOS + Android | 1199 NOK one-time |
+| `kroni_lifetime` (iOS) / `kroni_family_lifetime` (Android + Test Store) | Non-consumable (iOS) / Managed product (Android) | iOS + Android | 1199 NOK one-time |
 
 Give each product a **Display Name** in nb-NO + en-US. The localized name shown in the paywall comes from this.
 

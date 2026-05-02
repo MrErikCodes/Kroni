@@ -32,6 +32,7 @@ export async function parentMeRoutes(app: FastifyInstance): Promise<void> {
       const update: Record<string, unknown> = { updatedAt: new Date() };
       if (req.body.displayName !== undefined) update.displayName = req.body.displayName;
       if (req.body.locale !== undefined) update.locale = req.body.locale;
+      if (req.body.currency !== undefined) update.currency = req.body.currency;
       const updated = await getDb()
         .update(parents)
         .set(update)

@@ -20,6 +20,13 @@ import { useTheme, fonts } from '../../lib/theme';
 import { useParentApi } from '../../lib/useParentApi';
 import { t, setAppLocale, SUPPORTED_LOCALES, type AppLocale } from '../../lib/i18n';
 import { setParentLocale } from '../../lib/auth';
+import type { Currency } from '@kroni/shared';
+
+const SUPPORTED_CURRENCIES: readonly { code: Currency; flag: string; label: string }[] = [
+  { code: 'NOK', flag: '🇳🇴', label: 'NOK · kr' },
+  { code: 'SEK', flag: '🇸🇪', label: 'SEK · kr' },
+  { code: 'DKK', flag: '🇩🇰', label: 'DKK · kr' },
+];
 import { Card } from '../../components/ui/Card';
 import { KroniText } from '../../components/ui/Text';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
@@ -151,6 +158,14 @@ export default function SettingsTab() {
     onSuccess: async (updated) => {
       setAppLocale(updated.locale);
       await setParentLocale(updated.locale);
+      await Haptics.selectionAsync();
+      await qc.invalidateQueries({ queryKey: ['parent', 'me'] });
+    },
+  });
+
+  const currencyMut = useMutation({
+    mutationFn: (currency: Currency) => api.updateMe({ currency }),
+    onSuccess: async () => {
       await Haptics.selectionAsync();
       await qc.invalidateQueries({ queryKey: ['parent', 'me'] });
     },
@@ -317,6 +332,46 @@ export default function SettingsTab() {
         </Card>
         <Text style={[styles.helpText, { color: tx.secondary }]}>
           {t('parent.settings.languageHelp')}
+        </Text>
+
+        {/* Currency — independent of language. Defaults from device region
+            at first sign-in (see ParentLocaleBridge in app/_layout.tsx). */}
+        <Text style={[styles.sectionLabel, { color: tx.secondary }]}>
+          {t('parent.settings.currency')}
+        </Text>
+        <Card style={styles.section}>
+          {SUPPORTED_CURRENCIES.map((opt, idx) => {
+            const active = (me?.currency ?? 'NOK') === opt.code;
+            return (
+              <View key={opt.code}>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!active) currencyMut.mutate(opt.code);
+                  }}
+                  style={styles.row}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: active }}
+                  accessibilityLabel={opt.label}
+                >
+                  <View style={styles.rowLeft}>
+                    <Text style={styles.rowEmoji}>{opt.flag}</Text>
+                    <Text style={[styles.rowLabel, { color: tx.primary }]}>
+                      {opt.label}
+                    </Text>
+                  </View>
+                  {active ? (
+                    <Check size={18} color={theme.colors.gold[500]} strokeWidth={2.5} />
+                  ) : null}
+                </TouchableOpacity>
+                {idx < SUPPORTED_CURRENCIES.length - 1 ? (
+                  <View style={[styles.divider, { backgroundColor: s.border }]} />
+                ) : null}
+              </View>
+            );
+          })}
+        </Card>
+        <Text style={[styles.helpText, { color: tx.secondary }]}>
+          {t('parent.settings.currencyHelp')}
         </Text>
 
         {/* Subscription — only the household owner manages billing. */}

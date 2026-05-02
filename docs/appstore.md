@@ -155,6 +155,107 @@ The lifetime IAP gets no trial — Apple/Google don't allow free trials on non-c
 
 ---
 
+## Screenshots and app previews
+
+Apple allows up to **10 screenshots + 3 app previews** per locale per device family. Play allows up to **8 screenshots + 1 promo video (YouTube link, not uploaded)**.
+
+### Required sizes (2026)
+
+| Asset | Dimensions | Required? |
+|---|---|---|
+| iPhone 6.9" screenshots (iPhone 16 Pro Max) | **1320 × 2868** portrait | Yes |
+| iPhone 6.5" screenshots (legacy) | 1242 × 2688 | Optional |
+| iPad 13" screenshots | 2064 × 2752 | Only if listing iPad |
+| App preview video | H.264, 30 fps, ≤ 30 s, ≤ 500 MB, same native resolution as the device class | Optional but recommended |
+| Play Store phone screenshot | 1080 × 1920 minimum, 16:9 or 9:16 | Yes |
+| Play Store feature graphic | 1024 × 500 | Yes |
+
+App Store Connect auto-scales the 6.9" set down for older device sizes, so capturing once at iPhone 16 Pro Max covers all iPhone classes. iPad is a separate set; skip it unless you submit an iPad build.
+
+### Capture stack (macOS strongly recommended)
+
+You can build and submit from Windows via EAS, but iOS Simulator is macOS-only and is the cleanest path to store-ready assets. On macOS install:
+
+- **Xcode** (free, Mac App Store) — bundles iOS Simulator and `xcrun simctl`.
+- **iMovie** (free, preinstalled) or **DaVinci Resolve** (free) for trimming previews.
+
+Boot the largest required device and clean the status bar:
+
+```bash
+cd mobile
+npx expo run:ios --device "iPhone 16 Pro Max"
+
+xcrun simctl status_bar booted override \
+  --time "9:41" --batteryState charged --batteryLevel 100 \
+  --cellularBars 4 --wifiBars 3
+```
+
+Capture:
+
+- **Screenshot**: `Cmd+S` inside Simulator (saves to Desktop), or `xcrun simctl io booted screenshot kids.png`. Outputs at native 1320 × 2868.
+- **Preview video**: `xcrun simctl io booted recordVideo --codec h264 preview-1.mov` → `Ctrl+C` to stop. Trim in iMovie to ≤ 30 s, export H.264 .mov.
+
+### Real-iPhone capture (no Mac)
+
+Possible but limited:
+
+- Screenshots: Side button + Volume Up. Works only if your iPhone is a 6.9" device (iPhone 15 Pro Max / 16 Pro Max) — anything smaller fails the primary size requirement.
+- Previews: Control Center → Screen Recording, trim in Photos. You can't fake the status bar, so carrier name / battery level / time will appear in submitted videos and Apple has rejected for this in the past.
+
+Verdict: borrow a Mac for a day or buy a Mac mini. It saves a half-day of fighting Transporter, signing certs, and asset dimensions, and you'll need it again for every TestFlight cycle.
+
+### Simulator vs real device — which for what
+
+| Asset type | Best source | Why |
+|---|---|---|
+| Screenshots (10) | **iOS Simulator** | Exact native resolution, fakeable status bar, no carrier branding, every device size from one Mac. |
+| App previews (3) | **iOS Simulator** for most apps; switch to real device + QuickTime if you need camera/biometrics in frame | Same reasons as screenshots; Kroni doesn't need camera, so Simulator is fine. |
+| TestFlight smoke tests | **Real iPhone** | Sandbox IAP, push, Universal Links don't fully work in Simulator. |
+
+You will still need a real iPhone for sandbox IAP and pairing-link verification — those parts of the doc above are unchanged. The Mac is for asset capture and submission, the iPhone is for end-to-end flows.
+
+### The 10-screenshot lineup
+
+Tell a 3-act story: parent setup → kid loop → trust close. Each frame = one promise. Compose with caption text in the top third over a brand-gold background, the device frame below. Same composition across all 10 keeps the listing visually coherent.
+
+| # | Screen | Route | Caption (nb-NO) | Caption (en) | Why this frame |
+| - | ------ | ----- | --------------- | ------------ | -------------- |
+| 1 | Approvals — pending list, Approve button highlit | `(parent)/(tabs)/approvals` | Godkjenn med ett trykk | Approve with one tap | Hook — the core action. |
+| 2 | Kids overview with 2–3 child cards + balances | `(parent)/(tabs)/kids` | Hele familien, ett sted | The whole family, one place | Establishes scale. |
+| 3 | Task creation modal mid-fill | `(parent)/tasks/new` | Lag en oppgave på 10 sekunder | Make a chore in 10 seconds | Removes setup anxiety. |
+| 4 | Task list with recurring + one-off mix | `(parent)/(tabs)/tasks` | Faste eller engangs | Recurring or one-off | Flexibility. |
+| 5 | Reward list with savings goals | `(parent)/(tabs)/rewards` | Belønninger som betyr noe | Rewards that mean something | Emotional payoff. |
+| 6 | Settings with pause toggle visible | `(parent)/settings` | Pause når familien er på ferie | Pause when life happens | Anticipates objection. |
+| 7 | Kid Today with 3 chores, 1 checked | `(kid)/(tabs)/today` | Egen, enkel app for barnet | A simple app just for kids | Pivot to kid side. |
+| 8 | Kid Balance with goal progress bar | `(kid)/(tabs)/balance` | Se sparepengene vokse | Watch savings grow | Kid-side emotion. |
+| 9 | Celebrate screen (confetti / approval moment) | `(kid)/celebrate` | Følelsen av mestring | The feeling of mastery | Climax of the loop. |
+| 10 | Paywall with pricing tiers | `(parent)/paywall` | 49 kr/mnd · 7 dager gratis | 49 NOK/mo · 7 days free | Soft commercial close. |
+
+For sv-SE / da-DK use the parallel phrasings already in each locale's Description block above. Re-shoot per locale by switching the device language in Settings → General → Language; don't translate captions only — the in-app text needs to match.
+
+### The 3 app previews
+
+Each preview = one feeling, looped. Don't tour the app.
+
+| # | Concept | Length | Beats |
+|---|---|---|---|
+| 1 | **Approve a chore** | 15–20 s | Kid taps "Ryd rommet" off → parent gets a quiet badge → parent opens Approvals → taps Approve → kid balance ticks up. End on the number growing. **Core promise.** |
+| 2 | **Set up a chore** | 10–15 s | Empty Tasks → tap `+` → fields fill (title "Tøm oppvaskmaskinen", 10 kr, weekly) → Save → it lands in the list. **Removes the "looks complicated" objection.** |
+| 3 | **Saving toward a goal** | 15–20 s | Kid Balance → balance grows → goal bar fills → reward unlocks → confetti. **Emotional close, mirrors the lifetime tier's promise.** |
+
+Recording recipe per preview:
+
+1. Pre-seed the database with a known-good fixture so there's content to film against — don't record from a fresh install.
+2. `xcrun simctl status_bar booted override ...` (see above).
+3. `xcrun simctl io booted recordVideo --codec h264 preview-1.mov`.
+4. Trim in iMovie. No music, no titles, no end card — Apple strips them anyway.
+5. Export H.264 .mov at 1320 × 2868.
+6. Pick a clean poster frame in App Store Connect (skip mid-animation frames).
+
+Per locale: same three concepts, language switched. Four locales × three previews = up to 12 videos. Realistically: ship nb-NO + en for v1, add sv-SE / da-DK in a follow-up release rather than blocking launch.
+
+---
+
 ## Cross-platform reminders
 
 - **Bundle / package IDs** must match exactly between RC, the manifest, and the store. Mismatch is the #1 cause of "this app is not configured for sandbox purchases" errors.
@@ -199,6 +300,26 @@ Drop these straight into App Store Connect ("App Information" + each localizatio
 > Kept short on purpose — a tight 1 500–2 000-char description outperforms a 4 000-char wall on conversion. Edit before submission, don't pad.
 
 ### Norwegian — nb-NO (default, kroni.no)
+
+**App Name** (29 / 30)
+
+```
+Kroni - Ukepenger og oppgaver
+```
+
+Alternates: `Kroni - Lommepenger uten mas` (28) · `Kroni - Ukepenger for barn` (26)
+
+**Subtitle** — iOS only (30 / 30)
+
+```
+Lommepenger som lærer mestring
+```
+
+**Short description** — Play only (70 / 80)
+
+```
+Ukepenger, oppgaver og belønninger som lærer barn å mestre — uten mas.
+```
 
 **Promotional Text** (155 / 170)
 
@@ -266,6 +387,26 @@ lommepenger,ukepenger,oppgaver,barn,familie,belønning,sparing,gjøremål,foreld
 
 ### English — en (catch-all, kroni.no/en)
 
+**App Name** (26 / 30)
+
+```
+Kroni - Allowance & Chores
+```
+
+Alternates: `Kroni - Pocket Money & Chores` (29) · `Kroni - Family Allowance App` (28)
+
+**Subtitle** — iOS only (29 / 30)
+
+```
+Chores, allowance, no nagging
+```
+
+**Short description** — Play only (71 / 80)
+
+```
+Allowance, chores and rewards that teach kids to master, not to expect.
+```
+
 **Promotional Text** (152 / 170)
 
 ```
@@ -332,6 +473,26 @@ allowance,chores,kids,family,rewards,savings,parenting,pocket money,tasks,respon
 
 ### Swedish — sv-SE (kroni.se)
 
+**App Name** (29 / 30)
+
+```
+Kroni - Veckopeng och sysslor
+```
+
+Alternates: `Kroni - Veckopeng utan tjat` (27) · `Kroni - Veckopeng för familjen` (30)
+
+**Subtitle** — iOS only (28 / 30)
+
+```
+Veckopeng som lär bemästring
+```
+
+**Short description** — Play only (72 / 80)
+
+```
+Veckopeng, sysslor och belöningar som lär barn att bemästra — utan tjat.
+```
+
 **Promotional Text** (152 / 170)
 
 ```
@@ -397,6 +558,26 @@ veckopeng,sysslor,barn,familj,belöning,sparande,föräldrar,ansvar,uppgifter,hu
 ---
 
 ### Danish — da-DK (kroni.dk)
+
+**App Name** (29 / 30)
+
+```
+Kroni - Lommepenge og opgaver
+```
+
+Alternates: `Kroni - Lommepenge uden pjat` (28) · `Kroni - Lommepenge & opgaver` (28)
+
+**Subtitle** — iOS only (29 / 30)
+
+```
+Lommepenge der lærer mestring
+```
+
+**Short description** — Play only (72 / 80)
+
+```
+Lommepenge, opgaver og belønninger der lærer børn at mestre — uden pjat.
+```
 
 **Promotional Text** (152 / 170)
 

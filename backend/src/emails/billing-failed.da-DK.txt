@@ -8,7 +8,8 @@ Vi kunne ikke forny dit Kroni Family-abonnement. Adgangen er aktiv
 en kort periode, mens vi prøver igen, men du skal opdatere din
 betalingsmetode for ikke at miste adgang.
 
-Opdater betalingsmetode: {{updatePaymentUrl}}
+Åbn Kroni-appen, gå til Indstillinger → Abonnement og vælg
+Administrer for at opdatere din betalingsmetode.
 
 Brug for hjælp? Svar bare på denne mail — vi læser alle selv.
 
@@ -27,7 +28,8 @@ We couldn't renew your Kroni Family subscription. Your access stays
 active for a short grace period while we retry, but you'll need to
 update your payment method to keep it.
 
-Update your payment method: {{updatePaymentUrl}}
+Open the Kroni app, go to Settings → Subscription and tap Manage to
+update your payment method.
 
 Need help? Just reply to this email — we read every one ourselves.
 

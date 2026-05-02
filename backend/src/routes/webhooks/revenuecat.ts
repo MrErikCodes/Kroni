@@ -20,13 +20,6 @@ import {
   type SupportedLocale as TemplateLocale,
 } from '../../lib/email-templates.js';
 
-// URLs in RC billing emails. The mobile app deep-links these to the
-// in-app subscription detail screen on iOS/Android; on the web they
-// fall back to kroni.no/account. [TODO email] swap in real
-// universal-link landing pages once the website ships them.
-const UPDATE_PAYMENT_URL = 'https://kroni.no/account/billing';
-const RENEW_URL = 'https://kroni.no/account/billing';
-
 function emailLocale(locale: string | null | undefined): TemplateLocale {
   if (isSupportedLocale(locale)) return locale;
   if (locale && locale.startsWith('en')) return 'en-US';
@@ -203,7 +196,11 @@ const EventSchema = z.object({
   }),
 });
 
-const LIFETIME_PRODUCT_IDS = new Set(['kroni_lifetime']);
+// App Store uses `kroni_lifetime`; Play Store + RC Test Store use
+// `kroni_family_lifetime`. Both must flip `lifetime_paid=true`, otherwise
+// the buyer falls into the recurring-sub branch with a null expiry and
+// the subscription detail screen renders the free blurb.
+const LIFETIME_PRODUCT_IDS = new Set(['kroni_lifetime', 'kroni_family_lifetime']);
 
 // Events that grant or extend access. INITIAL_PURCHASE includes the 7-day
 // trial (RC sets `period_type: "TRIAL"` + an `expiration_at_ms` ~ 7 days
@@ -440,7 +437,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
           req,
           row?.premiumOwnerParentId ?? null,
           'subscription-expired',
-          { renewUrl: RENEW_URL },
+          {},
         );
       }
     } else if (ev.type === 'BILLING_ISSUE') {
@@ -473,7 +470,7 @@ export async function revenuecatWebhookRoutes(app: FastifyInstance): Promise<voi
         req,
         row?.premiumOwnerParentId ?? null,
         'billing-failed',
-        { updatePaymentUrl: UPDATE_PAYMENT_URL },
+        {},
       );
     } else {
       // CANCELLATION, TEST, SUBSCRIPTION_EXTENDED, etc. Logged for

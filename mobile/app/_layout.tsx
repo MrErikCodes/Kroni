@@ -118,6 +118,25 @@ const queryClient = new QueryClient({
 const clerkPublishableKey: string =
   (Constants.expoConfig?.extra?.['clerkPublishableKey'] as string | undefined) ?? '';
 
+// Boot-time visibility into what actually got bundled. EAS inlines the
+// publishable key from the env at build time — if the wrong env scope is
+// used, or a local prebuild bypasses the EAS env entirely, you can read
+// the prefix here in the Xcode device console (or in Sentry breadcrumbs)
+// to confirm whether `pk_live_*`, `pk_test_*`, or '(empty)' shipped.
+console.log(
+  '[clerk] publishableKey',
+  clerkPublishableKey ? `${clerkPublishableKey.slice(0, 8)}… (len ${clerkPublishableKey.length})` : '(empty)',
+);
+Sentry.addBreadcrumb({
+  category: 'clerk',
+  level: 'info',
+  message: 'publishableKey bundled',
+  data: {
+    prefix: clerkPublishableKey ? clerkPublishableKey.slice(0, 8) : '(empty)',
+    length: clerkPublishableKey.length,
+  },
+});
+
 // Configure notification handler — foreground notifications suppressed by default;
 // individual screens handle them via addNotificationReceivedListener.
 Notifications.setNotificationHandler({
@@ -248,10 +267,33 @@ function ParentLocaleBridge() {
       lastUserIdRef.current = userId;
       void (async () => {
         try {
-          const me = await parentApi.clientFor(() => getToken()).getMe();
+          const client = parentApi.clientFor(() => getToken());
+          const me = await client.getMe();
           if (me?.locale) {
             setAppLocale(me.locale);
             await setParentLocale(me.locale);
+          }
+          // Currency default-from-region. Only fires for freshly created
+          // parents (server default 'NOK' AND parent row younger than 5 min)
+          // so existing users on a new device never have their stored
+          // preference overwritten by the device's region. Maps NO→NOK,
+          // SE→SEK, DK→DKK; anything else keeps NOK because we only ship
+          // in those three markets.
+          if (me?.currency === 'NOK') {
+            const ageMs = Date.now() - new Date(me.createdAt).getTime();
+            if (ageMs < 5 * 60 * 1000) {
+              const region = Localization.getLocales()[0]?.regionCode;
+              const derived: 'NOK' | 'SEK' | 'DKK' =
+                region === 'SE' ? 'SEK' : region === 'DK' ? 'DKK' : 'NOK';
+              if (derived !== 'NOK') {
+                try {
+                  await client.updateMe({ currency: derived });
+                } catch {
+                  // Best-effort — UI still renders in NOK and the parent
+                  // can switch in Settings.
+                }
+              }
+            }
           }
         } catch {
           // Network / unauthorized — boot-cached SecureStore value stays

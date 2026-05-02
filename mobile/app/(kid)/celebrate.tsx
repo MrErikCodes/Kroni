@@ -22,16 +22,11 @@ import * as Haptics from 'expo-haptics';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme, fonts } from '../../lib/theme';
 import { t } from '../../lib/i18n';
+import { formatMoney } from '../../lib/format';
+import { useCurrency } from '../../lib/useCurrency';
 import { KroniText } from '../../components/ui/Text';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
 
 interface ParticleProps {
   x: number;
@@ -122,6 +117,7 @@ export default function CelebrateScreen() {
   const theme = useTheme();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const currency = useCurrency();
   const { amountCents } = useLocalSearchParams<{ amountCents: string }>();
   const amount = parseInt(amountCents ?? '0', 10);
 
@@ -203,7 +199,7 @@ export default function CelebrateScreen() {
             variant="display"
             style={[styles.amount, { color: theme.colors.gold[300] }]}
           >
-            +{formatNok(amount)}
+            +{formatMoney(amount, currency)}
           </KroniText>
         </Animated.View>
 

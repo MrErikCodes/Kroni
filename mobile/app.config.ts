@@ -115,6 +115,23 @@ export default ({ config: _config }: ConfigContext): ExpoConfig => ({
         dark: {
           backgroundColor: '#0E1116',
         },
+        // Android 12+ renders the splash via `windowSplashScreenAnimatedIcon`
+        // which is masked to a ~240dp circle (with a ~192dp inner safe zone).
+        // The flush-bleed `splash-icon.png` wordmark used on iOS gets the K
+        // and gold dot clipped on Android because the wordmark exceeds the
+        // safe circle. Re-use the adaptive-icon foreground here — it's the
+        // same wordmark but pre-padded for the launcher's circular mask, so
+        // the type fits inside the splash safe zone too. imageWidth: 240
+        // matches the visible clip circle.
+        android: {
+          image: './assets/images/android-icon-foreground.png',
+          imageWidth: 240,
+          resizeMode: 'contain',
+          backgroundColor: '#0E1116',
+          dark: {
+            backgroundColor: '#0E1116',
+          },
+        },
       },
     ],
     'expo-secure-store',

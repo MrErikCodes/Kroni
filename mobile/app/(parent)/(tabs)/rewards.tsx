@@ -16,6 +16,8 @@ import * as Haptics from 'expo-haptics';
 import { useTheme, fonts } from '../../../lib/theme';
 import { useParentApi } from '../../../lib/useParentApi';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
@@ -23,13 +25,11 @@ import { Badge } from '../../../components/ui/Badge';
 import { KroniText } from '../../../components/ui/Text';
 import type { Reward } from '@kroni/shared';
 
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(ore / 100);
-
 function RewardRow({ reward }: { reward: Reward }) {
   const theme = useTheme();
   const router = useRouter();
   const tx = theme.text;
+  const currency = useCurrency();
 
   return (
     <TouchableOpacity
@@ -50,7 +50,7 @@ function RewardRow({ reward }: { reward: Reward }) {
             {reward.title}
           </Text>
           <Text style={[styles.rewardCost, { color: theme.colors.gold[500] }]}>
-            {formatNok(reward.costCents)}
+            {formatMoney(reward.costCents, currency)}
           </Text>
         </View>
         {!reward.active && <Badge label={t('parent.rewardsList.inactive')} variant="warning" />}

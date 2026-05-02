@@ -141,8 +141,8 @@ API. Instead:
 |---|---|---|---|
 | `password-reset` | Clerk webhook `email.created` with slug starting with `reset_password` (matches `reset_password_code`, `reset_password_attempt_*`, etc.) | `{{name}}`, `{{code}}` | — |
 | `email-verification` | Clerk webhook `email.created` with slug = `verification_code`, `magic_link_sign_up`, or `magic_link_sign_in` | `{{name}}`, `{{code}}` | — |
-| `billing-failed` | RevenueCat webhook `BILLING_ISSUE` event in `revenuecat.ts` (alongside `notifyOwner` push) | `{{name}}`, `{{updatePaymentUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
-| `subscription-expired` | RevenueCat webhook `EXPIRATION` event for non-lifetime household (alongside `notifyOwner` push) | `{{name}}`, `{{renewUrl}}` | hard-coded `https://kroni.no/account/billing` (TODO swap for universal-link) |
+| `billing-failed` | RevenueCat webhook `BILLING_ISSUE` event in `revenuecat.ts` (alongside `notifyOwner` push) | `{{name}}` | — (instructs user to open Kroni → Settings → Subscription; in-app screen handles platform-correct App Store / Play Store deep-link) |
+| `subscription-expired` | RevenueCat webhook `EXPIRATION` event for non-lifetime household (alongside `notifyOwner` push) | `{{name}}` | — (instructs user to open Kroni → Settings → Subscription) |
 | `household-invite` | `POST /parent/household/invites` after invite row inserted, when `invitedEmail` non-null | `{{inviterName}}`, `{{householdName}}`, `{{code}}`, `{{acceptUrl}}` | `https://kroni.no/invite/<code>` (TODO swap to real `/invite` landing) |
 
 In Clerk dashboard → **Webhooks** → also subscribe to `email.created`

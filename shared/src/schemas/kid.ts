@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { UUID, IsoTimestamp, Cents, AvatarKey } from './common.js';
+import { UUID, IsoTimestamp, Cents, AvatarKey, Currency } from './common.js';
 
 const currentYear = new Date().getUTCFullYear();
 const minBirthYear = currentYear - 25;
@@ -115,3 +115,12 @@ export type CreateKidInput = z.infer<typeof CreateKidSchema>;
 
 export const UpdateKidSchema = baseCreateKidSchema.partial().superRefine(refineFrequencyDays);
 export type UpdateKidInput = z.infer<typeof UpdateKidSchema>;
+
+// /kid/me response — KidSchema plus the parent's currency so the kid app
+// can format balances without a separate lookup. Parent screens already
+// have currency via /parent/me, so other kid-shaped responses don't need
+// this extension.
+export const KidMeResponseSchema = KidSchema.extend({
+  currency: Currency,
+});
+export type KidMeResponse = z.infer<typeof KidMeResponseSchema>;

@@ -63,6 +63,10 @@ A running list of what's not done, what needs testing, and what's parked. Group 
 - [ ] **Localized legal pages** — translate Personvern + Vilkår to sv, da, en. Keep §-numbering aligned across locales so the mobile app can deep-link to a specific clause regardless of language. progress 2026-04-29: privacy + terms updated to disclose Mailpace transactional email pipeline across all four locales (extended existing §07 sub-processor list in personvern, extended §04 account section in vilkar; no §-numbers shifted).
 - [ ] **Universal-link `/pair/<code>` route** — landing page on kroni.no/.dk/.se that triggers the deep link into the kid app on iOS/Android (with App Store / Play fallback if not installed). Backs the "share kid login link" feature.
 
+## Future scope (post-v1)
+
+- [ ] **Points + currency dual mode** — let parents pick per household: (1) currency only (today's NOK/SEK/DKK), (2) points only — virtual unit named by the parent (default "Poeng"), spent on rewards like movie nights / choose-dinner / day off, detaches Kroni from real money, (3) both — kids earn AND can be paid in money AND points, parents grant either or both when approving a task or making an adjustment. Likely scope: household-level `economyMode: 'currency' | 'points' | 'both'` + custom `pointsLabel`; dual ledger (or `unit` discriminator on balance entries); tasks/rewards gain `rewardPoints` alongside `rewardCents` (both nullable); adjust modal needs unit picker; currency picker stays for currency/both modes, points-only mode hides money UI; migration adds columns with sensible defaults, no data conversion.
+
 ## Nice-to-have
 
 - [x] Localized day names in the kid task-detail sheet for languages beyond nb (`formatRecurrence` hard-codes Norwegian `og`). <!-- localized 2026-04-29 via i18n -->

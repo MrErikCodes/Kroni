@@ -13,19 +13,14 @@ import { Wallet } from 'lucide-react-native';
 import { useTheme, fonts } from '../../../lib/theme';
 import { kidApi } from '../../../lib/api';
 import { t } from '../../../lib/i18n';
+import { formatMoney } from '../../../lib/format';
+import { useCurrency } from '../../../lib/useCurrency';
 import { BalanceText } from '../../../components/ui/BalanceText';
 import { Card } from '../../../components/ui/Card';
 import { EmptyState } from '../../../components/ui/EmptyState';
 import { Spinner } from '../../../components/ui/Spinner';
 import { KroniText } from '../../../components/ui/Text';
 import type { BalanceEntry } from '@kroni/shared';
-
-const formatNok = (ore: number) =>
-  new Intl.NumberFormat('nb-NO', {
-    style: 'currency',
-    currency: 'NOK',
-    maximumFractionDigits: 0,
-  }).format(ore / 100);
 
 function formatRelativeDate(iso: string): string {
   const now = new Date();
@@ -50,6 +45,7 @@ const REASON_ICONS: Record<string, string> = {
 function HistoryRow({ entry }: { entry: BalanceEntry }) {
   const theme = useTheme();
   const tx = theme.text;
+  const currency = useCurrency();
   const isPositive = entry.amountCents > 0;
 
   return (
@@ -79,7 +75,7 @@ function HistoryRow({ entry }: { entry: BalanceEntry }) {
           { color: isPositive ? theme.colors.semantic.success : theme.colors.semantic.danger },
         ]}
       >
-        {isPositive ? '+' : ''}{formatNok(entry.amountCents)}
+        {isPositive ? '+' : ''}{formatMoney(entry.amountCents, currency)}
       </Text>
     </View>
   );
@@ -88,6 +84,7 @@ function HistoryRow({ entry }: { entry: BalanceEntry }) {
 export default function BalanceScreen() {
   const theme = useTheme();
   const s = theme.surface;
+  const currency = useCurrency();
 
   const {
     data: summary,
@@ -146,7 +143,7 @@ export default function BalanceScreen() {
               { color: theme.colors.semantic.success },
             ]}
           >
-            +{formatNok(summary?.weekEarnedCents ?? 0)}
+            +{formatMoney(summary?.weekEarnedCents ?? 0, currency)}
           </Text>
         </Card>
         <Card style={styles.weekCard}>
@@ -159,7 +156,7 @@ export default function BalanceScreen() {
               { color: theme.colors.semantic.danger },
             ]}
           >
-            -{formatNok(summary?.weekSpentCents ?? 0)}
+            -{formatMoney(summary?.weekSpentCents ?? 0, currency)}
           </Text>
         </Card>
       </View>

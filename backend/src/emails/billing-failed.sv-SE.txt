@@ -8,7 +8,8 @@ Vi kunde inte förnya din Kroni Family-prenumeration. Tillgången är
 aktiv en kort period medan vi försöker igen, men du behöver
 uppdatera ditt betalsätt för att inte förlora åtkomst.
 
-Uppdatera betalsätt: {{updatePaymentUrl}}
+Öppna Kroni-appen, gå till Inställningar → Abonnemang och välj
+Hantera för att uppdatera ditt betalsätt.
 
 Behöver du hjälp? Svara på det här mejlet — vi läser allt själva.
 
@@ -27,7 +28,8 @@ We couldn't renew your Kroni Family subscription. Your access stays
 active for a short grace period while we retry, but you'll need to
 update your payment method to keep it.
 
-Update your payment method: {{updatePaymentUrl}}
+Open the Kroni app, go to Settings → Subscription and tap Manage to
+update your payment method.
 
 Need help? Just reply to this email — we read every one ourselves.
 
