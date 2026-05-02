@@ -37,6 +37,10 @@ export default function ParentSignUp() {
     status: signUp?.status,
     emailAddress: signUp?.emailAddress,
   });
+  useEffect(() => {
+    console.log('[sign-up] MOUNT');
+    return () => console.log('[sign-up] UNMOUNT');
+  }, []);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

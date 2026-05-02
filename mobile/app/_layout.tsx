@@ -88,8 +88,16 @@ initSentry();
 // already knows the parent's preferred language without a network
 // round-trip; ParentLocaleBridge below keeps the cache in sync with
 // the server while the parent is signed in.
+// Module-scope session id. Logged from every diagnostic site so two
+// different ids => the JS bundle was re-evaluated (cold restart, expo
+// hot reload, or RN reload). Same id repeated means it's all one boot
+// and any visible "refresh" is a React remount inside that boot.
+const BOOT_ID = Math.random().toString(36).slice(2, 8);
+const BOOT_TS = Date.now();
+console.log('[boot] _layout module evaluated', { BOOT_ID, BOOT_TS });
+
 const deviceLocale = Localization.getLocales()[0]?.languageCode ?? 'nb';
-console.log('[boot] module load', { deviceLocale });
+console.log('[boot] module load', { BOOT_ID, deviceLocale });
 setAppLocale(deviceLocale);
 void (async () => {
   const [kidToken, storedKidLocale, storedParentLocale] = await Promise.all([
@@ -171,12 +179,26 @@ function NavigationRegistrar() {
 
 function AppStateLogger() {
   useEffect(() => {
-    console.log('[appstate] mount, current=', AppState.currentState);
+    console.log('[appstate] mount', { BOOT_ID, current: AppState.currentState });
     const sub = AppState.addEventListener('change', (next) => {
-      console.log('[appstate] change', { next });
+      console.log('[appstate] change', { BOOT_ID, next });
     });
     return () => sub.remove();
   }, []);
+  return null;
+}
+
+function ClerkAuthLogger() {
+  const { isLoaded, isSignedIn, userId, sessionId } = useAuth();
+  useEffect(() => {
+    console.log('[clerk-auth] state', {
+      BOOT_ID,
+      isLoaded,
+      isSignedIn,
+      userId,
+      sessionId,
+    });
+  }, [isLoaded, isSignedIn, userId, sessionId]);
   return null;
 }
 
@@ -462,13 +484,19 @@ function RootLayout() {
   const renderCounter = useRef(0);
   renderCounter.current += 1;
   console.log('[layout] RootLayout render', {
+    BOOT_ID,
     n: renderCounter.current,
+    sinceBootMs: Date.now() - BOOT_TS,
     shortLocale,
   });
+  useEffect(() => {
+    console.log('[layout] RootLayout MOUNT', { BOOT_ID });
+    return () => console.log('[layout] RootLayout UNMOUNT', { BOOT_ID });
+  }, []);
   useEffect(
     () =>
       subscribeLocale((next) => {
-        console.log('[layout] locale subscriber fired', { next });
+        console.log('[layout] locale subscriber fired', { BOOT_ID, next });
         setShortLocale(next);
       }),
     [],
@@ -510,6 +538,7 @@ function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <NavigationRegistrar />
           <AppStateLogger />
+          <ClerkAuthLogger />
           <SentryIdentityBridge />
           <RevenueCatIdentityBridge />
           <ParentLocaleBridge />

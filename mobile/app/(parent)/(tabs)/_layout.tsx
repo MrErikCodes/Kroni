@@ -12,6 +12,10 @@ export default function ParentTabsLayout() {
   const theme = useTheme();
 
   console.log('[parent-tabs] render', { isLoaded, isSignedIn });
+  useEffect(() => {
+    console.log('[parent-tabs] MOUNT');
+    return () => console.log('[parent-tabs] UNMOUNT');
+  }, []);
 
   useEffect(() => {
     console.log('[parent-tabs] auth-guard effect', { isLoaded, isSignedIn });

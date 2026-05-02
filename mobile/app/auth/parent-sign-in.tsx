@@ -35,6 +35,10 @@ export default function ParentSignIn() {
     pendingSignUpEmail: signUp?.emailAddress,
     pendingSignUpStatus: signUp?.status,
   });
+  useEffect(() => {
+    console.log('[sign-in] MOUNT');
+    return () => console.log('[sign-in] UNMOUNT');
+  }, []);
 
   // Already-signed-in guard. Without this Clerk throws 'You're already
   // signed in' when the user lands on the sign-in screen with a live
