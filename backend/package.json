@@ -9,6 +9,7 @@
     "dev:jobs": "phase run \"tsx watch src/jobs/runner.ts\"",
     "prebuild": "npm --workspace=@kroni/shared run build",
     "build": "phase run tsc",
+    "postbuild": "node -e \"require('fs').cpSync('src/emails','dist/emails',{recursive:true})\"",
     "release:sentry": "phase run \"node scripts/sentry-release.mjs\"",
     "rc:webhook": "phase run -- node scripts/test-rc-webhook.mjs",
     "start": "phase run \"node --enable-source-maps dist/server.js\"",
