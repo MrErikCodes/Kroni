@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -37,6 +37,20 @@ export default function ParentSignUp() {
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Resend-code state. Cooldown ticks down once per second after a successful
+  // resend so impatient users can't hammer Clerk's prepare endpoint.
+  const [resending, setResending] = useState(false);
+  const [resendNotice, setResendNotice] = useState<string | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldown((s) => Math.max(0, s - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
 
   // Optional family-join code: when a parent has been invited by a co-parent,
   // they can paste the 6-digit code here. After Clerk verification we call
@@ -147,6 +161,25 @@ export default function ParentSignUp() {
       setLoading(false);
     }
   }, [isLoaded, signUp, setActive, verificationCode, router, joinCode, showJoinCode, getToken]);
+
+  const handleResendCode = useCallback(async () => {
+    if (!isLoaded || !signUp) return;
+    if (resending || resendCooldown > 0) return;
+    setError(null);
+    setResendNotice(null);
+    setResending(true);
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+      setResendCooldown(30);
+      setResendNotice(t('auth.parentSignUp.codeSent'));
+    } catch (err: unknown) {
+      setError(formatClerkError(err));
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setResending(false);
+    }
+  }, [isLoaded, signUp, resending, resendCooldown]);
 
   const s = theme.surface;
   const tx = theme.text;
@@ -331,6 +364,36 @@ export default function ParentSignUp() {
                 disabled={!verificationCode}
                 size="sm"
               />
+              <TouchableOpacity
+                onPress={handleResendCode}
+                disabled={resending || resendCooldown > 0}
+                accessibilityRole="button"
+                accessibilityLabel={t('auth.parentSignUp.resendCode')}
+                style={styles.resendRow}
+              >
+                <Text
+                  style={[
+                    styles.resendLink,
+                    {
+                      color: theme.colors.gold[700],
+                      opacity: resending || resendCooldown > 0 ? 0.5 : 1,
+                    },
+                  ]}
+                >
+                  {resending
+                    ? t('auth.parentSignUp.resendingCode')
+                    : resendCooldown > 0
+                      ? t('auth.parentSignUp.resendCooldown', {
+                          seconds: resendCooldown,
+                        })
+                      : t('auth.parentSignUp.resendCode')}
+                </Text>
+              </TouchableOpacity>
+              {resendNotice ? (
+                <Text style={[styles.resendNotice, { color: tx.secondary }]}>
+                  {resendNotice}
+                </Text>
+              ) : null}
             </View>
           )}
 
@@ -411,6 +474,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     textDecorationLine: 'underline',
+  },
+  resendRow: {
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  resendLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
+  resendNotice: {
+    fontSize: 13,
+    textAlign: 'center',
   },
   consent: {
     fontSize: 12,

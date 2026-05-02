@@ -1,8 +1,11 @@
-// Translate the most common Clerk error codes to Bokmål. Clerk's
+// Translate the most common Clerk error codes to the user's locale. Clerk's
 // server-side messages come back in English regardless of the SDK
-// localization prop (which only covers Clerk-rendered UI). For our
-// custom auth forms we map the structured error code to a Norwegian
-// string and fall through to a generic message.
+// localization prop (which only covers Clerk-rendered UI). For our custom
+// auth forms we map the structured error code to an i18n key under
+// auth.clerkErrors.* and fall back to message-substring matching when the
+// code is missing or unknown.
+
+import { t } from './i18n';
 
 interface ClerkLikeError {
   errors?: {
@@ -14,61 +17,65 @@ interface ClerkLikeError {
   message?: string;
 }
 
-const CODE_MAP: Record<string, string> = {
-  form_identifier_not_found: 'Vi finner ingen konto med denne e-postadressen.',
-  form_identifier_exists: 'Det finnes allerede en konto med denne e-postadressen.',
-  form_password_incorrect: 'Feil passord. Prøv igjen.',
-  form_password_pwned:
-    'Dette passordet finnes i en kjent datalekkasje. Velg et annet passord.',
-  form_password_length_too_short:
-    'Passordet er for kort. Bruk minst 8 tegn.',
-  form_password_size_in_bytes_exceeded:
-    'Passordet er for langt. Velg et kortere passord.',
-  form_password_validation_failed:
-    'Passordet oppfyller ikke kravene. Prøv et sterkere passord.',
-  form_param_format_invalid: 'Formatet er ugyldig.',
-  form_param_format_invalid__email_address: 'Ugyldig e-postadresse.',
-  form_param_nil: 'Feltet kan ikke være tomt.',
-  form_param_missing: 'Feltet kan ikke være tomt.',
-  session_exists: 'Du er allerede logget inn.',
-  session_token_expired: 'Økten er utløpt. Logg inn på nytt.',
-  network_error: 'Kunne ikke kontakte serveren. Sjekk internettforbindelsen.',
-  too_many_requests: 'For mange forsøk. Prøv igjen om litt.',
-  resource_not_found: 'Fant ikke det du leter etter.',
-  passwd_pwned:
-    'Dette passordet finnes i en kjent datalekkasje. Velg et annet passord.',
+const CODE_TO_KEY: Record<string, string> = {
+  form_identifier_not_found: 'auth.clerkErrors.identifierNotFound',
+  form_identifier_exists: 'auth.clerkErrors.identifierExists',
+  form_password_incorrect: 'auth.clerkErrors.passwordIncorrect',
+  form_password_pwned: 'auth.clerkErrors.passwordPwned',
+  form_password_length_too_short: 'auth.clerkErrors.passwordTooShort',
+  form_password_size_in_bytes_exceeded: 'auth.clerkErrors.passwordTooLong',
+  form_password_validation_failed: 'auth.clerkErrors.passwordValidationFailed',
+  form_param_format_invalid: 'auth.clerkErrors.formatInvalid',
+  form_param_format_invalid__email_address: 'auth.clerkErrors.emailInvalid',
+  form_param_nil: 'auth.clerkErrors.fieldRequired',
+  form_param_missing: 'auth.clerkErrors.fieldRequired',
+  session_exists: 'auth.clerkErrors.sessionExists',
+  session_token_expired: 'auth.clerkErrors.sessionExpired',
+  network_error: 'auth.clerkErrors.networkError',
+  too_many_requests: 'auth.clerkErrors.tooManyRequests',
+  resource_not_found: 'auth.clerkErrors.notFound',
+  passwd_pwned: 'auth.clerkErrors.passwordPwned',
+  verification_expired: 'auth.clerkErrors.verificationExpired',
+  verification_failed: 'auth.clerkErrors.verificationFailed',
+  verification_already_verified: 'auth.clerkErrors.alreadyVerified',
+  form_code_incorrect: 'auth.clerkErrors.codeIncorrect',
 };
 
 export function formatClerkError(err: unknown): string {
   const e = err as ClerkLikeError;
   const first = e?.errors?.[0];
   const code = first?.code;
-  if (code && CODE_MAP[code]) return CODE_MAP[code];
+  if (code && CODE_TO_KEY[code]) return t(CODE_TO_KEY[code]);
 
-  // Fall back to longMessage / message and translate inline if it matches
-  // a string we know. Clerk sometimes throws plain Error with a message
+  // Fall back to longMessage / message and translate inline if it matches a
+  // string we know. Clerk sometimes throws a plain Error with a message
   // string instead of the structured shape.
-  const raw =
-    first?.longMessage ?? first?.message ?? e?.message ?? '';
+  const raw = first?.longMessage ?? first?.message ?? e?.message ?? '';
   const lc = raw.toLowerCase();
   if (lc.includes('online data breach') || lc.includes('pwned')) {
-    return CODE_MAP.form_password_pwned ?? raw;
+    return t('auth.clerkErrors.passwordPwned');
   }
   if (lc.includes('not found') && lc.includes('account')) {
-    return CODE_MAP.form_identifier_not_found ?? raw;
+    return t('auth.clerkErrors.identifierNotFound');
   }
   if (lc.includes('already exists') || lc.includes('taken')) {
-    return CODE_MAP.form_identifier_exists ?? raw;
+    return t('auth.clerkErrors.identifierExists');
   }
   if (lc.includes('incorrect') && lc.includes('password')) {
-    return CODE_MAP.form_password_incorrect ?? raw;
+    return t('auth.clerkErrors.passwordIncorrect');
   }
   if (lc.includes('too short') || lc.includes('minimum length')) {
-    return CODE_MAP.form_password_length_too_short ?? raw;
+    return t('auth.clerkErrors.passwordTooShort');
   }
   if (lc.includes('invalid') && lc.includes('email')) {
-    return CODE_MAP.form_param_format_invalid__email_address ?? raw;
+    return t('auth.clerkErrors.emailInvalid');
+  }
+  if (lc.includes('verification') && lc.includes('expired')) {
+    return t('auth.clerkErrors.verificationExpired');
+  }
+  if (lc.includes('incorrect') && lc.includes('code')) {
+    return t('auth.clerkErrors.codeIncorrect');
   }
   if (raw) return raw;
-  return 'Noe gikk galt. Prøv igjen.';
+  return t('auth.clerkErrors.generic');
 }
