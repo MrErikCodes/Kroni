@@ -24,3 +24,4 @@ coverage/
 .omc/
 **/.omc/
 ./keys/keys/revenuecat-key.json
+gkey.json
