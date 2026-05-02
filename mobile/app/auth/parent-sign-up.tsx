@@ -52,6 +52,35 @@ export default function ParentSignUp() {
     return () => clearInterval(id);
   }, [resendCooldown]);
 
+  // Resume-verification on mount: if the user backgrounded the app (or
+  // iOS killed it) between `signUp.create` and entering the email code,
+  // Clerk's tokenCache rehydrates the in-progress SignUp resource. Without
+  // this guard the user lands back on the empty form, has to re-enter
+  // their password, and ends up with the dreaded "you're already
+  // verifying" error or a duplicate signup attempt. We detect the pending
+  // state via `signUp.status === 'missing_requirements'` + an unverified
+  // email address and jump them straight to the code entry step. The
+  // resend button below is wired to `signUp.prepareEmailAddressVerification`
+  // so they can request a fresh code if the original expired.
+  useEffect(() => {
+    if (!isLoaded || !signUp) return;
+    if (step !== 'form') return;
+    const pendingEmail = signUp.emailAddress ?? '';
+    const emailUnverified =
+      signUp.verifications?.emailAddress?.status === 'unverified';
+    const unverifiedFields = signUp.unverifiedFields ?? [];
+    const needsEmailVerify =
+      emailUnverified || unverifiedFields.includes('email_address');
+    if (
+      pendingEmail &&
+      signUp.status === 'missing_requirements' &&
+      needsEmailVerify
+    ) {
+      setEmail(pendingEmail);
+      setStep('verify');
+    }
+  }, [isLoaded, signUp, step]);
+
   // Optional family-join code: when a parent has been invited by a co-parent,
   // they can paste the 6-digit code here. After Clerk verification we call
   // joinHousehold(code) before routing to the parent shell.

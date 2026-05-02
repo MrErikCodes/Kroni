@@ -269,7 +269,38 @@ function ParentLocaleBridge() {
         try {
           const client = parentApi.clientFor(() => getToken());
           const me = await client.getMe();
-          if (me?.locale) {
+          // Fresh-parent path: row younger than 5 min AND server still at
+          // default 'nb'. Push the device locale UP to the server instead
+          // of pulling 'nb' DOWN — otherwise a sign-up on an English/SE/DK
+          // device fires `setAppLocale('nb')` which causes a visible
+          // re-render right after `/(parent)/(tabs)/kids` mounts. Same
+          // five-minute window as the currency default below.
+          const ageMs = me?.createdAt
+            ? Date.now() - new Date(me.createdAt).getTime()
+            : Number.POSITIVE_INFINITY;
+          const isFreshParent = ageMs < 5 * 60 * 1000;
+          // ShortLocale → AppLocale. Server stores BCP-47 with explicit
+          // region; in-app i18n keys off the language only.
+          const shortToApp = {
+            nb: 'nb-NO',
+            en: 'en-US',
+            sv: 'sv-SE',
+            da: 'da-DK',
+          } as const;
+          const deviceShort = getAppLocale();
+          if (
+            isFreshParent &&
+            me?.locale === 'nb-NO' &&
+            deviceShort !== 'nb'
+          ) {
+            try {
+              await client.updateMe({ locale: shortToApp[deviceShort] });
+              await setParentLocale(shortToApp[deviceShort]);
+            } catch {
+              // Best-effort — fall through to the normal align-to-server
+              // path below, which is correct just slightly louder.
+            }
+          } else if (me?.locale) {
             setAppLocale(me.locale);
             await setParentLocale(me.locale);
           }
@@ -279,19 +310,16 @@ function ParentLocaleBridge() {
           // preference overwritten by the device's region. Maps NO→NOK,
           // SE→SEK, DK→DKK; anything else keeps NOK because we only ship
           // in those three markets.
-          if (me?.currency === 'NOK') {
-            const ageMs = Date.now() - new Date(me.createdAt).getTime();
-            if (ageMs < 5 * 60 * 1000) {
-              const region = Localization.getLocales()[0]?.regionCode;
-              const derived: 'NOK' | 'SEK' | 'DKK' =
-                region === 'SE' ? 'SEK' : region === 'DK' ? 'DKK' : 'NOK';
-              if (derived !== 'NOK') {
-                try {
-                  await client.updateMe({ currency: derived });
-                } catch {
-                  // Best-effort — UI still renders in NOK and the parent
-                  // can switch in Settings.
-                }
+          if (me?.currency === 'NOK' && isFreshParent) {
+            const region = Localization.getLocales()[0]?.regionCode;
+            const derived: 'NOK' | 'SEK' | 'DKK' =
+              region === 'SE' ? 'SEK' : region === 'DK' ? 'DKK' : 'NOK';
+            if (derived !== 'NOK') {
+              try {
+                await client.updateMe({ currency: derived });
+              } catch {
+                // Best-effort — UI still renders in NOK and the parent
+                // can switch in Settings.
               }
             }
           }
@@ -387,21 +415,19 @@ function ParentDevicePushBridge() {
 }
 
 function RootLayout() {
-  // Locale-version key — bumped whenever setAppLocale fires. The Stack
-  // below uses this as its `key`, so every screen remounts and re-runs
-  // its `t(...)` calls against the new locale. ClerkProvider and
-  // QueryClientProvider sit above the key boundary, so auth + cached
-  // data survive the swap.
-  const [localeKey, setLocaleKey] = useState(0);
+  // Locale state — bumping it re-renders this layout, which propagates
+  // through every non-memoised descendant so `t(...)` calls re-evaluate
+  // against the new locale. Previously this also keyed `<Stack>` to force
+  // a remount, but that nuked the navigation stack and screen state on
+  // every locale change (and was visible to the user as the app
+  // "refreshing" after sign-in). React's normal re-render cascade is
+  // enough: function components re-run when their parent re-renders, so
+  // the active screen picks up the new locale without losing its state.
   const [shortLocale, setShortLocale] = useState<ShortLocale>(() =>
     getAppLocale(),
   );
   useEffect(
-    () =>
-      subscribeLocale((next) => {
-        setLocaleKey((n) => n + 1);
-        setShortLocale(next);
-      }),
+    () => subscribeLocale((next) => setShortLocale(next)),
     [],
   );
 
@@ -444,7 +470,7 @@ function RootLayout() {
           <RevenueCatIdentityBridge />
           <ParentLocaleBridge />
           <ParentDevicePushBridge />
-          <Stack key={localeKey} screenOptions={{ headerShown: false }} />
+          <Stack screenOptions={{ headerShown: false }} />
         </GestureHandlerRootView>
       </QueryClientProvider>
     </ClerkProvider>
