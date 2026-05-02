@@ -25,6 +25,22 @@ export default function ParentTabsLayout() {
     }
   }, [isLoaded, isSignedIn, router]);
 
+  // Block rendering of child tabs until Clerk has resolved AND reports a
+  // signed-in session. Without this gate every tab screen mounts on first
+  // render — including <approvals.tsx>, which fires a parent API query
+  // synchronously through useParentApi. If the Clerk session is gone or
+  // still hydrating, getToken() returns null, the api client calls
+  // navigateToRoot('/'), and the user gets bounced to the role chooser
+  // before the auth-guard's useEffect can redirect them to sign-in.
+  // useEffect runs *after* render — the render itself has to be the gate.
+  if (!isLoaded || !isSignedIn) {
+    console.log('[parent-tabs] gated render (waiting for session)', {
+      isLoaded,
+      isSignedIn,
+    });
+    return null;
+  }
+
   // Editorial tab bar — sand-50 surface, sand-200 hairline top border,
   // gold-500 active (label + icon), sand-500 inactive, Inter Medium 12pt.
   // No drop shadow — restraint, like the website's footer.

@@ -1,5 +1,5 @@
 // [REVIEW] Norwegian tab labels — verify with native speaker
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Tabs, useRouter } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Sun, Wallet, Gift, User } from 'lucide-react-native';
@@ -12,6 +12,12 @@ export default function KidTabsLayout() {
   const theme = useTheme();
   const router = useRouter();
 
+  // Token-ready gate. Without this the useQuery below fires on first
+  // render — kidApi.getMe synchronously calls kidRequest, which calls
+  // navigateToRoot('/') if no token is in SecureStore, bouncing the kid
+  // off the tabs before the redirect-to-pair effect ever runs.
+  const [tokenReady, setTokenReady] = useState(false);
+
   // Mount the kid me query at the layout root so every tab inherits the
   // kid's currency in cache. `useCurrency()` reads from this — without it
   // the balance/rewards screens would format in NOK on first render until
@@ -19,6 +25,7 @@ export default function KidTabsLayout() {
   useQuery({
     queryKey: ['kid', 'me'],
     queryFn: () => kidApi.getMe(),
+    enabled: tokenReady,
     staleTime: 1000 * 60 * 5,
   });
 
@@ -30,9 +37,19 @@ export default function KidTabsLayout() {
       if (!token) {
         console.log('[kid-tabs] redirecting -> /auth/kid-pair');
         router.replace('/auth/kid-pair');
+        return;
       }
+      setTokenReady(true);
     });
   }, [router]);
+
+  // Same render-time gate as the parent tabs: useEffect-based redirects
+  // are too late — the children mount and fire their own queries before
+  // the redirect lands. Block render until the token check has passed.
+  if (!tokenReady) {
+    console.log('[kid-tabs] gated render (waiting for token check)');
+    return null;
+  }
 
   // Same editorial tab styling as the parent shell.
   const activeTint = theme.colors.gold[500];
