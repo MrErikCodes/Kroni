@@ -237,6 +237,25 @@ async function main() {
     console.log(`  + ${k.name} (${k.avatarKey}) — ${kidId}`);
   }
 
+  // 5b. Insert known pairing codes per kid so screenshots / dev sessions can
+  // pair without going through the parent UI. 24h expiry — long enough for a
+  // session, short enough to not linger as test data. The wipe in step 4
+  // already cleared any prior codes for this household.
+  const FIXTURE_PAIRING_CODES = ['100001', '200002', '300003'];
+  const pairingExpiresAt = new Date(NOW.getTime() + 24 * 60 * 60 * 1000);
+  for (let i = 0; i < KIDS.length; i++) {
+    const code = FIXTURE_PAIRING_CODES[i];
+    const kidId = createdKidIds[i];
+    if (!code || !kidId) continue;
+    await db.insert(pairingCodes).values({
+      code,
+      householdId: householdId!,
+      parentId: parent.id,
+      targetKidId: kidId,
+      expiresAt: pairingExpiresAt,
+    });
+  }
+
   // 6. Tasks + completions.
   console.log('\nSeeding tasks + completions …');
   // Pending completions get varied recent-past offsets so the approvals screen
@@ -415,6 +434,7 @@ async function main() {
   console.log('\n✅ Done. Next steps:');
   console.log('  • Open the parent app — 3 kids, ~11 tasks, several pending approvals.');
   console.log('  • Kid app PINs: Emil 1234, Sofia 4321, Noah 5678.');
+  console.log('  • Kid pairing codes (24h expiry): Emil 100001, Sofia 200002, Noah 300003.');
   console.log('  • Re-run any time to reset to a clean state.\n');
 }
 
