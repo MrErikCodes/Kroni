@@ -2,7 +2,7 @@
 
 **Lommepenger som lærer barn å mestre, ikke å forvente.**
 
-Kroni er en familieapp for oppgaver, ukepenger og belønninger — laget i Norge, for det skandinaviske kjøkkenbordet. Lansert våren 2026 i Norge, Sverige og Danmark.
+Kroni er en familieapp for oppgaver, ukepenger og belønninger — laget i Norge. Lansert våren 2026 i Norge, Sverige og Danmark.
 
 Dette dokumentet er skrevet for å kunne sendes på e-post til investorer, partnere, potensielle teammedlemmer, journalister og distributører. Det skal gi en komplett forståelse av hva Kroni er, hvorfor det finnes, hvem det er for, og hvor vi er på vei.
 
@@ -90,7 +90,7 @@ Investeringen som kreves for å begynne er to minutter. Den daglige bruken er se
 - All data hostet i EU.
 - GDPR-vennlig fra grunnen av — ikke ettermontert.
 
-### 4.4 Bygd for skandinaviske kjøkkenbord
+### 4.4 Bygd for skandinavisk kultur
 Norske, svenske og danske familier har en bestemt kultur rundt likeverd, ansvar, åpenhet og personvern. Kroni er designet for den kulturen — ikke en amerikansk app som er oversatt og tilpasset på overflaten.
 
 ---

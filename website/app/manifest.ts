@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Kroni",
     short_name: "Kroni",
-    description: "Ukepenger og oppgaver for familier — bygd i Norge.",
+    description: "Ukepenger og oppgaver for familier — laget i Norge.",
     start_url: "/",
     display: "standalone",
     background_color: "#FBFAF6",

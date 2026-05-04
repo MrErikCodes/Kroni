@@ -69,14 +69,14 @@ export const nb = {
     heroTitleEm: "mestre",
     heroTitlePost: ", ikke å forvente.",
     heroBody:
-      "Kroni er den lille familieappen for oppgaver, ukepenger og belønninger som faktisk passer hverdagen. Laget i Norge, for kjøkkenbordet ditt.",
+      "Kroni er den lille familieappen for oppgaver, ukepenger og belønninger som faktisk passer hverdagen. Laget i Norge.",
     ctaIos: "Last ned for iOS",
     ctaAndroid: "Last ned for Android",
     ctaIosAria: "Last ned Kroni for iOS",
     ctaAndroidAria: "Last ned Kroni for Android",
     heroFinePrint: "Gratis å starte · Aldri ekte penger på kontoen · Full kontroll for foreldre",
     phoneCaption: "Slik ser barnets app ut. Ingen krimskrams, bare det viktige.",
-    trust: ["Bygd i Norge", "GDPR-vennlig", "Ingen virkelige penger", "For barn 6–14 år"],
+    trust: ["Laget i Norge", "GDPR-vennlig", "Ingen virkelige penger", "For barn 6–14 år"],
     howWorks: {
       eyebrow: "Slik fungerer det",
       title: "Tre steg fra rotete kjøkken til ro.",
@@ -201,7 +201,7 @@ export const nb = {
     },
     finalCta: {
       titlePre: "Klar for ",
-      titleEm: "kjøkkenbordfreden",
+      titleEm: "hverdagsfreden",
       titlePost: "?",
       body: "Last ned Kroni gratis. Sett opp første oppgave på under to minutter. Pause eller slutt når du vil.",
       talkFirst: "Snakk med oss først",

@@ -91,7 +91,7 @@ export default function Image() {
               letterSpacing: "-0.01em",
             }}
           >
-            <span>Bygd i Norge for kjøkkenbordet ditt.</span>
+            <span>Laget i Norge.</span>
             <span
               aria-hidden="true"
               style={{

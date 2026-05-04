@@ -24,10 +24,10 @@ export const sv: typeof nb = {
       title: "Kroni — Veckopeng och sysslor för familjer",
       description:
         "Veckopeng som lär barn att bemästra, inte att förvänta. Kroni hjälper familjer att bygga ansvar genom sysslor, veckopeng och belöningar.",
-      og: "Veckopeng som lär barn att bemästra, inte att förvänta. Byggd i Norge.",
+      og: "Veckopeng som lär barn att bemästra, inte att förvänta. Tillverkad i Norge.",
     },
     rootDescription:
-      "Kroni hjälper familjer att lära sina barn att bemästra — genom sysslor, veckopeng och belöningar. Byggd i Norge.",
+      "Kroni hjälper familjer att lära sina barn att bemästra — genom sysslor, veckopeng och belöningar. Tillverkad i Norge.",
     support: {
       title: "Support och hjälp — Kroni",
       description:
@@ -70,14 +70,14 @@ export const sv: typeof nb = {
     heroTitleEm: "bemästra",
     heroTitlePost: ", inte att förvänta.",
     heroBody:
-      "Kroni är den lilla familjeappen för sysslor, veckopeng och belöningar som faktiskt passar vardagen. Byggd i Norge, för ditt köksbord.",
+      "Kroni är den lilla familjeappen för sysslor, veckopeng och belöningar som faktiskt passar vardagen. Tillverkad i Norge.",
     ctaIos: "Ladda ner till iOS",
     ctaAndroid: "Ladda ner till Android",
     ctaIosAria: "Ladda ner Kroni för iOS",
     ctaAndroidAria: "Ladda ner Kroni för Android",
     heroFinePrint: "Gratis att börja · Aldrig några riktiga pengar på kontot · Full kontroll för föräldrar",
     phoneCaption: "Så här ser barnets app ut. Inget krimskrams, bara det viktiga.",
-    trust: ["Byggd i Norge", "GDPR-vänlig", "Inga riktiga pengar", "För barn 6–14 år"],
+    trust: ["Tillverkad i Norge", "GDPR-vänlig", "Inga riktiga pengar", "För barn 6–14 år"],
     howWorks: {
       eyebrow: "Så fungerar det",
       title: "Tre steg från rörigt kök till lugn.",
@@ -202,7 +202,7 @@ export const sv: typeof nb = {
     },
     finalCta: {
       titlePre: "Redo för ",
-      titleEm: "köksbordsfreden",
+      titleEm: "vardagsfriden",
       titlePost: "?",
       body: "Ladda ner Kroni gratis. Skapa din första syssla på under två minuter. Pausa eller avsluta när du vill.",
       talkFirst: "Prata med oss först",

@@ -24,10 +24,10 @@ export const da: typeof nb = {
       title: "Kroni — Lommepenge og opgaver til familier",
       description:
         "Lommepenge der lærer børn at mestre, ikke at forvente. Kroni hjælper familier med at opbygge ansvar gennem opgaver, lommepenge og belønninger.",
-      og: "Lommepenge der lærer børn at mestre, ikke at forvente. Bygget i Norge.",
+      og: "Lommepenge der lærer børn at mestre, ikke at forvente. Lavet i Norge.",
     },
     rootDescription:
-      "Kroni hjælper familier med at lære børn at mestre — gennem opgaver, lommepenge og belønninger. Bygget i Norge.",
+      "Kroni hjælper familier med at lære børn at mestre — gennem opgaver, lommepenge og belønninger. Lavet i Norge.",
     support: {
       title: "Support og hjælp — Kroni",
       description:
@@ -70,14 +70,14 @@ export const da: typeof nb = {
     heroTitleEm: "mestre",
     heroTitlePost: ", ikke at forvente.",
     heroBody:
-      "Kroni er den lille familieapp til opgaver, lommepenge og belønninger, der faktisk passer til hverdagen. Bygget i Norge, til dit køkkenbord.",
+      "Kroni er den lille familieapp til opgaver, lommepenge og belønninger, der faktisk passer til hverdagen. Lavet i Norge.",
     ctaIos: "Hent til iOS",
     ctaAndroid: "Hent til Android",
     ctaIosAria: "Hent Kroni til iOS",
     ctaAndroidAria: "Hent Kroni til Android",
     heroFinePrint: "Gratis at starte · Aldrig rigtige penge på kontoen · Fuld kontrol til forældre",
     phoneCaption: "Sådan ser barnets app ud. Intet pjat, kun det vigtige.",
-    trust: ["Bygget i Norge", "GDPR-venlig", "Ingen rigtige penge", "Til børn 6–14 år"],
+    trust: ["Lavet i Norge", "GDPR-venlig", "Ingen rigtige penge", "Til børn 6–14 år"],
     howWorks: {
       eyebrow: "Sådan fungerer det",
       title: "Tre trin fra rodet køkken til ro.",
@@ -202,7 +202,7 @@ export const da: typeof nb = {
     },
     finalCta: {
       titlePre: "Klar til ",
-      titleEm: "køkkenbordsfreden",
+      titleEm: "hverdagsfreden",
       titlePost: "?",
       body: "Hent Kroni gratis. Sæt din første opgave op på under to minutter. Pause eller stop når du vil.",
       talkFirst: "Tal med os først",

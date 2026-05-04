@@ -24,10 +24,10 @@ export const en: typeof nb = {
       title: "Kroni — Allowance and chores for families",
       description:
         "Pocket money that teaches kids to master, not to expect. Kroni helps families build responsibility through chores, allowance and rewards.",
-      og: "Pocket money that teaches kids to master, not to expect. Built in Norway.",
+      og: "Pocket money that teaches kids to master, not to expect. Made in Norway.",
     },
     rootDescription:
-      "Kroni helps families teach their kids to master — through chores, allowance and rewards. Built in Norway.",
+      "Kroni helps families teach their kids to master — through chores, allowance and rewards. Made in Norway.",
     support: {
       title: "Support and help — Kroni",
       description:
@@ -70,14 +70,14 @@ export const en: typeof nb = {
     heroTitleEm: "master",
     heroTitlePost: ", not to expect.",
     heroBody:
-      "Kroni is the small family app for chores, allowance and rewards that actually fits real life. Built in Norway, for your kitchen table.",
+      "Kroni is the small family app for chores, allowance and rewards that actually fits real life. Made in Norway.",
     ctaIos: "Download for iOS",
     ctaAndroid: "Download for Android",
     ctaIosAria: "Download Kroni for iOS",
     ctaAndroidAria: "Download Kroni for Android",
     heroFinePrint: "Free to start · Never any real money in the account · Full parental control",
     phoneCaption: "The kid app, exactly as built. No clutter, just the essentials.",
-    trust: ["Built in Norway", "GDPR-friendly", "No real money", "For ages 6–14"],
+    trust: ["Made in Norway", "GDPR-friendly", "No real money", "For ages 6–14"],
     howWorks: {
       eyebrow: "How it works",
       title: "Three steps from chaos to calm.",
@@ -202,7 +202,7 @@ export const en: typeof nb = {
     },
     finalCta: {
       titlePre: "Ready for ",
-      titleEm: "kitchen-table calm",
+      titleEm: "everyday calm",
       titlePost: "?",
       body: "Download Kroni free. Set up your first chore in under two minutes. Pause or quit any time.",
       talkFirst: "Talk to us first",
