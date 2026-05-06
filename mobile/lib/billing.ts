@@ -46,8 +46,29 @@ export async function isProActive(): Promise<boolean> {
 export async function getCurrentOffering(): Promise<PurchasesOffering | null> {
   try {
     const offerings = await Purchases.getOfferings();
-    return offerings.current ?? null;
-  } catch {
+    const current = offerings.current ?? null;
+    // Breadcrumb the actual offering shape so an empty-paywall rejection
+    // can be diagnosed from a Sentry trail. Logs the current offering id,
+    // every available package's type, and product identifier — this is
+    // what App Review sees when StoreKit fails to hydrate the products.
+    Sentry.addBreadcrumb({
+      category: 'billing',
+      level: 'info',
+      message: 'getOfferings',
+      data: {
+        currentId: current?.identifier ?? null,
+        allOfferingIds: Object.keys(offerings.all),
+        packageCount: current?.availablePackages.length ?? 0,
+        packageTypes: current?.availablePackages.map((p) => p.packageType) ?? [],
+        productIdentifiers:
+          current?.availablePackages.map((p) => p.product.identifier) ?? [],
+      },
+    });
+    return current;
+  } catch (e) {
+    Sentry.captureException(e, {
+      tags: { area: 'billing', op: 'getOfferings' },
+    });
     return null;
   }
 }

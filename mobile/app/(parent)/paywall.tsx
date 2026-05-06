@@ -1,5 +1,6 @@
 // [REVIEW] Norwegian copy — verify with native speaker
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import * as Sentry from '@sentry/react-native';
 import {
   View,
   StyleSheet,
@@ -53,12 +54,28 @@ type PackageRow = {
   kind: 'monthly' | 'yearly' | 'lifetime';
 };
 
+function inferKind(pkg: PurchasesPackage): PackageRow['kind'] | null {
+  if (pkg.packageType === PACKAGE_TYPE.MONTHLY) return 'monthly';
+  if (pkg.packageType === PACKAGE_TYPE.ANNUAL) return 'yearly';
+  if (pkg.packageType === PACKAGE_TYPE.LIFETIME) return 'lifetime';
+  // Fallback for CUSTOM / UNKNOWN slots so a dashboard misconfiguration
+  // (custom package identifier instead of the standard $rc_monthly /
+  // $rc_annual / $rc_lifetime) doesn't silently render the empty-error
+  // card. Match on the product identifier we ship in App Store Connect
+  // and Play Console: `kroni_family_monthly`, `kroni_family_yearly`,
+  // `kroni_lifetime` (plus the Play `kroni_family:kroni-family-…` form).
+  const id = pkg.product.identifier.toLowerCase();
+  if (id.includes('month')) return 'monthly';
+  if (id.includes('year') || id.includes('annual')) return 'yearly';
+  if (id.includes('lifetime') || id.includes('forever')) return 'lifetime';
+  return null;
+}
+
 function partitionPackages(offering: PurchasesOffering): PackageRow[] {
   const rows: PackageRow[] = [];
   for (const pkg of offering.availablePackages) {
-    if (pkg.packageType === PACKAGE_TYPE.MONTHLY) rows.push({ pkg, kind: 'monthly' });
-    else if (pkg.packageType === PACKAGE_TYPE.ANNUAL) rows.push({ pkg, kind: 'yearly' });
-    else if (pkg.packageType === PACKAGE_TYPE.LIFETIME) rows.push({ pkg, kind: 'lifetime' });
+    const kind = inferKind(pkg);
+    if (kind) rows.push({ pkg, kind });
   }
   // Stack order: yearly, monthly, lifetime.
   const order: Record<PackageRow['kind'], number> = { yearly: 0, monthly: 1, lifetime: 2 };
@@ -93,6 +110,35 @@ export default function PaywallScreen() {
     if (!offeringQuery.data) return [];
     return partitionPackages(offeringQuery.data);
   }, [offeringQuery.data]);
+
+  // Capture an empty paywall as a Sentry event so a rejection like the
+  // one in the App Review (May 2026) can be diagnosed without a repro:
+  // we get the offering id, RC's reported package types, and the product
+  // identifiers actually delivered to the device. Fires only after the
+  // offering query settles to avoid noise during the initial fetch.
+  useEffect(() => {
+    if (offeringQuery.isPending || offeringQuery.isFetching) return;
+    const data = offeringQuery.data;
+    if (!data) {
+      Sentry.captureMessage('paywall.no_current_offering', {
+        level: 'warning',
+        tags: { area: 'billing', screen: 'paywall' },
+      });
+      return;
+    }
+    if (rows.length === 0) {
+      Sentry.captureMessage('paywall.offering_has_no_renderable_packages', {
+        level: 'warning',
+        tags: { area: 'billing', screen: 'paywall' },
+        extra: {
+          offeringId: data.identifier,
+          availablePackagesCount: data.availablePackages.length,
+          packageTypes: data.availablePackages.map((p) => p.packageType),
+          productIdentifiers: data.availablePackages.map((p) => p.product.identifier),
+        },
+      });
+    }
+  }, [offeringQuery.data, offeringQuery.isPending, offeringQuery.isFetching, rows.length]);
 
   // Run trial-eligibility checks for the recurring SKUs once the offering
   // loads. Lifetime is non-renewing so it doesn't have intro pricing.

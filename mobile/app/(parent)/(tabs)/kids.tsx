@@ -82,7 +82,7 @@ export default function KidsTab() {
 
   const handleSettings = useCallback(() => {
     void Haptics.selectionAsync();
-    router.push('/(parent)/settings');
+    router.push('/settings');
   }, [router]);
 
   return (

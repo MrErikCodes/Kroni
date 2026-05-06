@@ -84,7 +84,7 @@ export function InviteLinkRouter({ code }: InviteLinkRouterProps) {
     // paste the code there, or use the settings screen's existing
     // `joinHousehold` controls. We don't auto-submit — silently mutating
     // the household membership from a tapped link is a footgun.
-    return <Redirect href="/(parent)/settings" />;
+    return <Redirect href="/settings" />;
   }
 
   // No active session — prefill the code into the sign-up flow's existing
